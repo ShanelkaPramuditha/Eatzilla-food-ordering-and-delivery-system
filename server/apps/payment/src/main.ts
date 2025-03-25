@@ -5,18 +5,17 @@ import { Logger } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(PaymentModule, {
-    transport: Transport.RMQ,
+    transport: Transport.TCP,
     options: {
-      urls: [process.env.RABBITMQ_URL || 'amqp://rabbitmq:5672'],
-      queue: 'payment_queue',
-      queueOptions: {
-        durable: true,
-      },
+      host: '0.0.0.0', // Changed from '127.0.0.1' to listen on all interfaces
+      port: 3001,
+      retryAttempts: 5,
+      retryDelay: 3000,
     },
   });
 
   await app.listen();
   const logger = new Logger('PaymentService');
-  logger.log('Payment service is running and listening for messages...');
+  logger.log('Payment service is running and listening on TCP...');
 }
 bootstrap().catch((err) => console.error('Bootstrap failed:', err));

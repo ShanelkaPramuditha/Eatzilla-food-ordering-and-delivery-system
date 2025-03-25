@@ -15,13 +15,10 @@ import { ConfigModule } from '@nestjs/config';
     ClientsModule.register([
       {
         name: 'PAYMENT_SERVICE',
-        transport: Transport.RMQ,
+        transport: Transport.TCP,
         options: {
-          urls: [process.env.RABBITMQ_URL || 'amqp://rabbitmq:5672'],
-          queue: 'payment_queue',
-          queueOptions: {
-            durable: true,
-          },
+          host: process.env.PAYMENT_SERVICE_HOST || '',
+          port: Number(process.env.PAYMENT_SERVICE_PORT) || 3001,
         },
       },
     ]),

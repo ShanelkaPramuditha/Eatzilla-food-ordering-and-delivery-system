@@ -6,9 +6,6 @@ services:
       dockerfile: ./apps/api-gateway/Dockerfile
       target: development
     command: pnpm run start:dev api-gateway
-    depends_on:
-      rabbitmq:
-        condition: service_healthy
     ports:
       - '3000:3000'
     volumes:
@@ -20,37 +17,11 @@ services:
       dockerfile: ./apps/payment/Dockerfile
       target: development
     command: pnpm run start:dev payment-service
-    depends_on:
-      rabbitmq:
-        condition: service_healthy
     volumes:
       - .:/usr/src/app
     networks:
       - default
 
-  rabbitmq:
-    image: rabbitmq:management-alpine
-    container_name: rabbitmq
-    volumes:
-      - rabbitmq_data:/var/lib/rabbitmq
-    ports:
-      - '5672:5672'
-      - '15672:15672'
-    networks:
-      - default
-    environment:
-      RABBITMQ_DEFAULT_USER: user
-      RABBITMQ_DEFAULT_PASS: password
-    healthcheck:
-      test: ['CMD', 'rabbitmqctl', 'status']
-      interval: 30s
-      timeout: 10s
-      retries: 5
-
 networks:
   default:
     driver: bridge
-
-volumes:
-  rabbitmq_data:
-    driver: local
