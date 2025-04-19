@@ -14,8 +14,7 @@ import { Route as rootRoute } from './routes/__root'
 import { Route as AuthImport } from './routes/_auth'
 import { Route as AboutIndexImport } from './routes/about/index'
 import { Route as AuthProtectedImport } from './routes/_auth/protected'
-import { Route as RootFoodIndexImport } from './routes/_root/_food/index'
-import { Route as RootFoodFoodIdIndexImport } from './routes/_root/_food/$foodId/index'
+import { Route as RootDashboardsResturantOwnerIndexImport } from './routes/_root/_dashboards/_resturant-owner/index'
 
 // Create/Update Routes
 
@@ -36,17 +35,12 @@ const AuthProtectedRoute = AuthProtectedImport.update({
   getParentRoute: () => AuthRoute,
 } as any)
 
-const RootFoodIndexRoute = RootFoodIndexImport.update({
-  id: '/_root/_food/',
-  path: '/',
-  getParentRoute: () => rootRoute,
-} as any)
-
-const RootFoodFoodIdIndexRoute = RootFoodFoodIdIndexImport.update({
-  id: '/_root/_food/$foodId/',
-  path: '/$foodId/',
-  getParentRoute: () => rootRoute,
-} as any)
+const RootDashboardsResturantOwnerIndexRoute =
+  RootDashboardsResturantOwnerIndexImport.update({
+    id: '/_root/_dashboards/_resturant-owner/',
+    path: '/',
+    getParentRoute: () => rootRoute,
+  } as any)
 
 // Populate the FileRoutesByPath interface
 
@@ -73,18 +67,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AboutIndexImport
       parentRoute: typeof rootRoute
     }
-    '/_root/_food/': {
-      id: '/_root/_food/'
+    '/_root/_dashboards/_resturant-owner/': {
+      id: '/_root/_dashboards/_resturant-owner/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof RootFoodIndexImport
-      parentRoute: typeof rootRoute
-    }
-    '/_root/_food/$foodId/': {
-      id: '/_root/_food/$foodId/'
-      path: '/$foodId'
-      fullPath: '/$foodId'
-      preLoaderRoute: typeof RootFoodFoodIdIndexImport
+      preLoaderRoute: typeof RootDashboardsResturantOwnerIndexImport
       parentRoute: typeof rootRoute
     }
   }
@@ -106,16 +93,14 @@ export interface FileRoutesByFullPath {
   '': typeof AuthRouteWithChildren
   '/protected': typeof AuthProtectedRoute
   '/about': typeof AboutIndexRoute
-  '/': typeof RootFoodIndexRoute
-  '/$foodId': typeof RootFoodFoodIdIndexRoute
+  '/': typeof RootDashboardsResturantOwnerIndexRoute
 }
 
 export interface FileRoutesByTo {
   '': typeof AuthRouteWithChildren
   '/protected': typeof AuthProtectedRoute
   '/about': typeof AboutIndexRoute
-  '/': typeof RootFoodIndexRoute
-  '/$foodId': typeof RootFoodFoodIdIndexRoute
+  '/': typeof RootDashboardsResturantOwnerIndexRoute
 }
 
 export interface FileRoutesById {
@@ -123,37 +108,34 @@ export interface FileRoutesById {
   '/_auth': typeof AuthRouteWithChildren
   '/_auth/protected': typeof AuthProtectedRoute
   '/about/': typeof AboutIndexRoute
-  '/_root/_food/': typeof RootFoodIndexRoute
-  '/_root/_food/$foodId/': typeof RootFoodFoodIdIndexRoute
+  '/_root/_dashboards/_resturant-owner/': typeof RootDashboardsResturantOwnerIndexRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '' | '/protected' | '/about' | '/' | '/$foodId'
+  fullPaths: '' | '/protected' | '/about' | '/'
   fileRoutesByTo: FileRoutesByTo
-  to: '' | '/protected' | '/about' | '/' | '/$foodId'
+  to: '' | '/protected' | '/about' | '/'
   id:
     | '__root__'
     | '/_auth'
     | '/_auth/protected'
     | '/about/'
-    | '/_root/_food/'
-    | '/_root/_food/$foodId/'
+    | '/_root/_dashboards/_resturant-owner/'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   AuthRoute: typeof AuthRouteWithChildren
   AboutIndexRoute: typeof AboutIndexRoute
-  RootFoodIndexRoute: typeof RootFoodIndexRoute
-  RootFoodFoodIdIndexRoute: typeof RootFoodFoodIdIndexRoute
+  RootDashboardsResturantOwnerIndexRoute: typeof RootDashboardsResturantOwnerIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRouteWithChildren,
   AboutIndexRoute: AboutIndexRoute,
-  RootFoodIndexRoute: RootFoodIndexRoute,
-  RootFoodFoodIdIndexRoute: RootFoodFoodIdIndexRoute,
+  RootDashboardsResturantOwnerIndexRoute:
+    RootDashboardsResturantOwnerIndexRoute,
 }
 
 export const routeTree = rootRoute
@@ -168,8 +150,7 @@ export const routeTree = rootRoute
       "children": [
         "/_auth",
         "/about/",
-        "/_root/_food/",
-        "/_root/_food/$foodId/"
+        "/_root/_dashboards/_resturant-owner/"
       ]
     },
     "/_auth": {
@@ -185,11 +166,8 @@ export const routeTree = rootRoute
     "/about/": {
       "filePath": "about/index.tsx"
     },
-    "/_root/_food/": {
-      "filePath": "_root/_food/index.tsx"
-    },
-    "/_root/_food/$foodId/": {
-      "filePath": "_root/_food/$foodId/index.tsx"
+    "/_root/_dashboards/_resturant-owner/": {
+      "filePath": "_root/_dashboards/_resturant-owner/index.tsx"
     }
   }
 }

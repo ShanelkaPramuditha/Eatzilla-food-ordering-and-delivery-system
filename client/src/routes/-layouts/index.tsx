@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/auth-context';
 // Layouts
 import { AdminLayout } from './admin';
 import { CustomerLayout } from './customer';
+import { ResturantOwnerLayout } from './resturant-owner';
 
 export function Layout() {
   const { role } = useAuth();
@@ -14,6 +15,8 @@ export function Layout() {
   switch (role) {
     case UserRole.ADMIN:
       return <AdminLayout />;
+    case UserRole.RESTAURANT_OWNER:
+      return <ResturantOwnerLayout />;
     case UserRole.CUSTOMER:
       return <CustomerLayout />;
     case UserRole.GUEST:

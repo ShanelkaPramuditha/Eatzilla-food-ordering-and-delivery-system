@@ -15,7 +15,7 @@ export const Header = ({ role }: { role?: USER.UserRole }) => {
   const { user, isAuthenticated, login, logout } = useAuth();
 
   return (
-    <header className='border-b'>
+    <header className='bg-sidebar fixed top-0 z-50 w-full border-b shadow-sm'>
       <div className='container mx-auto px-4 py-4'>
         <div className='flex items-center justify-between'>
           <div className='flex items-center gap-8'>
