@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { PaymentController } from './payment.controller';
 import { PaymentService } from './payment.service';
 import { ConfigModule } from '@nestjs/config';
+import { validateEnv, paymentServiceEnvSchema } from '@app/common/config';
 
 @Module({
   imports: [
@@ -9,7 +10,7 @@ import { ConfigModule } from '@nestjs/config';
       isGlobal: true,
       envFilePath: ['.env'],
       expandVariables: true,
-      load: [],
+      validate: (config) => validateEnv(config, paymentServiceEnvSchema),
     }),
   ],
   controllers: [PaymentController],

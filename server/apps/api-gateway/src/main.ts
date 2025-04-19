@@ -1,19 +1,29 @@
 import { NestFactory } from '@nestjs/core';
 import { ApiGatewayModule } from './api-gateway.module';
-import { Logger } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
+import { AppConfigService } from './config/app.config';
 
 async function bootstrap() {
   const app = await NestFactory.create(ApiGatewayModule);
-  const port = process.env.PORT || 3000;
+  const appConfig = app.get(AppConfigService);
 
   app.enableCors({
-    origin: '*', // Allow all origins
+    origin: appConfig.corsOrigin,
   });
 
-  // Enable global prefix for all routes
-  app.setGlobalPrefix('api');
+  // Enable global validation pipe
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      transform: true,
+      forbidNonWhitelisted: true,
+    }),
+  );
 
-  await app.listen(port);
+  // Enable global prefix for all routes
+  app.setGlobalPrefix(appConfig.apiPrefix);
+
+  await app.listen(appConfig.port);
 
   const serverUrl = await app.getUrl();
   const logger = new Logger('ApiGateway');
