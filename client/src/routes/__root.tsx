@@ -23,7 +23,7 @@ function RootComponent() {
       <Layout />
       <Toaster richColors={true} />
       <ReactQueryDevtools initialIsOpen={false} />
-      <TanStackRouterDevtools position='bottom-left' initialIsOpen={false} />
+      {/* <TanStackRouterDevtools position='bottom-left' initialIsOpen={false} /> */}
     </>
   );
 }
