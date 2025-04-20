@@ -13,6 +13,8 @@ const commonEnvSchema = z.object({
   JWT_REFRESH_SECRET: z.string().min(32),
   JWT_REFRESH_EXPIRATION: z.string().default('7d'),
   JWT_ISSUER: z.string().default('myapp.com'),
+  COOKIE_ACCESS_EXPIRATION: z.string().default('15m'),
+  COOKIE_REFRESH_EXPIRATION: z.string().default('7d'),
 });
 
 // API Gateway specific schema

@@ -15,7 +15,7 @@ export function Layout() {
       {/* Header */}
       {showHeader && (
         <div className='fixed inset-x-0 top-0 z-40 h-[52px] border-b'>
-          <Header role={role} className='h-[52px]' />
+          <Header className='h-[52px]' />
         </div>
       )}
 

@@ -1,19 +1,17 @@
-import { Link } from '@tanstack/react-router';
-import { USER } from '@/constants';
-import { Button } from '@/components/ui/button';
-import { useAuth } from '@/contexts/auth-context';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
-import { CartDrawer } from '@/components/cart/cart-drawer';
+import { UserRole } from '@/constants/user';
+import { Link } from '@tanstack/react-router';
+import { useAuth } from '@/contexts/auth-context';
+import { headerConfig } from '@/configs/header-config';
 
-export const Header = ({ role, className }: { role?: USER.UserRole; className?: string }) => {
-  const { user, isAuthenticated, logout } = useAuth();
+import Cart from './cart';
+import { UserAvatar } from './avatar';
+import NotificationPopover from './notification';
+
+export const Header = ({ className }: { className?: string }) => {
+  const { isAuthenticated, role } = useAuth();
+  const config = headerConfig[role || UserRole.GUEST];
+  const { navItems, icons } = config;
 
   return (
     <header className={cn('bg-sidebar fixed top-0 h-14 w-full border-b shadow-sm', className)}>
@@ -24,56 +22,22 @@ export const Header = ({ role, className }: { role?: USER.UserRole; className?: 
               Eatzilla
             </Link>
             <nav className='flex h-full items-center gap-4'>
-              {role === USER.UserRole.ADMIN ? (
-                <>
-                  <Link to='/' className='flex h-full items-center'>
-                    Dashboard
-                  </Link>
-                  <Link to='/about' className='flex h-full items-center'>
-                    About
-                  </Link>
-                </>
-              ) : (
-                <>
-                  <Link to='/' className='flex h-full items-center'>
-                    Home
-                  </Link>
-                  <Link to='/menu' className='flex h-full items-center'>
-                    Menu
-                  </Link>
-                  <Link to='/about' className='flex h-full items-center'>
-                    About
-                  </Link>
-                </>
-              )}
+              {navItems.map((item) => (
+                <Link key={item.path} to={item.path} className='flex h-full items-center'>
+                  {item.label}
+                </Link>
+              ))}
             </nav>
           </div>
 
           <div className='flex h-full items-center gap-4'>
-            <CartDrawer />
-            {isAuthenticated ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant='ghost' className='relative h-8 w-8 rounded-full'>
-                    <Avatar className='h-8 w-8'>
-                      <AvatarImage src={user?.picture} alt={user?.name} />
-                      <AvatarFallback>{user?.name?.charAt(0)}</AvatarFallback>
-                    </Avatar>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className='w-56' align='end' forceMount>
-                  <DropdownMenuItem className='flex flex-col items-start'>
-                    <div className='text-sm font-medium'>{user?.name}</div>
-                    <div className='text-muted-foreground text-xs'>{user?.email}</div>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => logout()}>Log out</DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            ) : (
-              <Link to='/login'>
-                <Button>Sign In</Button>
-              </Link>
+            {isAuthenticated && (
+              <>
+                {icons.showCart && <Cart />}
+                {icons.showNotifications && <NotificationPopover />}
+              </>
             )}
+            <UserAvatar />
           </div>
         </div>
       </div>

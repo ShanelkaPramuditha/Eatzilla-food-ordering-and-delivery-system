@@ -1,8 +1,8 @@
 import { createContext, useContext, useEffect, useState, PropsWithChildren } from 'react';
 import { USER } from '@/constants';
 import { User } from '@/types/user';
-import { setAuthToken } from '@/hooks/use-axios';
-import { useGetUser, useLogin } from '@/services/tanstack-hooks/auth.hook';
+import { useGetUser, useLogin, useLogout } from '@/services/tanstack-hooks/auth.hook';
+import { toast } from 'sonner';
 
 const { UserRole } = USER;
 
@@ -12,7 +12,7 @@ export interface AuthContext {
   role: USER.UserRole;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContext>({
@@ -21,7 +21,7 @@ const AuthContext = createContext<AuthContext>({
   role: UserRole.GUEST,
   isLoading: true,
   login: async () => {},
-  logout: () => {},
+  logout: async () => {},
 });
 
 export function AuthProvider({ children }: PropsWithChildren) {
@@ -32,13 +32,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
 
   const { data: userData, isLoading: isUserLoading } = useGetUser();
   const loginMutation = useLogin();
-
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      setIsLoading(false);
-    }
-  }, []);
+  const logoutMutation = useLogout();
 
   useEffect(() => {
     if (!isUserLoading) {
@@ -47,12 +41,9 @@ export function AuthProvider({ children }: PropsWithChildren) {
         setRole(userData.role);
         setIsAuthenticated(true);
       } else {
-        // Only clear user data if there's no token
-        if (!localStorage.getItem('token')) {
-          setUser(null);
-          setRole(UserRole.GUEST);
-          setIsAuthenticated(false);
-        }
+        setUser(null);
+        setRole(UserRole.GUEST);
+        setIsAuthenticated(false);
       }
       setIsLoading(false);
     }
@@ -60,27 +51,25 @@ export function AuthProvider({ children }: PropsWithChildren) {
 
   const login = async (email: string, password: string) => {
     try {
-      const response = await loginMutation.mutateAsync({ email, password });
-      localStorage.setItem('token', response.access_token);
-      localStorage.setItem('refresh_token', response.refresh_token);
-      setAuthToken(response.access_token);
+      await loginMutation.mutateAsync({ email, password });
       setIsAuthenticated(true);
     } catch (error) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('refresh_token');
-      setAuthToken('');
       setIsAuthenticated(false);
       throw error;
     }
   };
 
-  const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('refresh_token');
-    setAuthToken('');
-    setUser(null);
-    setRole(UserRole.GUEST);
-    setIsAuthenticated(false);
+  const logout = async () => {
+    try {
+      await logoutMutation.mutateAsync();
+      setUser(null);
+      setRole(UserRole.GUEST);
+      setIsAuthenticated(false);
+      toast.success('Logged out successfully');
+    } catch (error) {
+      toast.error('Failed to logout');
+      console.error('Logout failed:', error);
+    }
   };
 
   const value = {

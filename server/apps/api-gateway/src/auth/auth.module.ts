@@ -6,11 +6,13 @@ import { JwtModule } from '@nestjs/jwt';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './auth.guard';
 import { JwtConfigModule, JwtConfigService } from '../config/jwt.config';
+import { CookieConfigModule } from '../config/cookie.config';
 
 @Module({
   imports: [
     UsersModule,
     JwtConfigModule,
+    CookieConfigModule,
     JwtModule.registerAsync({
       imports: [JwtConfigModule],
       useFactory: (jwtConfig: JwtConfigService) => ({
