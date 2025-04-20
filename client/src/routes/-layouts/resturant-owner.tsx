@@ -19,7 +19,7 @@ export function ResturantOwnerLayout() {
   const [isExpanded] = useState(true);
   return (
     <>
-      <div className='min-h-screen xl:flex'>
+      <div className='min-h-screen bg-gray-50 xl:flex'>
         <Sidebar isExpanded={isExpanded} />
         <div
           className={`ml-[90px] flex-1 transition-all duration-300 ease-in-out ${
@@ -303,7 +303,7 @@ const NotificationDropdown = () => {
     <div className='right-0'>
       <DropdownMenu>
         <DropdownMenuTrigger>
-          <button className='dropdown-toggle relative flex h-11 w-11 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white'>
+          <div className='dropdown-toggle relative flex h-11 w-11 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white'>
             <span
               className={`absolute top-0.5 right-0 z-10 h-2 w-2 rounded-full bg-orange-400 ${
                 false ? 'hidden' : 'flex'
@@ -325,7 +325,7 @@ const NotificationDropdown = () => {
                 fill='currentColor'
               />
             </svg>
-          </button>
+          </div>
         </DropdownMenuTrigger>
         <DropdownMenuContent className='mt-5.5 mr-5 w-[335px]'>
           <DropdownMenuLabel>Notification</DropdownMenuLabel>
@@ -382,7 +382,7 @@ const UserDropdown = () => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger>
-        <button className='dropdown-toggle flex items-center text-gray-700 dark:text-gray-400'>
+        <div className='dropdown-toggle flex items-center text-gray-700 dark:text-gray-400'>
           <span className='mr-3 h-11 w-11 overflow-hidden rounded-full'>
             <img
               src='https://static-00.iconduck.com/assets.00/profile-user-icon-2048x2048-m41rxkoe.png'
@@ -407,7 +407,7 @@ const UserDropdown = () => {
               strokeLinejoin='round'
             />
           </svg>
-        </button>
+        </div>
       </DropdownMenuTrigger>
 
       <DropdownMenuContent>

@@ -15,6 +15,7 @@ import { Route as AuthImport } from './routes/_auth'
 import { Route as AboutIndexImport } from './routes/about/index'
 import { Route as AuthProtectedImport } from './routes/_auth/protected'
 import { Route as RootDashboardsResturantOwnerIndexImport } from './routes/_root/_dashboards/_resturant-owner/index'
+import { Route as RootDashboardsResturantOwnerMenuIndexImport } from './routes/_root/_dashboards/_resturant-owner/menu/index'
 
 // Create/Update Routes
 
@@ -39,6 +40,13 @@ const RootDashboardsResturantOwnerIndexRoute =
   RootDashboardsResturantOwnerIndexImport.update({
     id: '/_root/_dashboards/_resturant-owner/',
     path: '/',
+    getParentRoute: () => rootRoute,
+  } as any)
+
+const RootDashboardsResturantOwnerMenuIndexRoute =
+  RootDashboardsResturantOwnerMenuIndexImport.update({
+    id: '/_root/_dashboards/_resturant-owner/menu/',
+    path: '/menu/',
     getParentRoute: () => rootRoute,
   } as any)
 
@@ -74,6 +82,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RootDashboardsResturantOwnerIndexImport
       parentRoute: typeof rootRoute
     }
+    '/_root/_dashboards/_resturant-owner/menu/': {
+      id: '/_root/_dashboards/_resturant-owner/menu/'
+      path: '/menu'
+      fullPath: '/menu'
+      preLoaderRoute: typeof RootDashboardsResturantOwnerMenuIndexImport
+      parentRoute: typeof rootRoute
+    }
   }
 }
 
@@ -94,6 +109,7 @@ export interface FileRoutesByFullPath {
   '/protected': typeof AuthProtectedRoute
   '/about': typeof AboutIndexRoute
   '/': typeof RootDashboardsResturantOwnerIndexRoute
+  '/menu': typeof RootDashboardsResturantOwnerMenuIndexRoute
 }
 
 export interface FileRoutesByTo {
@@ -101,6 +117,7 @@ export interface FileRoutesByTo {
   '/protected': typeof AuthProtectedRoute
   '/about': typeof AboutIndexRoute
   '/': typeof RootDashboardsResturantOwnerIndexRoute
+  '/menu': typeof RootDashboardsResturantOwnerMenuIndexRoute
 }
 
 export interface FileRoutesById {
@@ -109,19 +126,21 @@ export interface FileRoutesById {
   '/_auth/protected': typeof AuthProtectedRoute
   '/about/': typeof AboutIndexRoute
   '/_root/_dashboards/_resturant-owner/': typeof RootDashboardsResturantOwnerIndexRoute
+  '/_root/_dashboards/_resturant-owner/menu/': typeof RootDashboardsResturantOwnerMenuIndexRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '' | '/protected' | '/about' | '/'
+  fullPaths: '' | '/protected' | '/about' | '/' | '/menu'
   fileRoutesByTo: FileRoutesByTo
-  to: '' | '/protected' | '/about' | '/'
+  to: '' | '/protected' | '/about' | '/' | '/menu'
   id:
     | '__root__'
     | '/_auth'
     | '/_auth/protected'
     | '/about/'
     | '/_root/_dashboards/_resturant-owner/'
+    | '/_root/_dashboards/_resturant-owner/menu/'
   fileRoutesById: FileRoutesById
 }
 
@@ -129,6 +148,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRouteWithChildren
   AboutIndexRoute: typeof AboutIndexRoute
   RootDashboardsResturantOwnerIndexRoute: typeof RootDashboardsResturantOwnerIndexRoute
+  RootDashboardsResturantOwnerMenuIndexRoute: typeof RootDashboardsResturantOwnerMenuIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -136,6 +156,8 @@ const rootRouteChildren: RootRouteChildren = {
   AboutIndexRoute: AboutIndexRoute,
   RootDashboardsResturantOwnerIndexRoute:
     RootDashboardsResturantOwnerIndexRoute,
+  RootDashboardsResturantOwnerMenuIndexRoute:
+    RootDashboardsResturantOwnerMenuIndexRoute,
 }
 
 export const routeTree = rootRoute
@@ -150,7 +172,8 @@ export const routeTree = rootRoute
       "children": [
         "/_auth",
         "/about/",
-        "/_root/_dashboards/_resturant-owner/"
+        "/_root/_dashboards/_resturant-owner/",
+        "/_root/_dashboards/_resturant-owner/menu/"
       ]
     },
     "/_auth": {
@@ -168,6 +191,9 @@ export const routeTree = rootRoute
     },
     "/_root/_dashboards/_resturant-owner/": {
       "filePath": "_root/_dashboards/_resturant-owner/index.tsx"
+    },
+    "/_root/_dashboards/_resturant-owner/menu/": {
+      "filePath": "_root/_dashboards/_resturant-owner/menu/index.tsx"
     }
   }
 }
