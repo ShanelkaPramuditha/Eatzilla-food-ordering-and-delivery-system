@@ -2,7 +2,7 @@ import { AlertCircle } from 'lucide-react';
 import { createRootRouteWithContext } from '@tanstack/react-router';
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
 
-import { Layout } from './-layouts';
+import { Layout } from '@/routes/-layout';
 import type { AuthContext } from '@/contexts/auth-context';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 
