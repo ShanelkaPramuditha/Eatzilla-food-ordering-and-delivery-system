@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+export type LoginFormValues = z.infer<typeof loginFormSchema>;
 export const loginFormSchema = z.object({
   email: z.string().email({
     message: 'Please enter a valid email address.',
@@ -9,6 +10,7 @@ export const loginFormSchema = z.object({
   }),
 });
 
+export type RegisterFormValues = z.infer<typeof registerFormSchema>;
 export const registerFormSchema = z
   .object({
     name: z.string().min(2, {

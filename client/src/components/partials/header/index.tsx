@@ -12,7 +12,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 
 export const Header = ({ role, className }: { role?: USER.UserRole; className?: string }) => {
-  const { user, isAuthenticated, login, logout } = useAuth();
+  const { user, isAuthenticated, logout } = useAuth();
 
   return (
     <header className={cn('bg-sidebar fixed top-0 h-14 w-full border-b shadow-sm', className)}>
@@ -65,13 +65,9 @@ export const Header = ({ role, className }: { role?: USER.UserRole; className?: 
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Button
-                onClick={() => {
-                  login();
-                }}
-              >
-                Sign In
-              </Button>
+              <Link to='/login'>
+                <Button>Sign In</Button>
+              </Link>
             )}
           </div>
         </div>

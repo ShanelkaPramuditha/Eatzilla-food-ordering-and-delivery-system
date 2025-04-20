@@ -1,7 +1,7 @@
-import { createFileRoute, Link } from '@tanstack/react-router';
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import * as z from 'zod';
+import { Loader } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -13,14 +13,21 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Card, CardHeader, CardContent, CardFooter } from '@/components/ui/card';
-import { loginFormSchema } from '@/schemas/auth.schema';
+import { toast } from 'sonner';
+import { loginFormSchema, LoginFormValues } from '@/schemas/auth.schema';
+import { useAuth } from '@/contexts/auth-context';
+import { useState } from 'react';
 
 export const Route = createFileRoute('/_public/login/')({
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  const form = useForm<z.infer<typeof loginFormSchema>>({
+  const navigate = useNavigate();
+  const { login } = useAuth();
+  const [isPending, setIsPending] = useState(false);
+
+  const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginFormSchema),
     defaultValues: {
       email: '',
@@ -28,8 +35,22 @@ function RouteComponent() {
     },
   });
 
-  function onSubmit(values: z.infer<typeof loginFormSchema>) {
-    console.log(values);
+  async function onSubmit(values: LoginFormValues) {
+    try {
+      setIsPending(true);
+      await login(values.email, values.password);
+      toast.success('Login successful!');
+      form.reset();
+      navigate({ to: '/' });
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        toast.error(error.message || 'Invalid email or password');
+      } else {
+        toast.error('Invalid email or password');
+      }
+    } finally {
+      setIsPending(false);
+    }
   }
 
   return (
@@ -48,7 +69,12 @@ function RouteComponent() {
                   <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input placeholder='Enter your email' type='email' {...field} />
+                      <Input
+                        placeholder='Enter your email'
+                        type='email'
+                        {...field}
+                        disabled={isPending}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -61,14 +87,26 @@ function RouteComponent() {
                   <FormItem>
                     <FormLabel>Password</FormLabel>
                     <FormControl>
-                      <Input placeholder='Enter your password' type='password' {...field} />
+                      <Input
+                        placeholder='Enter your password'
+                        type='password'
+                        {...field}
+                        disabled={isPending}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              <Button type='submit' className='w-full'>
-                Sign in
+              <Button type='submit' className='w-full' disabled={isPending}>
+                {isPending ? (
+                  <>
+                    <Loader className='mr-2 h-4 w-4 animate-spin' />
+                    Logging in...
+                  </>
+                ) : (
+                  'Sign in'
+                )}
               </Button>
             </form>
           </Form>

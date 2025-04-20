@@ -1,8 +1,8 @@
-import { useAuth0 } from '@auth0/auth0-react';
 import { createContext, useContext, useEffect, useState, PropsWithChildren } from 'react';
-
 import { USER } from '@/constants';
 import { User } from '@/types/user';
+import { setAuthToken } from '@/hooks/use-axios';
+import { useGetUser, useLogin } from '@/services/tanstack-hooks/auth.hook';
 
 const { UserRole } = USER;
 
@@ -11,7 +11,7 @@ export interface AuthContext {
   user: User | null;
   role: USER.UserRole;
   isLoading: boolean;
-  login: () => void;
+  login: (email: string, password: string) => Promise<void>;
   logout: () => void;
 }
 
@@ -20,56 +20,74 @@ const AuthContext = createContext<AuthContext>({
   user: null,
   role: UserRole.GUEST,
   isLoading: true,
-  login: () => {},
+  login: async () => {},
   logout: () => {},
 });
 
 export function AuthProvider({ children }: PropsWithChildren) {
   const [isLoading, setIsLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
   const [role, setRole] = useState<USER.UserRole>(UserRole.GUEST);
 
-  const {
-    isAuthenticated,
-    isLoading: auth0Loading,
-    user,
-    loginWithRedirect,
-    logout: auth0Logout,
-  } = useAuth0();
+  const { data: userData, isLoading: isUserLoading } = useGetUser();
+  const loginMutation = useLogin();
 
   useEffect(() => {
-    console.log('AuthProvider', isAuthenticated, user);
-    const initializeAuth = async () => {
-      if (isAuthenticated && user) {
-        const userRole = UserRole.ADMIN;
-        setRole(userRole);
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!isUserLoading) {
+      if (userData) {
+        setUser(userData);
+        setRole(userData.role);
+        setIsAuthenticated(true);
       } else {
-        setRole(UserRole.GUEST);
+        // Only clear user data if there's no token
+        if (!localStorage.getItem('token')) {
+          setUser(null);
+          setRole(UserRole.GUEST);
+          setIsAuthenticated(false);
+        }
       }
       setIsLoading(false);
-    };
-
-    if (!auth0Loading) {
-      initializeAuth();
     }
-  }, [isAuthenticated, auth0Loading, user]);
+  }, [userData, isUserLoading]);
 
-  const login = async () => {
-    loginWithRedirect({
-      appState: {
-        targetUrl: window.location.origin,
-      },
-    });
+  const login = async (email: string, password: string) => {
+    try {
+      const response = await loginMutation.mutateAsync({ email, password });
+      localStorage.setItem('token', response.access_token);
+      localStorage.setItem('refresh_token', response.refresh_token);
+      setAuthToken(response.access_token);
+      setIsAuthenticated(true);
+    } catch (error) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('refresh_token');
+      setAuthToken('');
+      setIsAuthenticated(false);
+      throw error;
+    }
   };
 
-  const logout = async () => {
-    auth0Logout({ logoutParams: { returnTo: window.location.origin } });
+  const logout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('refresh_token');
+    setAuthToken('');
+    setUser(null);
+    setRole(UserRole.GUEST);
+    setIsAuthenticated(false);
   };
 
   const value = {
     isAuthenticated,
     role,
-    user: user || null,
-    isLoading: isLoading || auth0Loading,
+    user,
+    isLoading,
     login,
     logout,
   };

@@ -35,6 +35,7 @@ export class AuthService {
     try {
       const payload = await this.jwtService.verifyAsync<RefreshToken>(refreshToken, {
         secret: this.jwtConfig.refreshSecret,
+        issuer: this.jwtConfig.issuer,
       });
 
       const user = await this.usersService.findById(payload.sub);
@@ -65,12 +66,14 @@ export class AuthService {
       this.jwtService.signAsync(payload, {
         secret: this.jwtConfig.secret,
         expiresIn: this.jwtConfig.expiresIn,
+        issuer: this.jwtConfig.issuer,
       }),
       this.jwtService.signAsync(
         { sub: userId, refreshToken: true },
         {
           secret: this.jwtConfig.refreshSecret,
           expiresIn: this.jwtConfig.refreshExpiresIn,
+          issuer: this.jwtConfig.issuer,
         },
       ),
     ]);

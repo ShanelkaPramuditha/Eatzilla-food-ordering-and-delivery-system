@@ -1,7 +1,7 @@
-import { createFileRoute, Link } from '@tanstack/react-router';
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import * as z from 'zod';
+import { Loader } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -13,14 +13,19 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Card, CardHeader, CardContent, CardFooter } from '@/components/ui/card';
-import { registerFormSchema } from '@/schemas/auth.schema';
+import { toast } from 'sonner';
+import { registerFormSchema, RegisterFormValues } from '@/schemas/auth.schema';
+import { useRegister } from '@/services/tanstack-hooks/auth.hook';
+import { useEffect } from 'react';
 
 export const Route = createFileRoute('/_public/register/')({
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  const form = useForm<z.infer<typeof registerFormSchema>>({
+  const navigate = useNavigate();
+  const { mutateAsync: register, isPending, isSuccess } = useRegister();
+  const form = useForm<RegisterFormValues>({
     resolver: zodResolver(registerFormSchema),
     defaultValues: {
       name: '',
@@ -30,8 +35,26 @@ function RouteComponent() {
     },
   });
 
-  function onSubmit(values: z.infer<typeof registerFormSchema>) {
-    console.log(values);
+  useEffect(() => {
+    if (isSuccess) {
+      toast.success('Registration successful!');
+      setTimeout(() => {
+        navigate({ to: '/login' });
+      }, 2000);
+    }
+  }, [isSuccess, navigate]);
+
+  async function onSubmit(values: RegisterFormValues) {
+    try {
+      await register(values);
+      form.reset();
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error('An unknown error occurred');
+      }
+    }
   }
 
   return (
@@ -50,7 +73,7 @@ function RouteComponent() {
                   <FormItem>
                     <FormLabel>Name</FormLabel>
                     <FormControl>
-                      <Input placeholder='Enter your name' {...field} />
+                      <Input placeholder='Enter your name' {...field} disabled={isPending} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -63,7 +86,12 @@ function RouteComponent() {
                   <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input placeholder='Enter your email' type='email' {...field} />
+                      <Input
+                        placeholder='Enter your email'
+                        type='email'
+                        {...field}
+                        disabled={isPending}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -76,7 +104,12 @@ function RouteComponent() {
                   <FormItem>
                     <FormLabel>Password</FormLabel>
                     <FormControl>
-                      <Input placeholder='Enter your password' type='password' {...field} />
+                      <Input
+                        placeholder='Enter your password'
+                        type='password'
+                        {...field}
+                        disabled={isPending}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -89,14 +122,26 @@ function RouteComponent() {
                   <FormItem>
                     <FormLabel>Confirm Password</FormLabel>
                     <FormControl>
-                      <Input placeholder='Confirm your password' type='password' {...field} />
+                      <Input
+                        placeholder='Confirm your password'
+                        type='password'
+                        {...field}
+                        disabled={isPending}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              <Button type='submit' className='w-full'>
-                Sign up
+              <Button type='submit' className='w-full' disabled={isPending}>
+                {isPending ? (
+                  <>
+                    <Loader className='mr-2 h-4 w-4 animate-spin' />
+                    Signing up...
+                  </>
+                ) : (
+                  'Sign up'
+                )}
               </Button>
             </form>
           </Form>

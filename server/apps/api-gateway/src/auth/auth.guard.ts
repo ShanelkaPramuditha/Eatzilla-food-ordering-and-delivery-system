@@ -1,6 +1,6 @@
 import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { JwtService, TokenExpiredError } from '@nestjs/jwt';
+import { JwtService, TokenExpiredError, JsonWebTokenError } from '@nestjs/jwt';
 import { JwtConfigService } from '../config/jwt.config';
 import { Request, Response } from 'express';
 import { IS_PUBLIC_KEY } from './decorator/public.decorator';
@@ -41,32 +41,40 @@ export class AuthGuard implements CanActivate {
     try {
       const payload = await this.jwtService.verifyAsync<JwtPayload>(accessToken, {
         secret: this.jwtConfig.secret,
+        algorithms: ['HS256'],
+        issuer: this.jwtConfig.issuer,
+        ignoreExpiration: false,
       });
       request.user = payload;
       return true;
     } catch (error) {
-      // If access token is expired and refresh token is provided
-      if (error instanceof TokenExpiredError && refreshToken) {
-        try {
-          const tokens = await this.authService.refreshToken(refreshToken);
-          // Update response headers with new tokens
-          const response = context.switchToHttp().getResponse<Response>();
+      if (error instanceof TokenExpiredError) {
+        if (refreshToken) {
+          try {
+            const tokens = await this.authService.refreshToken(refreshToken);
+            const response = context.switchToHttp().getResponse<Response>();
 
-          // Type-safe header setting
-          response.setHeader('Authorization', `Bearer ${tokens.access_token}`);
-          response.setHeader('X-Refresh-Token', tokens.refresh_token);
+            response.setHeader('Authorization', `Bearer ${tokens.access_token}`);
+            response.setHeader('X-Refresh-Token', tokens.refresh_token);
 
-          // Verify and set the new access token payload
-          const payload = await this.jwtService.verifyAsync<JwtPayload>(tokens.access_token, {
-            secret: this.jwtConfig.secret,
-          });
-          request.user = payload;
-          return true;
-        } catch {
-          throw new UnauthorizedException('Invalid refresh token');
+            const payload = await this.jwtService.verifyAsync<JwtPayload>(tokens.access_token, {
+              secret: this.jwtConfig.secret,
+              algorithms: ['HS256'],
+              issuer: this.jwtConfig.issuer,
+              ignoreExpiration: false,
+            });
+            request.user = payload;
+            return true;
+          } catch {
+            throw new UnauthorizedException('Invalid or expired refresh token');
+          }
         }
+        throw new UnauthorizedException('Access token has expired');
+      } else if (error instanceof JsonWebTokenError) {
+        throw new UnauthorizedException('Invalid access token format or signature');
+      } else {
+        throw new UnauthorizedException('Authentication failed');
       }
-      throw new UnauthorizedException('Invalid access token');
     }
   }
 

@@ -3,15 +3,16 @@ import '@/styles/globals.css';
 
 import { StrictMode } from 'react';
 import ReactDOM from 'react-dom/client';
-import { Auth0Provider } from '@auth0/auth0-react';
 import { RouterProvider, createRouter } from '@tanstack/react-router';
 
 import { USER } from '@/constants';
+import { queryClient } from '@/lib/query-client';
 import { FullScreenLoader } from '@/components/common/loaders';
 import { AuthProvider, useAuth } from '@/contexts/auth-context';
 
 // Import the generated route tree
 import { routeTree } from './routeTree.gen';
+import { QueryClientProvider } from '@tanstack/react-query';
 
 // Create a new router instance
 const router = createRouter({
@@ -24,7 +25,7 @@ const router = createRouter({
       user: null,
       role: USER.UserRole.GUEST,
       isLoading: true,
-      login: () => {},
+      login: (email: string, password: string) => Promise.resolve(),
       logout: () => {},
     },
   },
@@ -49,20 +50,11 @@ function InnerApp() {
 
 function App() {
   return (
-    <Auth0Provider
-      domain={import.meta.env.PUBLIC_AUTH0_DOMAIN}
-      clientId={import.meta.env.PUBLIC_AUTH0_CLIENT_ID}
-      authorizationParams={{
-        audience: import.meta.env.PUBLIC_AUTH0_AUDIENCE,
-        redirect_uri: window.location.origin,
-      }}
-      cacheLocation='localstorage'
-      useRefreshTokens={true}
-    >
+    <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <InnerApp />
       </AuthProvider>
-    </Auth0Provider>
+    </QueryClientProvider>
   );
 }
 
