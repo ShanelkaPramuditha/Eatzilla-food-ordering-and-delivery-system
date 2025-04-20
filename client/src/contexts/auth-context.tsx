@@ -40,7 +40,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
     console.log('AuthProvider', isAuthenticated, user);
     const initializeAuth = async () => {
       if (isAuthenticated && user) {
-        const userRole = UserRole.ADMIN;
+        const userRole = UserRole.RESTAURANT_OWNER;
         setRole(userRole);
       } else {
         setRole(UserRole.GUEST);
