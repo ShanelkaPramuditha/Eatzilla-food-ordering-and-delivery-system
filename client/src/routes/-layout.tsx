@@ -11,7 +11,7 @@ export function Layout() {
   const { showHeader, showSidebar, showFooter } = getLayoutConfigByRole(role);
 
   return (
-    <div className='bg-background min-h-screen max-w-screen'>
+    <div className='bg-background flex min-h-screen flex-col overflow-hidden'>
       {/* Header */}
       {showHeader && (
         <div className='fixed inset-x-0 top-0 z-40 h-[52px] border-b'>
@@ -28,20 +28,25 @@ export function Layout() {
 
       {/* Main Content */}
       <main
-        className={cn('min-h-[calc(100vh-52px)] pt-[52px] pl-[12rem]', {
-          'pl-[0]': !showSidebar,
-          'pt-[0]': !showHeader,
+        className={cn('relative flex h-[calc(100vh-52px)] flex-1', {
+          'pl-[12rem]': showSidebar,
+          'pt-[52px]': showHeader,
         })}
       >
-        <div className='h-full p-4'>
+        <div
+          className={cn('mx-auto flex h-full w-full p-4', {
+            'min-h-[calc(100vh-104px)]': showFooter,
+            'min-h-screen': !showFooter,
+          })}
+        >
           <Outlet />
         </div>
       </main>
 
       {/* Footer */}
       {showFooter && (
-        <div className='inset-x-0 bottom-0 z-40 h-[52px] border-t'>
-          <Footer />
+        <div className='mt-auto'>
+          <Footer className='h-[52px]' />
         </div>
       )}
     </div>
