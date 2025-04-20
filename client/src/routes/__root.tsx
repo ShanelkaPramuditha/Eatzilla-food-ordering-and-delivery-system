@@ -1,6 +1,6 @@
 import { AlertCircle } from 'lucide-react';
 import { createRootRouteWithContext } from '@tanstack/react-router';
-import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
+// import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
 import { Layout } from '@/routes/-layout';
