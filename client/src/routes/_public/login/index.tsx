@@ -18,12 +18,22 @@ import { loginFormSchema, LoginFormValues } from '@/schemas/auth.schema';
 import { useAuth } from '@/contexts/auth-context';
 import { useState } from 'react';
 
+interface LoginSearch {
+  from?: string;
+}
+
 export const Route = createFileRoute('/_public/login/')({
+  validateSearch: (search: Record<string, unknown>): LoginSearch => {
+    return {
+      from: search.from as string | undefined,
+    };
+  },
   component: RouteComponent,
 });
 
 function RouteComponent() {
   const navigate = useNavigate();
+  const { from = '/' } = Route.useSearch();
   const { login } = useAuth();
   const [isPending, setIsPending] = useState(false);
 
@@ -41,7 +51,7 @@ function RouteComponent() {
       await login(values.email, values.password);
       toast.success('Login successful!');
       form.reset();
-      navigate({ to: '/' });
+      navigate({ to: from });
     } catch (error: unknown) {
       if (error instanceof Error) {
         toast.error(error.message || 'Invalid email or password');

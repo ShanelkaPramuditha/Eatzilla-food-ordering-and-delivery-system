@@ -14,6 +14,7 @@ import { AuthProvider, useAuth } from '@/contexts/auth-context';
 import { routeTree } from './routeTree.gen';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { ThemeProvider } from 'next-themes';
+import { User } from './types/user';
 
 // Create a new router instance
 const router = createRouter({
@@ -26,7 +27,7 @@ const router = createRouter({
       user: null,
       role: USER.UserRole.GUEST,
       isLoading: true,
-      login: (email: string, password: string) => Promise.resolve(),
+      login: async () => {},
       logout: () => {},
     },
   },
@@ -36,6 +37,14 @@ const router = createRouter({
 declare module '@tanstack/react-router' {
   interface Register {
     router: typeof router;
+    auth: {
+      isAuthenticated: boolean;
+      user: User | null;
+      role: USER.UserRole;
+      isLoading: boolean;
+      login?: (email: string, password: string) => Promise<void>;
+      logout?: () => void;
+    };
   }
 }
 
