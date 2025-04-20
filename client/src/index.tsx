@@ -13,6 +13,7 @@ import { AuthProvider, useAuth } from '@/contexts/auth-context';
 // Import the generated route tree
 import { routeTree } from './routeTree.gen';
 import { QueryClientProvider } from '@tanstack/react-query';
+import { CartProvider } from './contexts/CartContext';
 
 // Create a new router instance
 const router = createRouter({
@@ -51,9 +52,11 @@ function InnerApp() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <InnerApp />
-      </AuthProvider>
+      <CartProvider>
+        <AuthProvider>
+          <InnerApp />
+        </AuthProvider>
+      </CartProvider>
     </QueryClientProvider>
   );
 }

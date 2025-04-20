@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
+import { CartDrawer } from '@/components/cart/cart-drawer';
 
 export const Header = ({ role, className }: { role?: USER.UserRole; className?: string }) => {
   const { user, isAuthenticated, logout } = useAuth();
@@ -37,6 +38,9 @@ export const Header = ({ role, className }: { role?: USER.UserRole; className?: 
                   <Link to='/' className='flex h-full items-center'>
                     Home
                   </Link>
+                  <Link to='/menu' className='flex h-full items-center'>
+                    Menu
+                  </Link>
                   <Link to='/about' className='flex h-full items-center'>
                     About
                   </Link>
@@ -46,6 +50,7 @@ export const Header = ({ role, className }: { role?: USER.UserRole; className?: 
           </div>
 
           <div className='flex h-full items-center gap-4'>
+            <CartDrawer />
             {isAuthenticated ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
