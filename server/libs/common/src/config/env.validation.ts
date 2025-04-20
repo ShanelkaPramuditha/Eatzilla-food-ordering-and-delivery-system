@@ -9,7 +9,10 @@ const commonEnvSchema = z.object({
   MONGO_URI: z.string().url(),
   MONGO_DB_NAME: z.string().min(1),
   JWT_SECRET: z.string().min(32),
-  JWT_EXPIRATION: z.string().default('1h'),
+  JWT_EXPIRATION: z.string().default('15m'),
+  JWT_REFRESH_SECRET: z.string().min(32),
+  JWT_REFRESH_EXPIRATION: z.string().default('7d'),
+  JWT_ISSUER: z.string().default('myapp.com'),
 });
 
 // API Gateway specific schema

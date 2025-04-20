@@ -16,6 +16,10 @@ import { JwtConfigModule, JwtConfigService } from '../config/jwt.config';
       useFactory: (jwtConfig: JwtConfigService) => ({
         secret: jwtConfig.secret,
         signOptions: { expiresIn: jwtConfig.expiresIn },
+        verifyOptions: {
+          algorithms: ['HS256'],
+          issuer: jwtConfig.issuer,
+        },
       }),
       inject: [JwtConfigService],
     }),
