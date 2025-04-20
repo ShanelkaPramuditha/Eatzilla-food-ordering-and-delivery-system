@@ -9,6 +9,10 @@ import { AuthService } from './auth.service';
 
 interface RequestWithUser extends Request {
   user: JwtPayload;
+  cookies: {
+    access_token?: string;
+    refresh_token?: string;
+  };
 }
 
 @Injectable()
@@ -31,8 +35,7 @@ export class AuthGuard implements CanActivate {
     }
 
     const request = context.switchToHttp().getRequest<RequestWithUser>();
-    const accessToken = this.extractTokenFromHeader(request);
-    const refreshToken = request.headers['x-refresh-token'] as string;
+    const accessToken = request.cookies['access_token'];
 
     if (!accessToken) {
       throw new UnauthorizedException('Access token is required');
@@ -49,13 +52,25 @@ export class AuthGuard implements CanActivate {
       return true;
     } catch (error) {
       if (error instanceof TokenExpiredError) {
+        const refreshToken = request.cookies['refresh_token'];
         if (refreshToken) {
           try {
             const tokens = await this.authService.refreshToken(refreshToken);
             const response = context.switchToHttp().getResponse<Response>();
 
-            response.setHeader('Authorization', `Bearer ${tokens.access_token}`);
-            response.setHeader('X-Refresh-Token', tokens.refresh_token);
+            response.cookie('access_token', tokens.access_token, {
+              httpOnly: true,
+              secure: true,
+              sameSite: 'strict',
+              maxAge: 15 * 60 * 1000,
+            });
+
+            response.cookie('refresh_token', tokens.refresh_token, {
+              httpOnly: true,
+              secure: true,
+              sameSite: 'strict',
+              maxAge: 7 * 24 * 60 * 60 * 1000,
+            });
 
             const payload = await this.jwtService.verifyAsync<JwtPayload>(tokens.access_token, {
               secret: this.jwtConfig.secret,
@@ -76,10 +91,5 @@ export class AuthGuard implements CanActivate {
         throw new UnauthorizedException('Authentication failed');
       }
     }
-  }
-
-  private extractTokenFromHeader(request: Request): string | undefined {
-    const [type, token] = request.headers.authorization?.split(' ') ?? [];
-    return type === 'Bearer' ? token : undefined;
   }
 }

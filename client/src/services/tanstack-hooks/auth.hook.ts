@@ -1,10 +1,15 @@
 import { LoginFormValues, RegisterFormValues } from '@/schemas/auth.schema';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import AuthService from '@/services/auth.service';
+import { User } from '@/types/user';
+import { useAuthStore } from '@/store/auth.store';
 
-// Define query keys as constants for better maintainability
-const QUERY_KEYS = {
-  APPLICATIONS: ['applications'] as const,
+export const authKeys = {
+  all: ['auth'] as const,
+  profile: () => [...authKeys.all, 'profile'] as const,
+  login: () => [...authKeys.all, 'login'] as const,
+  register: () => [...authKeys.all, 'register'] as const,
+  logout: () => [...authKeys.all, 'logout'] as const,
 } as const;
 
 export interface AuthError extends Error {
@@ -12,19 +17,26 @@ export interface AuthError extends Error {
   message: string;
 }
 
+export interface AuthResponse {
+  access_token: string;
+  refresh_token: string;
+}
+
 export const useRegister = () => {
   const queryClient = useQueryClient();
+  const setHasToken = useAuthStore((state) => state.setHasToken);
 
-  return useMutation({
-    mutationFn: (formData: RegisterFormValues) => AuthService.register(formData),
+  return useMutation<AuthResponse, AuthError, RegisterFormValues>({
+    mutationFn: (formData) => AuthService.register(formData),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.APPLICATIONS });
+      setHasToken(true);
+      queryClient.invalidateQueries({ queryKey: authKeys.profile() });
     },
-    onError: (error: unknown) => {
-      const apiError = error as AuthError;
+    onError: (error) => {
+      setHasToken(false);
       throw {
-        status: apiError?.status,
-        message: getErrorMessage(apiError),
+        status: error?.status,
+        message: getErrorMessage(error),
       };
     },
   });
@@ -32,46 +44,92 @@ export const useRegister = () => {
 
 export const useLogin = () => {
   const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (formData: LoginFormValues) => AuthService.login(formData),
+  const setHasToken = useAuthStore((state) => state.setHasToken);
+
+  return useMutation<AuthResponse, AuthError, LoginFormValues>({
+    mutationFn: (formData) => AuthService.login(formData),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['me'] });
+      setHasToken(true);
+      queryClient.invalidateQueries({ queryKey: authKeys.profile() });
     },
-    onError: (error: unknown) => {
-      const apiError = error as AuthError;
+    onError: (error) => {
+      setHasToken(false);
       throw {
-        status: apiError?.status,
-        message: getErrorMessage(apiError),
+        status: error?.status,
+        message: getErrorMessage(error),
+      };
+    },
+  });
+};
+
+export const useLogout = () => {
+  const queryClient = useQueryClient();
+  const setHasToken = useAuthStore((state) => state.setHasToken);
+
+  return useMutation<void, AuthError, void>({
+    mutationFn: () => AuthService.logout(),
+    onSuccess: () => {
+      setHasToken(false);
+      queryClient.clear();
+    },
+    onError: (error) => {
+      setHasToken(false);
+      throw {
+        status: error?.status,
+        message: getErrorMessage(error),
       };
     },
   });
 };
 
 export const useGetUser = () => {
-  return useQuery({
-    queryKey: ['me'],
-    queryFn: () => AuthService.getProfile(),
-    enabled: !!localStorage.getItem('token'),
+  const hasToken = useAuthStore((state) => state.hasToken);
+  const setHasToken = useAuthStore((state) => state.setHasToken);
+
+  return useQuery<User, AuthError>({
+    queryKey: authKeys.profile(),
+    queryFn: async () => {
+      try {
+        return await AuthService.getProfile();
+      } catch (error) {
+        if (error && typeof error === 'object' && 'status' in error) {
+          const apiError = error as { status?: number };
+          if (apiError.status === 401) {
+            setHasToken(false);
+            throw { status: 401, message: 'Unauthorized' } as AuthError;
+          }
+        }
+        throw { message: 'An unexpected error occurred' } as AuthError;
+      }
+    },
+    enabled: hasToken,
+    retry: (failureCount, error) => {
+      if (error.status === 401 || error.status === 403) {
+        setHasToken(false);
+        return false;
+      }
+      return failureCount < 3;
+    },
     staleTime: 1000 * 60 * 5, // 5 minutes
     gcTime: 1000 * 60 * 30, // 30 minutes
-    refetchOnMount: 'always',
-    refetchOnWindowFocus: 'always',
-    retry: false,
+    refetchOnMount: true,
+    refetchOnWindowFocus: false,
   });
 };
 
-// Helper function to get consistent error messages
 function getErrorMessage(error: AuthError): string {
-  switch (error?.status) {
-    case 409:
-      return 'Email already exists. Please use a different email.';
-    case 422:
-      return 'Invalid input. Please check your data and try again.';
-    case 500:
-      return 'Server error. Please try again later.';
+  if (error.message) {
+    return error.message;
+  }
+
+  switch (error.status) {
     case 401:
-      return 'Unauthorized access. Please log in.';
+      return 'Invalid email or password';
+    case 403:
+      return 'You do not have permission to access this resource';
+    case 404:
+      return 'Resource not found';
     default:
-      return error?.message || 'An unexpected error occurred. Please try again later.';
+      return 'An unexpected error occurred';
   }
 }

@@ -1,5 +1,9 @@
+import { USER } from '@/constants';
+
 export interface User {
-  email?: string;
-  name?: string;
+  _id?: string;
+  email: string;
+  name: string;
   picture?: string;
+  role: USER.UserRole;
 }

@@ -14,6 +14,11 @@ const AuthService = {
     return res.data;
   },
 
+  logout: async () => {
+    const res = await axios.post(`/logout`);
+    return res.data;
+  },
+
   getProfile: async () => {
     const res = await axios.get(`/profile`);
     return res.data;

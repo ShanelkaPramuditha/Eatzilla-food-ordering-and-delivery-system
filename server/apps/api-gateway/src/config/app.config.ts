@@ -10,7 +10,9 @@ export class AppConfigService {
   }
 
   get corsOrigin(): string | string[] {
-    return this.configService.get<string>('CORS_ORIGIN')!;
+    const origin = this.configService.get<string>('CORS_ORIGIN')!;
+    // If origin contains commas, split it into an array
+    return origin.includes(',') ? origin.split(',').map((o) => o.trim()) : origin;
   }
 
   get apiPrefix(): string {
