@@ -8,7 +8,7 @@ export class PaymentService {
     private readonly paymentClient: ClientProxy,
   ) {}
 
-  getPayment() {
-    return this.paymentClient.send({ cmd: 'get.payment' }, {});
+  getStatus() {
+    return this.paymentClient.send({ cmd: 'get.status' }, {});
   }
 }

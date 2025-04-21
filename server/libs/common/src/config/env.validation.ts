@@ -26,6 +26,12 @@ export const apiGatewayEnvSchema = commonEnvSchema.extend({
 // Payment service specific schema
 export const paymentServiceEnvSchema = commonEnvSchema.extend({});
 
+// Alert service specific schema
+export const alertServiceEnvSchema = commonEnvSchema.extend({
+  ALERT_SERVICE_HOST: z.string().min(1),
+  ALERT_SERVICE_PORT: z.coerce.number().default(3002),
+});
+
 // Function to validate environment variables
 export function validateEnv<T>(config: Record<string, unknown>, schema: z.ZodType<T>): T {
   const result = schema.safeParse(config);

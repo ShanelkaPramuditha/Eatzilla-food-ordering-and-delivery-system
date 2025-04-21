@@ -6,7 +6,7 @@ export class PaymentController {
   constructor(private readonly paymentService: PaymentService) {}
 
   @Get()
-  getPayment() {
-    return this.paymentService.getPayment();
+  getStatus() {
+    return this.paymentService.getStatus();
   }
 }
