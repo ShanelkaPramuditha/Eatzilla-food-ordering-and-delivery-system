@@ -14,6 +14,7 @@ import { RxDashboard } from 'react-icons/rx';
 import { BiFoodMenu } from 'react-icons/bi';
 import { IoSettingsOutline } from 'react-icons/io5';
 import { MdOutlineReviews, MdDeliveryDining } from 'react-icons/md';
+import { useAuth } from '@/contexts/auth-context';
 
 export function ResturantOwnerLayout() {
   const [isExpanded] = useState(true);
@@ -379,18 +380,16 @@ const NotificationDropdown = () => {
 };
 
 const UserDropdown = () => {
+  const { user } = useAuth();
   return (
     <DropdownMenu>
       <DropdownMenuTrigger>
         <div className='dropdown-toggle flex items-center text-gray-700 dark:text-gray-400'>
           <span className='mr-3 h-11 w-11 overflow-hidden rounded-full'>
-            <img
-              src='https://static-00.iconduck.com/assets.00/profile-user-icon-2048x2048-m41rxkoe.png'
-              alt='User'
-            />
+            <img src={user?.picture} alt='User' />
           </span>
 
-          <span className='text-theme-sm mr-1 block font-medium'>Musharof</span>
+          <span className='text-theme-sm mr-1 block font-medium'>{user?.name}</span>
           <svg
             className={`stroke-gray-500 transition-transform duration-200 dark:stroke-gray-400`}
             width='18'
@@ -414,10 +413,10 @@ const UserDropdown = () => {
         <DropdownMenuLabel>
           <div>
             <span className='text-theme-sm block font-medium text-gray-700 dark:text-gray-400'>
-              Musharof Chowdhury
+              {user?.name}
             </span>
             <span className='text-theme-xs mt-0.5 block text-gray-500 dark:text-gray-400'>
-              randomuser@pimjo.com
+              {user?.email}
             </span>
           </div>
         </DropdownMenuLabel>
