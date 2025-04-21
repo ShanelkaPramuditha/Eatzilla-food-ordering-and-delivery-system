@@ -4,10 +4,9 @@ import { Link } from '@tanstack/react-router';
 import { useAuth } from '@/contexts/auth-context';
 import { headerConfig } from '@/configs/header-config';
 
-import Cart from './cart';
 import { UserAvatar } from './avatar';
 import NotificationPopover from './notification';
-import { CartDrawer } from '@/components/cart/cart-drawer';
+import { CartDrawer } from '@/components/partials/header/cart';
 
 export const Header = ({ className }: { className?: string }) => {
   const { isAuthenticated, role } = useAuth();
@@ -32,7 +31,12 @@ export const Header = ({ className }: { className?: string }) => {
           </div>
 
           <div className='flex h-full items-center gap-4'>
-            <CartDrawer />
+            {isAuthenticated && (
+              <>
+                {icons.showCart && <CartDrawer />}
+                {icons.showNotifications && <NotificationPopover />}
+              </>
+            )}
             <UserAvatar />
           </div>
         </div>

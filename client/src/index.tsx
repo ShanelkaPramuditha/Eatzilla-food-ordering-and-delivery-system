@@ -29,7 +29,7 @@ const router = createRouter({
       role: USER.UserRole.GUEST,
       isLoading: true,
       login: async () => {},
-      logout: () => {},
+      logout: async () => {},
     },
   },
 });
