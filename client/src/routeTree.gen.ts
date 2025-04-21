@@ -15,6 +15,7 @@ import { Route as AuthImport } from './routes/_auth'
 import { Route as AboutIndexImport } from './routes/about/index'
 import { Route as AuthProtectedImport } from './routes/_auth/protected'
 import { Route as RootDashboardsResturantOwnerIndexImport } from './routes/_root/_dashboards/_resturant-owner/index'
+import { Route as RootDashboardsResturantOwnerOrdersIndexImport } from './routes/_root/_dashboards/_resturant-owner/orders/index'
 import { Route as RootDashboardsResturantOwnerMenuIndexImport } from './routes/_root/_dashboards/_resturant-owner/menu/index'
 
 // Create/Update Routes
@@ -40,6 +41,13 @@ const RootDashboardsResturantOwnerIndexRoute =
   RootDashboardsResturantOwnerIndexImport.update({
     id: '/_root/_dashboards/_resturant-owner/',
     path: '/',
+    getParentRoute: () => rootRoute,
+  } as any)
+
+const RootDashboardsResturantOwnerOrdersIndexRoute =
+  RootDashboardsResturantOwnerOrdersIndexImport.update({
+    id: '/_root/_dashboards/_resturant-owner/orders/',
+    path: '/orders/',
     getParentRoute: () => rootRoute,
   } as any)
 
@@ -89,6 +97,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RootDashboardsResturantOwnerMenuIndexImport
       parentRoute: typeof rootRoute
     }
+    '/_root/_dashboards/_resturant-owner/orders/': {
+      id: '/_root/_dashboards/_resturant-owner/orders/'
+      path: '/orders'
+      fullPath: '/orders'
+      preLoaderRoute: typeof RootDashboardsResturantOwnerOrdersIndexImport
+      parentRoute: typeof rootRoute
+    }
   }
 }
 
@@ -110,6 +125,7 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutIndexRoute
   '/': typeof RootDashboardsResturantOwnerIndexRoute
   '/menu': typeof RootDashboardsResturantOwnerMenuIndexRoute
+  '/orders': typeof RootDashboardsResturantOwnerOrdersIndexRoute
 }
 
 export interface FileRoutesByTo {
@@ -118,6 +134,7 @@ export interface FileRoutesByTo {
   '/about': typeof AboutIndexRoute
   '/': typeof RootDashboardsResturantOwnerIndexRoute
   '/menu': typeof RootDashboardsResturantOwnerMenuIndexRoute
+  '/orders': typeof RootDashboardsResturantOwnerOrdersIndexRoute
 }
 
 export interface FileRoutesById {
@@ -127,13 +144,14 @@ export interface FileRoutesById {
   '/about/': typeof AboutIndexRoute
   '/_root/_dashboards/_resturant-owner/': typeof RootDashboardsResturantOwnerIndexRoute
   '/_root/_dashboards/_resturant-owner/menu/': typeof RootDashboardsResturantOwnerMenuIndexRoute
+  '/_root/_dashboards/_resturant-owner/orders/': typeof RootDashboardsResturantOwnerOrdersIndexRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '' | '/protected' | '/about' | '/' | '/menu'
+  fullPaths: '' | '/protected' | '/about' | '/' | '/menu' | '/orders'
   fileRoutesByTo: FileRoutesByTo
-  to: '' | '/protected' | '/about' | '/' | '/menu'
+  to: '' | '/protected' | '/about' | '/' | '/menu' | '/orders'
   id:
     | '__root__'
     | '/_auth'
@@ -141,6 +159,7 @@ export interface FileRouteTypes {
     | '/about/'
     | '/_root/_dashboards/_resturant-owner/'
     | '/_root/_dashboards/_resturant-owner/menu/'
+    | '/_root/_dashboards/_resturant-owner/orders/'
   fileRoutesById: FileRoutesById
 }
 
@@ -149,6 +168,7 @@ export interface RootRouteChildren {
   AboutIndexRoute: typeof AboutIndexRoute
   RootDashboardsResturantOwnerIndexRoute: typeof RootDashboardsResturantOwnerIndexRoute
   RootDashboardsResturantOwnerMenuIndexRoute: typeof RootDashboardsResturantOwnerMenuIndexRoute
+  RootDashboardsResturantOwnerOrdersIndexRoute: typeof RootDashboardsResturantOwnerOrdersIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -158,6 +178,8 @@ const rootRouteChildren: RootRouteChildren = {
     RootDashboardsResturantOwnerIndexRoute,
   RootDashboardsResturantOwnerMenuIndexRoute:
     RootDashboardsResturantOwnerMenuIndexRoute,
+  RootDashboardsResturantOwnerOrdersIndexRoute:
+    RootDashboardsResturantOwnerOrdersIndexRoute,
 }
 
 export const routeTree = rootRoute
@@ -173,7 +195,8 @@ export const routeTree = rootRoute
         "/_auth",
         "/about/",
         "/_root/_dashboards/_resturant-owner/",
-        "/_root/_dashboards/_resturant-owner/menu/"
+        "/_root/_dashboards/_resturant-owner/menu/",
+        "/_root/_dashboards/_resturant-owner/orders/"
       ]
     },
     "/_auth": {
@@ -194,6 +217,9 @@ export const routeTree = rootRoute
     },
     "/_root/_dashboards/_resturant-owner/menu/": {
       "filePath": "_root/_dashboards/_resturant-owner/menu/index.tsx"
+    },
+    "/_root/_dashboards/_resturant-owner/orders/": {
+      "filePath": "_root/_dashboards/_resturant-owner/orders/index.tsx"
     }
   }
 }
