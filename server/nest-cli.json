@@ -10,6 +10,15 @@
     "tsConfigPath": "apps/api-gateway/tsconfig.app.json"
   },
   "projects": {
+    "alert": {
+      "type": "application",
+      "root": "apps/alert",
+      "entryFile": "main",
+      "sourceRoot": "apps/alert/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/alert/tsconfig.app.json"
+      }
+    },
     "api-gateway": {
       "type": "application",
       "root": "apps/api-gateway",

@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { ApiGatewayController } from './api-gateway.controller';
 import { ApiGatewayService } from './api-gateway.service';
 import { ConfigModule } from '@nestjs/config';
-import { PaymentModule } from './payment/payment.module';
+import { PaymentModule } from './services/payment/payment.module';
 import { DatabaseModule } from '@app/common';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
