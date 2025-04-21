@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { PlusIcon, MinusIcon, ShoppingCart } from 'lucide-react';
-import { useCart } from '../../contexts/CartContext';
+import { useCartStore } from '@/store/cart.store';
 import { MenuItem } from '../../types/cart';
 import { formatCurrency } from '@/lib/utils';
 import { Link } from '@tanstack/react-router';
@@ -12,7 +12,7 @@ interface FoodCardProps {
 }
 
 export function FoodCard({ item }: FoodCardProps) {
-  const { addToCart } = useCart();
+  const addToCart = useCartStore((state) => state.addToCart);
   const [quantity, setQuantity] = useState(1);
 
   const incrementQuantity = () => {
