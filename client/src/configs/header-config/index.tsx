@@ -44,6 +44,10 @@ export const headerConfig: HeaderConfig = {
         label: 'About',
         path: '/about',
       },
+      {
+        label: 'Menu',
+        path: '/menu',
+      },
     ],
     icons: {
       showCart: true,
@@ -83,6 +87,10 @@ export const headerConfig: HeaderConfig = {
       {
         label: 'About',
         path: '/about',
+      },
+      {
+        label: 'Menu',
+        path: '/menu',
       },
     ],
     icons: {

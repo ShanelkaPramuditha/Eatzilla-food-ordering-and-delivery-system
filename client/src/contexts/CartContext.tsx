@@ -1,24 +1,27 @@
 'use client';
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { CartItem } from '@/types/cart';
-import { 
-  loadCart, 
-  saveCart, 
-  addToCart as addItemToCart, 
-  removeFromCart, 
-  updateCartItemQuantity, 
-  clearCart as emptyCcart,
+import { CartItem, MenuItem } from '@/types/cart';
+import {
+  loadCart,
+  saveCart,
+  addToCart as addItemToCart,
+  removeFromCart,
+  updateCartItemQuantity,
+  clearCart as emptyCart,
   calculateCartTotal,
-  getCartItemCount
+  getCartItemCount,
 } from '@/lib/cart';
-import { MenuItem } from '@/types/cart';
 
 type CartContextType = {
   cart: CartItem[];
   addToCart: (item: MenuItem, quantity: number, customizations?: Record<string, unknown>) => void;
   removeItem: (menuItemId: string, customizations?: Record<string, unknown>) => void;
-  updateQuantity: (menuItemId: string, quantity: number, customizations?: Record<string, unknown>) => void;
+  updateQuantity: (
+    menuItemId: string,
+    quantity: number,
+    customizations?: Record<string, unknown>,
+  ) => void;
   clearCart: () => void;
   cartTotal: number;
   itemCount: number;
@@ -58,14 +61,18 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     setCart(updatedCart);
   };
 
-  const updateQuantity = (menuItemId: string, quantity: number, customizations?: Record<string, unknown>) => {
+  const updateQuantity = (
+    menuItemId: string,
+    quantity: number,
+    customizations?: Record<string, unknown>,
+  ) => {
     const updatedCart = updateCartItemQuantity(menuItemId, quantity, customizations);
     setCart(updatedCart);
   };
 
   const clearCart = () => {
-    const emptyCart = emptyCcart();
-    setCart(emptyCart);
+    const emptyCartItems = emptyCart();
+    setCart(emptyCartItems);
   };
 
   const cartTotal = calculateCartTotal(cart);

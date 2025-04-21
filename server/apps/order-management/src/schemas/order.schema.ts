@@ -1,11 +1,9 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Schema as MongooseSchema, Types } from 'mongoose';
+import { Document, Schema as MongooseSchema, type Types } from 'mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 
 export enum OrderStatus {
   CREATED = 'created',
-  PENDING_PAYMENT = 'pending_payment',
-  PAYMENT_COMPLETED = 'payment_completed',
   CONFIRMED = 'confirmed',
   PREPARING = 'preparing',
   READY_FOR_PICKUP = 'ready_for_pickup',
@@ -16,25 +14,71 @@ export enum OrderStatus {
 
 @Schema()
 export class OrderItem {
-  @Prop({ required: true })
+  @Prop({ type: MongooseSchema.Types.ObjectId, required: true })
   @ApiProperty({ description: 'Menu item ID' })
-  menuItemId: string;
+  menuItemId: Types.ObjectId;
 
   @Prop({ required: true })
-  @ApiProperty({ description: 'Item name' })
+  @ApiProperty({ description: 'Item name at time of ordering' })
   name: string;
 
   @Prop({ required: true })
-  @ApiProperty({ description: 'Item price' })
+  @ApiProperty({ description: 'Price at order time' })
   price: number;
 
-  @Prop({ required: true, default: 1 })
+  @Prop({ required: true, default: 1, min: 1 })
   @ApiProperty({ description: 'Quantity ordered' })
   quantity: number;
 
   @Prop({ type: Object })
-  @ApiProperty({ description: 'Any customizations to the item', required: false })
+  @ApiProperty({ description: 'Item customizations' })
   customizations?: Record<string, any>;
+}
+
+@Schema()
+export class Suborder {
+  @Prop({ type: MongooseSchema.Types.ObjectId, required: true, ref: 'Restaurant' })
+  @ApiProperty({ description: 'Restaurant ID' })
+  restaurantId: Types.ObjectId;
+
+  @Prop({ type: [{ type: Object, ref: OrderItem }], required: true })
+  @ApiProperty({ description: 'Items from this restaurant' })
+  items: OrderItem[];
+
+  @Prop({ required: true, default: 0 })
+  @ApiProperty({ description: 'Subtotal for these items' })
+  subtotal: number;
+
+  @Prop({
+    type: String,
+    enum: OrderStatus,
+    default: OrderStatus.CREATED,
+  })
+  @ApiProperty({ enum: OrderStatus, description: 'Suborder status' })
+  status: OrderStatus;
+}
+
+@Schema()
+export class Address {
+  @Prop({ required: true })
+  @ApiProperty({ description: 'Street address' })
+  street: string;
+
+  @Prop({ required: true })
+  @ApiProperty({ description: 'City' })
+  city: string;
+
+  @Prop({ required: true })
+  @ApiProperty({ description: 'State or province' })
+  state: string;
+
+  @Prop({ required: true })
+  @ApiProperty({ description: 'Postal code' })
+  postalCode: string;
+
+  @Prop()
+  @ApiProperty({ description: 'Delivery instructions', required: false })
+  instructions?: string;
 }
 
 export type OrderDocument = Order & Document;
@@ -42,15 +86,15 @@ export type OrderDocument = Order & Document;
 @Schema({ timestamps: true })
 export class Order extends Document {
   @Prop({ type: MongooseSchema.Types.ObjectId, required: true, ref: 'User' })
-  @ApiProperty({ description: 'Customer ID (references User)' })
+  @ApiProperty({ description: 'Customer ID' })
   customerId: Types.ObjectId;
 
-  @Prop({ type: [{ type: Object }], required: true })
-  @ApiProperty({ description: 'Array of order items', type: [OrderItem] })
-  items: OrderItem[];
+  @Prop({ type: [{ type: Object, ref: Suborder }], required: true })
+  @ApiProperty({ description: 'Suborders grouped by restaurant', type: [Suborder] })
+  suborders: Suborder[];
 
   @Prop({ required: true, default: 0 })
-  @ApiProperty({ description: 'Subtotal amount before tax and fees' })
+  @ApiProperty({ description: 'Subtotal amount' })
   subtotal: number;
 
   @Prop({ required: true, default: 0 })
@@ -62,7 +106,7 @@ export class Order extends Document {
   tax: number;
 
   @Prop({ required: true, default: 0 })
-  @ApiProperty({ description: 'Total order amount' })
+  @ApiProperty({ description: 'Total amount' })
   total: number;
 
   @Prop({
@@ -70,26 +114,12 @@ export class Order extends Document {
     enum: OrderStatus,
     default: OrderStatus.CREATED,
   })
-  @ApiProperty({
-    description: 'Current order status',
-    enum: OrderStatus,
-    default: OrderStatus.CREATED,
-  })
+  @ApiProperty({ enum: OrderStatus, description: 'Order status' })
   status: OrderStatus;
 
-  @Prop({ type: Object })
-  @ApiProperty({ description: 'Delivery address details' })
-  deliveryAddress: {
-    street: string;
-    city: string;
-    state: string;
-    postalCode: string;
-    instructions?: string;
-  };
-
-  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User' })
-  @ApiProperty({ description: 'ID of assigned delivery person', required: false })
-  deliveryPersonId?: Types.ObjectId;
+  @Prop({ type: Object, required: true })
+  @ApiProperty({ description: 'Delivery address', type: Address })
+  deliveryAddress: Address;
 
   @Prop()
   @ApiProperty({ description: 'Estimated delivery time', required: false })
@@ -100,64 +130,34 @@ export class Order extends Document {
   actualDeliveryTime?: Date;
 
   @Prop()
-  @ApiProperty({ description: 'Payment ID from payment service', required: false })
+  @ApiProperty({ description: 'Payment ID', required: false })
   paymentId?: string;
 
-  @Prop({ type: String })
-  @ApiProperty({ description: 'Payment method used', required: false })
+  @Prop()
+  @ApiProperty({ description: 'Payment method', required: false })
   paymentMethod?: string;
 
   @Prop({ default: false })
-  @ApiProperty({ description: 'Whether payment has been completed', default: false })
+  @ApiProperty({ description: 'Payment status' })
   isPaid: boolean;
 
-  @Prop({ default: [] })
-  @ApiProperty({ description: 'History of status changes' })
-  statusHistory: {
-    status: OrderStatus;
-    timestamp: Date;
-    note?: string;
-  }[];
-
   @Prop()
-  @ApiProperty({ description: 'Special instructions for the order', required: false })
+  @ApiProperty({ description: 'Special instructions', required: false })
   specialInstructions?: string;
-
-  @Prop({ default: true })
-  @ApiProperty({ description: 'Whether the order can be modified', default: true })
-  isModifiable: boolean;
 }
 
 export const OrderSchema = SchemaFactory.createForClass(Order);
 
-// Add pre-save hook to update total and add status to history
 OrderSchema.pre('save', function (next) {
-  // Calculate total if items changed
-  if (this.isModified('items') || this.isNew) {
-    this.subtotal = this.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-    this.total = this.subtotal + this.deliveryFee + this.tax;
-  }
-
-  // Add status to history if status changed
-  if (this.isModified('status')) {
-    this.statusHistory.push({
-      status: this.status,
-      timestamp: new Date(),
+  if (this.isModified('suborders') || this.isNew) {
+    // Calculate suborder totals
+    this.suborders.forEach((suborder) => {
+      suborder.subtotal = suborder.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
     });
 
-    // Orders can only be modified before they're confirmed
-    if (
-      [
-        OrderStatus.CONFIRMED,
-        OrderStatus.PREPARING,
-        OrderStatus.READY_FOR_PICKUP,
-        OrderStatus.OUT_FOR_DELIVERY,
-        OrderStatus.DELIVERED,
-        OrderStatus.CANCELLED,
-      ].includes(this.status)
-    ) {
-      this.isModifiable = false;
-    }
+    // Calculate order totals
+    this.subtotal = this.suborders.reduce((sum, suborder) => sum + suborder.subtotal, 0);
+    this.total = this.subtotal + this.deliveryFee + this.tax;
   }
 
   next();

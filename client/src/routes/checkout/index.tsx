@@ -22,13 +22,8 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { CardDetailsForm } from '@/components/checkout/card-details-form';
-import {
-  checkoutFormSchema,
-  type CheckoutFormValues,
-} from '@/schemas/checkout.schema';
-import OrderService, { OrderStatus } from '@/services/order.service';
-import PaymentService from '@/services/payment.service';
+import { checkoutFormSchema, type CheckoutFormValues } from '@/schemas/checkout.schema';
+import OrderService from '@/services/order.service';
 
 export const Route = createFileRoute('/checkout/')({
   component: RouteComponent,
@@ -50,18 +45,10 @@ function RouteComponent() {
         instructions: '',
       },
       payment: 'cash',
-      cardDetails: {
-        cardholderName: '',
-        cardNumber: '',
-        expiryDate: '',
-        cvv: '',
-      },
       specialInstructions: '',
     },
     mode: 'onBlur',
   });
-
-  const paymentMethod = form.watch('payment');
 
   const onSubmit = async (data: CheckoutFormValues) => {
     if (cart.length === 0) {
@@ -72,36 +59,20 @@ function RouteComponent() {
     setIsSubmitting(true);
 
     try {
-      // Step 1: Create the order
-      const order = await OrderService.createOrder(cart, {
-        ...data,
-      });
+      // Create the order
+      const order = await OrderService.createOrder(
+        cart,
+        data.address,
+        data.payment,
+        data.specialInstructions,
+      );
 
-      // Step 2: Process payment if method is card
-      if (data.payment === 'card') {
-        const cardDetails = form.getValues('cardDetails');
-        if (!cardDetails) {
-          throw new Error('Card details are required');
-        }
-
-        const payment = await PaymentService.processPayment({
-          orderId: order.id,
-          amount: order.total,
-          cardDetails,
-        });
-
-        if (!payment.success) {
-          throw new Error(payment.error || 'Payment failed');
-        }
-
-        // Update order status after successful payment
-        await OrderService.updateOrderStatus(order.id, OrderStatus.PAYMENT_COMPLETED);
-      }
-
+      // Process payment if method is card
+      
       // Clear cart and show success
       clearCart();
       toast.success('Order placed successfully!');
-      await router.navigate({ to: `/orders/${order.id}` });
+      await router.navigate({ to: `/orders/${order._id}` });
     } catch (error) {
       console.error('Checkout error:', error);
       toast.error(
@@ -112,9 +83,9 @@ function RouteComponent() {
     }
   };
 
-  // Calculate order totals
-  const deliveryFee = 3.99;
-  const taxRate = 0.08;
+  // Calculate order totals (these will be calculated by the backend)
+  const deliveryFee = 3.99; // This will come from the backend response
+  const taxRate = 0.08; // This will come from the backend response
   const tax = cartTotal * taxRate;
   const total = cartTotal + deliveryFee + tax;
 
@@ -143,7 +114,21 @@ function RouteComponent() {
       <FormProvider {...form}>
         <Form {...form}>
           <form
-            onSubmit={form.handleSubmit(onSubmit)}
+            onSubmit={form.handleSubmit(onSubmit, (errors) => {
+              console.error('Form validation errors:', errors);
+              toast.error('Please fix the form errors before submitting');
+
+              // Optional: You can show more specific error messages
+              if (Object.keys(errors).length > 0) {
+                // Get the first error message to display
+                const firstErrorField = Object.keys(errors)[0];
+                const firstErrorMessage = (errors[firstErrorField as keyof typeof errors] as { message?: string })?.message;
+
+                if (firstErrorMessage) {
+                  toast.error(`${firstErrorMessage}`);
+                }
+              }
+            })}
             className='grid grid-cols-1 gap-8 lg:grid-cols-3'
           >
             {/* Order Details */}
@@ -271,12 +256,7 @@ function RouteComponent() {
                     )}
                   />
 
-                  {paymentMethod === 'card' && (
-                    <div className='mt-6 border-t pt-6'>
-                      <h3 className='mb-4 font-medium'>Card Details</h3>
-                      <CardDetailsForm isSubmitting={isSubmitting} />
-                    </div>
-                  )}
+                 
                 </CardContent>
               </Card>
 

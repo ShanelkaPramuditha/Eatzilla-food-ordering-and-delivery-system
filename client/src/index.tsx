@@ -15,6 +15,7 @@ import { routeTree } from './routeTree.gen';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { ThemeProvider } from 'next-themes';
 import { User } from './types/user';
+import { CartProvider } from './contexts/CartContext';
 
 // Create a new router instance
 const router = createRouter({
@@ -62,9 +63,11 @@ function App() {
   return (
     <ThemeProvider enableSystem={false} attribute='class' defaultTheme='system'>
       <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <InnerApp />
-        </AuthProvider>
+        <CartProvider>
+          <AuthProvider>
+            <InnerApp />
+          </AuthProvider>
+        </CartProvider>
       </QueryClientProvider>
     </ThemeProvider>
   );

@@ -11,10 +11,13 @@ import {
   Request,
 } from '@nestjs/common';
 import { OrderService } from '../services/order.service';
-import { CreateOrderDto } from '../dtos/create-order.dto';
-import { UpdateOrderDto, UpdateOrderStatusDto, CancelOrderDto } from '../dtos/update-order.dto';
-import { MessagePattern, Payload } from '@nestjs/microservices';
-import { Order, OrderStatus } from '../schemas/order.schema';
+import {
+  CreateOrderDto,
+  UpdateOrderDto,
+  UpdateSuborderStatusDto,
+  OrderResponseDto,
+} from '../dtos/create-order.dto';
+import { OrderStatus } from '../schemas/order.schema';
 import { AuthGuard } from '../guards/auth.guard';
 import { Roles } from '../decorators/roles.decorator';
 import { UserRole } from '../interfaces/user.interface';
@@ -28,6 +31,7 @@ import {
   ApiBearerAuth,
 } from '@nestjs/swagger';
 import { Types } from 'mongoose';
+import { MessagePattern, Payload } from '@nestjs/microservices';
 
 @ApiTags('orders')
 @Controller('orders')
@@ -42,14 +46,14 @@ export class OrderController {
   @ApiResponse({
     status: HttpStatus.CREATED,
     description: 'Order created successfully',
-    type: Order,
+    type: OrderResponseDto,
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Invalid order data' })
   @ApiBody({ type: CreateOrderDto })
   async createOrder(
     @Body() createOrderDto: CreateOrderDto,
     @Request() req: { user: { _id: string } },
-  ): Promise<Order> {
+  ): Promise<OrderResponseDto> {
     // If customerId is not provided, use the authenticated user's ID
     if (!createOrderDto.customerId) {
       createOrderDto.customerId = req.user._id.toString();
@@ -64,9 +68,9 @@ export class OrderController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Orders retrieved successfully',
-    type: [Order],
+    type: [OrderResponseDto],
   })
-  async getMyOrders(@Request() req: { user: { _id: string } }): Promise<Order[]> {
+  async getMyOrders(@Request() req: { user: { _id: string } }): Promise<OrderResponseDto[]> {
     return this.orderService.findByCustomer(req.user._id.toString());
   }
 
@@ -78,10 +82,10 @@ export class OrderController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Order retrieved successfully',
-    type: Order,
+    type: OrderResponseDto,
   })
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Order not found' })
-  async getOrder(@Param('id') id: string): Promise<Order> {
+  async getOrder(@Param('id') id: string): Promise<OrderResponseDto> {
     return this.orderService.findOne(id);
   }
 
@@ -94,35 +98,31 @@ export class OrderController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Order updated successfully',
-    type: Order,
+    type: OrderResponseDto,
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Order cannot be modified' })
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Order not found' })
   async updateOrder(
     @Param('id') id: string,
     @Body() updateOrderDto: UpdateOrderDto,
-  ): Promise<Order> {
+  ): Promise<OrderResponseDto> {
     return this.orderService.update(id, updateOrderDto);
   }
 
-  @Post(':id/cancel')
+  @Patch(':id/cancel')
   @UseGuards(AuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Cancel an order' })
   @ApiParam({ name: 'id', description: 'Order ID' })
-  @ApiBody({ type: CancelOrderDto })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Order cancelled successfully',
-    type: Order,
+    type: OrderResponseDto,
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Order cannot be cancelled' })
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Order not found' })
-  async cancelOrder(
-    @Param('id') id: string,
-    @Body() cancelOrderDto: CancelOrderDto,
-  ): Promise<Order> {
-    return this.orderService.cancelOrder(id, cancelOrderDto.reason);
+  async cancelOrder(@Param('id') id: string): Promise<OrderResponseDto> {
+    return this.orderService.updateStatus(id, { status: OrderStatus.CANCELLED });
   }
 
   // Restaurant endpoints
@@ -135,9 +135,11 @@ export class OrderController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Orders retrieved successfully',
-    type: [Order],
+    type: [OrderResponseDto],
   })
-  async getRestaurantOrders(@Param('restaurantId') restaurantId: string): Promise<Order[]> {
+  async getRestaurantOrders(
+    @Param('restaurantId') restaurantId: string,
+  ): Promise<OrderResponseDto[]> {
     return this.orderService.findByRestaurant(restaurantId);
   }
 
@@ -147,18 +149,18 @@ export class OrderController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Update order status' })
   @ApiParam({ name: 'id', description: 'Order ID' })
-  @ApiBody({ type: UpdateOrderStatusDto })
+  @ApiBody({ type: UpdateSuborderStatusDto })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Order status updated successfully',
-    type: Order,
+    type: OrderResponseDto,
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Invalid status transition' })
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Order not found' })
   async updateOrderStatus(
     @Param('id') id: string,
-    @Body() updateStatusDto: UpdateOrderStatusDto,
-  ): Promise<Order> {
+    @Body() updateStatusDto: UpdateSuborderStatusDto,
+  ): Promise<OrderResponseDto> {
     return this.orderService.updateStatus(id, updateStatusDto);
   }
 
@@ -168,18 +170,23 @@ export class OrderController {
   @Roles(UserRole.ADMIN)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get all orders (admin only)' })
-  @ApiQuery({ name: 'status', required: false, description: 'Filter by order status' })
+  @ApiQuery({
+    name: 'status',
+    required: false,
+    description: 'Filter by order status',
+    enum: OrderStatus,
+  })
   @ApiQuery({ name: 'restaurantId', required: false, description: 'Filter by restaurant ID' })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Orders retrieved successfully',
-    type: [Order],
+    type: [OrderResponseDto],
   })
   async getAllOrders(
-    @Query('status') status?: string,
+    @Query('status') status?: OrderStatus,
     @Query('restaurantId') restaurantId?: string,
-  ): Promise<Order[]> {
-    const filters: { status?: string; restaurantId?: string } = {};
+  ): Promise<OrderResponseDto[]> {
+    const filters: { status?: OrderStatus; restaurantId?: string } = {};
     if (status) filters.status = status;
     if (restaurantId) filters.restaurantId = restaurantId;
 
@@ -191,9 +198,10 @@ export class OrderController {
   async handlePaymentCompleted(
     @Payload() data: { orderId: string; paymentId: string },
   ): Promise<void> {
-    await this.orderService.updateStatus(data.orderId, {
-      status: 'payment_completed' as OrderStatus.PAYMENT_COMPLETED,
-      note: `Payment completed with ID: ${data.paymentId}`,
+    await this.orderService.update(data.orderId, {
+      isPaid: true,
+      paymentId: data.paymentId,
+      status: OrderStatus.CONFIRMED,
     });
   }
 
@@ -210,7 +218,9 @@ export class OrderController {
       throw new Error('Order not found');
     }
 
-    order.deliveryPersonId = new Types.ObjectId(data.deliveryPersonId);
-    await order.save();
+    await this.orderService.update(data.orderId, {
+      deliveryPersonId: new Types.ObjectId(data.deliveryPersonId).toString(),
+      status: OrderStatus.OUT_FOR_DELIVERY,
+    });
   }
 }

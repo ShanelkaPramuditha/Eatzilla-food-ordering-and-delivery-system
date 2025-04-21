@@ -28,7 +28,7 @@ export function CartDrawer() {
           )}
         </Button>
       </SheetTrigger>
-      <SheetContent className='flex w-full flex-col sm:max-w-md'>
+      <SheetContent className='flex w-full flex-col sm:max-w-md p-5'>
         <SheetHeader className='px-1'>
           <div className='flex items-center justify-between'>
             <SheetTitle className='flex items-center gap-2'>

@@ -35,7 +35,6 @@ export const cardDetailsSchema = z.object({
 export const checkoutFormSchema = z.object({
   address: addressSchema,
   payment:  z.enum(['cash', 'card']),
-  cardDetails: cardDetailsSchema.optional(), // Only required if payment is 'card'
   specialInstructions: z.string().optional(),
 });
 

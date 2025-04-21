@@ -7,6 +7,7 @@ import { headerConfig } from '@/configs/header-config';
 import Cart from './cart';
 import { UserAvatar } from './avatar';
 import NotificationPopover from './notification';
+import { CartDrawer } from '@/components/cart/cart-drawer';
 
 export const Header = ({ className }: { className?: string }) => {
   const { isAuthenticated, role } = useAuth();
@@ -31,12 +32,7 @@ export const Header = ({ className }: { className?: string }) => {
           </div>
 
           <div className='flex h-full items-center gap-4'>
-            {isAuthenticated && (
-              <>
-                {icons.showCart && <Cart />}
-                {icons.showNotifications && <NotificationPopover />}
-              </>
-            )}
+            <CartDrawer />
             <UserAvatar />
           </div>
         </div>
