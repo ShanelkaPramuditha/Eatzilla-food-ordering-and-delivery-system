@@ -31,12 +31,8 @@ export const Header = ({ className }: { className?: string }) => {
           </div>
 
           <div className='flex h-full items-center gap-4'>
-            {isAuthenticated && (
-              <>
-                {icons.showCart && <CartDrawer />}
-                {icons.showNotifications && <NotificationPopover />}
-              </>
-            )}
+            <CartDrawer />
+            {isAuthenticated && <>{icons.showNotifications && <NotificationPopover />}</>}
             <UserAvatar />
           </div>
         </div>

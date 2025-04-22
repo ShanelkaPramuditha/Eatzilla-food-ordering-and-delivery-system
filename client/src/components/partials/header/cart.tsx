@@ -2,13 +2,13 @@ import { ShoppingCart, Trash2, Plus, Minus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { useCart } from '@/contexts/CartContext';
+import { useCartStore } from '@/store/cart.store';
 import { formatCurrency } from '@/lib/utils';
 import { useRouter } from '@tanstack/react-router';
 
 export function CartDrawer() {
   const { cart, cartTotal, removeItem, updateQuantity, itemCount, isCartOpen, setIsCartOpen } =
-    useCart();
+    useCartStore();
   const router = useRouter();
 
   const handleCheckout = () => {
