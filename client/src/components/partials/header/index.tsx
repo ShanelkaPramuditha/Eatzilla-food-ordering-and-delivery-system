@@ -1,70 +1,43 @@
+import { cn } from '@/lib/utils';
+import { UserRole } from '@/constants/user';
 import { Link } from '@tanstack/react-router';
-
-import { USER } from '@/constants';
-import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/auth-context';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { headerConfig } from '@/configs/header-config';
 
-export const Header = ({ role }: { role?: USER.UserRole }) => {
-  const { user, isAuthenticated, login, logout } = useAuth();
+import { UserAvatar } from './avatar';
+import NotificationPopover from './notification';
+import { CartDrawer } from '@/components/partials/header/cart';
+
+export const Header = ({ className }: { className?: string }) => {
+  const { isAuthenticated, role } = useAuth();
+  const config = headerConfig[role || UserRole.GUEST];
+  const { navItems, icons } = config;
 
   return (
-    <header className='bg-sidebar fixed top-0 z-50 w-full border-b shadow-sm'>
-      <div className='container mx-auto px-4 py-4'>
-        <div className='flex items-center justify-between'>
-          <div className='flex items-center gap-8'>
+    <header className={cn('bg-sidebar fixed top-0 h-14 w-full border-b shadow-sm', className)}>
+      <div className='container mx-auto h-full px-4'>
+        <div className='flex h-full items-center justify-between'>
+          <div className='flex h-full items-center gap-8'>
             <Link to='/' className='text-xl font-bold'>
               Eatzilla
             </Link>
-            <nav className='flex items-center gap-4'>
-              {role === USER.UserRole.ADMIN ? (
-                <>
-                  <Link to='/'>Dashboard</Link>
-                  <Link to='/about'>About</Link>
-                </>
-              ) : (
-                <>
-                  <Link to='/'>Home</Link>
-                  <Link to='/about'>About</Link>
-                </>
-              )}
+            <nav className='flex h-full items-center gap-4'>
+              {navItems.map((item) => (
+                <Link key={item.path} to={item.path} className='flex h-full items-center'>
+                  {item.label}
+                </Link>
+              ))}
             </nav>
           </div>
 
-          <div className='flex items-center gap-4'>
-            {isAuthenticated ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant='ghost' className='relative h-8 w-8 rounded-full'>
-                    <Avatar className='h-8 w-8'>
-                      <AvatarImage src={user?.picture} alt={user?.name} />
-                      <AvatarFallback>{user?.name?.charAt(0)}</AvatarFallback>
-                    </Avatar>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className='w-56' align='end' forceMount>
-                  <DropdownMenuItem className='flex flex-col items-start'>
-                    <div className='text-sm font-medium'>{user?.name}</div>
-                    <div className='text-muted-foreground text-xs'>{user?.email}</div>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => logout()}>Log out</DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            ) : (
-              <Button
-                onClick={() => {
-                  login();
-                }}
-              >
-                Sign In
-              </Button>
+          <div className='flex h-full items-center gap-4'>
+            {isAuthenticated && (
+              <>
+                {icons.showCart && <CartDrawer />}
+                {icons.showNotifications && <NotificationPopover />}
+              </>
             )}
+            <UserAvatar />
           </div>
         </div>
       </div>

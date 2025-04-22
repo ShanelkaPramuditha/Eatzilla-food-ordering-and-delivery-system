@@ -3,15 +3,19 @@ import '@/styles/globals.css';
 
 import { StrictMode } from 'react';
 import ReactDOM from 'react-dom/client';
-import { Auth0Provider } from '@auth0/auth0-react';
 import { RouterProvider, createRouter } from '@tanstack/react-router';
 
 import { USER } from '@/constants';
+import { queryClient } from '@/lib/query-client';
 import { FullScreenLoader } from '@/components/common/loaders';
 import { AuthProvider, useAuth } from '@/contexts/auth-context';
 
 // Import the generated route tree
 import { routeTree } from './routeTree.gen';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { ThemeProvider } from 'next-themes';
+import { User } from './types/user';
+import { CartProvider } from './contexts/CartContext';
 
 // Create a new router instance
 const router = createRouter({
@@ -24,8 +28,8 @@ const router = createRouter({
       user: null,
       role: USER.UserRole.GUEST,
       isLoading: true,
-      login: () => {},
-      logout: () => {},
+      login: async () => {},
+      logout: async () => {},
     },
   },
 });
@@ -34,6 +38,14 @@ const router = createRouter({
 declare module '@tanstack/react-router' {
   interface Register {
     router: typeof router;
+    auth: {
+      isAuthenticated: boolean;
+      user: User | null;
+      role: USER.UserRole;
+      isLoading: boolean;
+      login?: (email: string, password: string) => Promise<void>;
+      logout?: () => void;
+    };
   }
 }
 
@@ -49,20 +61,15 @@ function InnerApp() {
 
 function App() {
   return (
-    <Auth0Provider
-      domain={import.meta.env.PUBLIC_AUTH0_DOMAIN}
-      clientId={import.meta.env.PUBLIC_AUTH0_CLIENT_ID}
-      authorizationParams={{
-        audience: import.meta.env.PUBLIC_AUTH0_AUDIENCE,
-        redirect_uri: window.location.origin,
-      }}
-      cacheLocation='localstorage'
-      useRefreshTokens={true}
-    >
-      <AuthProvider>
-        <InnerApp />
-      </AuthProvider>
-    </Auth0Provider>
+    <ThemeProvider enableSystem={false} attribute='class' defaultTheme='system'>
+      <QueryClientProvider client={queryClient}>
+        <CartProvider>
+          <AuthProvider>
+            <InnerApp />
+          </AuthProvider>
+        </CartProvider>
+      </QueryClientProvider>
+    </ThemeProvider>
   );
 }
 

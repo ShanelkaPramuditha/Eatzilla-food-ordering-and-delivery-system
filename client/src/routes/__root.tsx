@@ -1,10 +1,12 @@
 import { AlertCircle } from 'lucide-react';
 import { createRootRouteWithContext } from '@tanstack/react-router';
-import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
+// import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
-import { Layout } from './-layouts';
+import { Layout } from '@/routes/-layout';
 import type { AuthContext } from '@/contexts/auth-context';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
+import { Toaster } from '@/components/ui/sonner';
 
 interface MyRouterContext {
   auth: AuthContext;
@@ -19,7 +21,9 @@ function RootComponent() {
   return (
     <>
       <Layout />
-      <TanStackRouterDevtools position='bottom-right' initialIsOpen={false} />
+      <Toaster richColors={true} />
+      <ReactQueryDevtools initialIsOpen={false} />
+      {/* <TanStackRouterDevtools position='bottom-left' initialIsOpen={false} /> */}
     </>
   );
 }

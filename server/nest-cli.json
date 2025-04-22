@@ -10,6 +10,15 @@
     "tsConfigPath": "apps/api-gateway/tsconfig.app.json"
   },
   "projects": {
+    "alert": {
+      "type": "application",
+      "root": "apps/alert",
+      "entryFile": "main",
+      "sourceRoot": "apps/alert/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/alert/tsconfig.app.json"
+      }
+    },
     "api-gateway": {
       "type": "application",
       "root": "apps/api-gateway",
@@ -17,6 +26,15 @@
       "sourceRoot": "apps/api-gateway/src",
       "compilerOptions": {
         "tsConfigPath": "apps/api-gateway/tsconfig.app.json"
+      }
+    },
+    "common": {
+      "type": "library",
+      "root": "libs/common",
+      "entryFile": "index",
+      "sourceRoot": "libs/common/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/common/tsconfig.lib.json"
       }
     },
     "payment-service": {
