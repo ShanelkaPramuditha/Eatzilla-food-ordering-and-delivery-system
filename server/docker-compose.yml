@@ -1,0 +1,38 @@
+version: '3.8'
+services:
+  api-gateway:
+    build:
+      context: .
+      dockerfile: ./apps/api-gateway/Dockerfile
+      target: development
+    command: pnpm run start:dev api-gateway
+    ports:
+      - '3000:3000'
+    volumes:
+      - .:/usr/src/app
+
+  payment-service:
+    build:
+      context: .
+      dockerfile: ./apps/payment/Dockerfile
+      target: development
+    command: pnpm run start:dev payment-service
+    volumes:
+      - .:/usr/src/app
+    networks:
+      - default
+
+  order-service:
+    build:
+      context: .
+      dockerfile: ./apps/order/Dockerfile
+      target: development
+    command: pnpm run start:dev order-service
+    volumes:
+      - .:/usr/src/app
+    networks:
+      - default
+
+networks:
+  default:
+    driver: bridge

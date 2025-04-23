@@ -1,0 +1,43 @@
+import { Module } from '@nestjs/common';
+import { AuthController } from './auth.controller';
+import { AuthService } from './auth.service';
+import { UsersModule } from '../users/users.module';
+import { JwtModule } from '@nestjs/jwt';
+import { APP_GUARD } from '@nestjs/core';
+import { AuthGuard } from './auth.guard';
+import { JwtConfigModule, JwtConfigService } from '../config/jwt.config';
+import { CookieConfigModule } from '../config/cookie.config';
+
+@Module({
+  imports: [
+    UsersModule,
+    JwtConfigModule,
+    CookieConfigModule,
+    JwtModule.registerAsync({
+      imports: [JwtConfigModule],
+      useFactory: (jwtConfig: JwtConfigService) => ({
+        secret: jwtConfig.secret,
+        signOptions: {
+          expiresIn: jwtConfig.expiresIn,
+          issuer: jwtConfig.issuer,
+        },
+        verifyOptions: {
+          algorithms: ['HS256'],
+          issuer: jwtConfig.issuer,
+          ignoreExpiration: false,
+        },
+      }),
+      inject: [JwtConfigService],
+    }),
+  ],
+  controllers: [AuthController],
+  providers: [
+    AuthService,
+    {
+      provide: APP_GUARD,
+      useClass: AuthGuard,
+    },
+  ],
+  exports: [AuthService],
+})
+export class AuthModule {}
