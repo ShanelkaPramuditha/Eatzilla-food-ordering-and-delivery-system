@@ -3,7 +3,7 @@ import { createFileRoute, useRouter } from '@tanstack/react-router';
 import { useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, FormProvider } from 'react-hook-form';
-import { useCart } from '@/contexts/CartContext';
+import { useCartStore } from '@/store/cart.store';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -30,7 +30,7 @@ export const Route = createFileRoute('/checkout/')({
 });
 
 function RouteComponent() {
-  const { cart, cartTotal, clearCart } = useCart();
+  const { cart, cartTotal, clearCart } = useCartStore();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
 
@@ -68,7 +68,7 @@ function RouteComponent() {
       );
 
       // Process payment if method is card
-      
+
       // Clear cart and show success
       clearCart();
       toast.success('Order placed successfully!');
@@ -122,7 +122,9 @@ function RouteComponent() {
               if (Object.keys(errors).length > 0) {
                 // Get the first error message to display
                 const firstErrorField = Object.keys(errors)[0];
-                const firstErrorMessage = (errors[firstErrorField as keyof typeof errors] as { message?: string })?.message;
+                const firstErrorMessage = (
+                  errors[firstErrorField as keyof typeof errors] as { message?: string }
+                )?.message;
 
                 if (firstErrorMessage) {
                   toast.error(`${firstErrorMessage}`);
@@ -255,8 +257,6 @@ function RouteComponent() {
                       </FormItem>
                     )}
                   />
-
-                 
                 </CardContent>
               </Card>
 

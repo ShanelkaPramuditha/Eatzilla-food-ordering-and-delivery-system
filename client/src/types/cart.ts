@@ -40,7 +40,7 @@ export interface OrderItem {
   name: string;
   price: number;
   quantity: number;
-  customizations?: Record<string, any>;
+  customizations?: Record<string, unknown>;
 }
 
 // CartItem extends OrderItem with UI-specific fields
