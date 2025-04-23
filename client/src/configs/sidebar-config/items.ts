@@ -3,6 +3,7 @@ import {
   IconLayoutDashboardFilled,
   IconTruckDelivery,
   IconSettings,
+  IconMessageDots,
 } from '@tabler/icons-react';
 
 export const RestaurantOwnerSidebarItems = [
@@ -21,6 +22,12 @@ export const RestaurantOwnerSidebarItems = [
     url: '/orders',
     icon: IconTruckDelivery,
   },
+  {
+    title: 'Reviews',
+    url: '/reviews',
+    icon: IconMessageDots,
+  },
+
   {
     title: 'Settings',
     url: '/settings',

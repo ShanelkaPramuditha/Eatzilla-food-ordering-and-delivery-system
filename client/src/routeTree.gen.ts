@@ -19,6 +19,7 @@ import { Route as AuthProtectedImport } from './routes/_auth/protected'
 import { Route as PublicRegisterIndexImport } from './routes/_public/register/index'
 import { Route as PublicLoginIndexImport } from './routes/_public/login/index'
 import { Route as AuthRestaurantOwnerSettingsIndexImport } from './routes/_auth/_restaurant-owner/settings/index'
+import { Route as AuthRestaurantOwnerReviewsIndexImport } from './routes/_auth/_restaurant-owner/reviews/index'
 import { Route as AuthRestaurantOwnerOrdersIndexImport } from './routes/_auth/_restaurant-owner/orders/index'
 import { Route as AuthRestaurantOwnerMenuIndexImport } from './routes/_auth/_restaurant-owner/menu/index'
 
@@ -69,6 +70,13 @@ const AuthRestaurantOwnerSettingsIndexRoute =
   AuthRestaurantOwnerSettingsIndexImport.update({
     id: '/_restaurant-owner/settings/',
     path: '/settings/',
+    getParentRoute: () => AuthRoute,
+  } as any)
+
+const AuthRestaurantOwnerReviewsIndexRoute =
+  AuthRestaurantOwnerReviewsIndexImport.update({
+    id: '/_restaurant-owner/reviews/',
+    path: '/reviews/',
     getParentRoute: () => AuthRoute,
   } as any)
 
@@ -153,6 +161,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRestaurantOwnerOrdersIndexImport
       parentRoute: typeof AuthImport
     }
+    '/_auth/_restaurant-owner/reviews/': {
+      id: '/_auth/_restaurant-owner/reviews/'
+      path: '/reviews'
+      fullPath: '/reviews'
+      preLoaderRoute: typeof AuthRestaurantOwnerReviewsIndexImport
+      parentRoute: typeof AuthImport
+    }
     '/_auth/_restaurant-owner/settings/': {
       id: '/_auth/_restaurant-owner/settings/'
       path: '/settings'
@@ -169,6 +184,7 @@ interface AuthRouteChildren {
   AuthProtectedRoute: typeof AuthProtectedRoute
   AuthRestaurantOwnerMenuIndexRoute: typeof AuthRestaurantOwnerMenuIndexRoute
   AuthRestaurantOwnerOrdersIndexRoute: typeof AuthRestaurantOwnerOrdersIndexRoute
+  AuthRestaurantOwnerReviewsIndexRoute: typeof AuthRestaurantOwnerReviewsIndexRoute
   AuthRestaurantOwnerSettingsIndexRoute: typeof AuthRestaurantOwnerSettingsIndexRoute
 }
 
@@ -176,6 +192,7 @@ const AuthRouteChildren: AuthRouteChildren = {
   AuthProtectedRoute: AuthProtectedRoute,
   AuthRestaurantOwnerMenuIndexRoute: AuthRestaurantOwnerMenuIndexRoute,
   AuthRestaurantOwnerOrdersIndexRoute: AuthRestaurantOwnerOrdersIndexRoute,
+  AuthRestaurantOwnerReviewsIndexRoute: AuthRestaurantOwnerReviewsIndexRoute,
   AuthRestaurantOwnerSettingsIndexRoute: AuthRestaurantOwnerSettingsIndexRoute,
 }
 
@@ -191,6 +208,7 @@ export interface FileRoutesByFullPath {
   '/register': typeof PublicRegisterIndexRoute
   '/menu': typeof AuthRestaurantOwnerMenuIndexRoute
   '/orders': typeof AuthRestaurantOwnerOrdersIndexRoute
+  '/reviews': typeof AuthRestaurantOwnerReviewsIndexRoute
   '/settings': typeof AuthRestaurantOwnerSettingsIndexRoute
 }
 
@@ -204,6 +222,7 @@ export interface FileRoutesByTo {
   '/register': typeof PublicRegisterIndexRoute
   '/menu': typeof AuthRestaurantOwnerMenuIndexRoute
   '/orders': typeof AuthRestaurantOwnerOrdersIndexRoute
+  '/reviews': typeof AuthRestaurantOwnerReviewsIndexRoute
   '/settings': typeof AuthRestaurantOwnerSettingsIndexRoute
 }
 
@@ -218,6 +237,7 @@ export interface FileRoutesById {
   '/_public/register/': typeof PublicRegisterIndexRoute
   '/_auth/_restaurant-owner/menu/': typeof AuthRestaurantOwnerMenuIndexRoute
   '/_auth/_restaurant-owner/orders/': typeof AuthRestaurantOwnerOrdersIndexRoute
+  '/_auth/_restaurant-owner/reviews/': typeof AuthRestaurantOwnerReviewsIndexRoute
   '/_auth/_restaurant-owner/settings/': typeof AuthRestaurantOwnerSettingsIndexRoute
 }
 
@@ -233,6 +253,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/menu'
     | '/orders'
+    | '/reviews'
     | '/settings'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -245,6 +266,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/menu'
     | '/orders'
+    | '/reviews'
     | '/settings'
   id:
     | '__root__'
@@ -257,6 +279,7 @@ export interface FileRouteTypes {
     | '/_public/register/'
     | '/_auth/_restaurant-owner/menu/'
     | '/_auth/_restaurant-owner/orders/'
+    | '/_auth/_restaurant-owner/reviews/'
     | '/_auth/_restaurant-owner/settings/'
   fileRoutesById: FileRoutesById
 }
@@ -303,6 +326,7 @@ export const routeTree = rootRoute
         "/_auth/protected",
         "/_auth/_restaurant-owner/menu/",
         "/_auth/_restaurant-owner/orders/",
+        "/_auth/_restaurant-owner/reviews/",
         "/_auth/_restaurant-owner/settings/"
       ]
     },
@@ -331,6 +355,10 @@ export const routeTree = rootRoute
     },
     "/_auth/_restaurant-owner/orders/": {
       "filePath": "_auth/_restaurant-owner/orders/index.tsx",
+      "parent": "/_auth"
+    },
+    "/_auth/_restaurant-owner/reviews/": {
+      "filePath": "_auth/_restaurant-owner/reviews/index.tsx",
       "parent": "/_auth"
     },
     "/_auth/_restaurant-owner/settings/": {
