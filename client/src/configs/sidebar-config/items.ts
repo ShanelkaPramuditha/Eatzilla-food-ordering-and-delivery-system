@@ -1,4 +1,9 @@
-import { IconBurger, IconLayoutDashboardFilled, IconTruckDelivery } from '@tabler/icons-react';
+import {
+  IconBurger,
+  IconLayoutDashboardFilled,
+  IconTruckDelivery,
+  IconSettings,
+} from '@tabler/icons-react';
 
 export const RestaurantOwnerSidebarItems = [
   {
@@ -15,5 +20,10 @@ export const RestaurantOwnerSidebarItems = [
     title: 'Orders',
     url: '/orders',
     icon: IconTruckDelivery,
+  },
+  {
+    title: 'Settings',
+    url: '/settings',
+    icon: IconSettings,
   },
 ];

@@ -18,6 +18,7 @@ import { Route as HomeIndexImport } from './routes/_home/index'
 import { Route as AuthProtectedImport } from './routes/_auth/protected'
 import { Route as PublicRegisterIndexImport } from './routes/_public/register/index'
 import { Route as PublicLoginIndexImport } from './routes/_public/login/index'
+import { Route as AuthRestaurantOwnerSettingsIndexImport } from './routes/_auth/_restaurant-owner/settings/index'
 import { Route as AuthRestaurantOwnerOrdersIndexImport } from './routes/_auth/_restaurant-owner/orders/index'
 import { Route as AuthRestaurantOwnerMenuIndexImport } from './routes/_auth/_restaurant-owner/menu/index'
 
@@ -63,6 +64,13 @@ const PublicLoginIndexRoute = PublicLoginIndexImport.update({
   path: '/login/',
   getParentRoute: () => rootRoute,
 } as any)
+
+const AuthRestaurantOwnerSettingsIndexRoute =
+  AuthRestaurantOwnerSettingsIndexImport.update({
+    id: '/_restaurant-owner/settings/',
+    path: '/settings/',
+    getParentRoute: () => AuthRoute,
+  } as any)
 
 const AuthRestaurantOwnerOrdersIndexRoute =
   AuthRestaurantOwnerOrdersIndexImport.update({
@@ -145,6 +153,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRestaurantOwnerOrdersIndexImport
       parentRoute: typeof AuthImport
     }
+    '/_auth/_restaurant-owner/settings/': {
+      id: '/_auth/_restaurant-owner/settings/'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof AuthRestaurantOwnerSettingsIndexImport
+      parentRoute: typeof AuthImport
+    }
   }
 }
 
@@ -154,12 +169,14 @@ interface AuthRouteChildren {
   AuthProtectedRoute: typeof AuthProtectedRoute
   AuthRestaurantOwnerMenuIndexRoute: typeof AuthRestaurantOwnerMenuIndexRoute
   AuthRestaurantOwnerOrdersIndexRoute: typeof AuthRestaurantOwnerOrdersIndexRoute
+  AuthRestaurantOwnerSettingsIndexRoute: typeof AuthRestaurantOwnerSettingsIndexRoute
 }
 
 const AuthRouteChildren: AuthRouteChildren = {
   AuthProtectedRoute: AuthProtectedRoute,
   AuthRestaurantOwnerMenuIndexRoute: AuthRestaurantOwnerMenuIndexRoute,
   AuthRestaurantOwnerOrdersIndexRoute: AuthRestaurantOwnerOrdersIndexRoute,
+  AuthRestaurantOwnerSettingsIndexRoute: AuthRestaurantOwnerSettingsIndexRoute,
 }
 
 const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
@@ -174,6 +191,7 @@ export interface FileRoutesByFullPath {
   '/register': typeof PublicRegisterIndexRoute
   '/menu': typeof AuthRestaurantOwnerMenuIndexRoute
   '/orders': typeof AuthRestaurantOwnerOrdersIndexRoute
+  '/settings': typeof AuthRestaurantOwnerSettingsIndexRoute
 }
 
 export interface FileRoutesByTo {
@@ -186,6 +204,7 @@ export interface FileRoutesByTo {
   '/register': typeof PublicRegisterIndexRoute
   '/menu': typeof AuthRestaurantOwnerMenuIndexRoute
   '/orders': typeof AuthRestaurantOwnerOrdersIndexRoute
+  '/settings': typeof AuthRestaurantOwnerSettingsIndexRoute
 }
 
 export interface FileRoutesById {
@@ -199,6 +218,7 @@ export interface FileRoutesById {
   '/_public/register/': typeof PublicRegisterIndexRoute
   '/_auth/_restaurant-owner/menu/': typeof AuthRestaurantOwnerMenuIndexRoute
   '/_auth/_restaurant-owner/orders/': typeof AuthRestaurantOwnerOrdersIndexRoute
+  '/_auth/_restaurant-owner/settings/': typeof AuthRestaurantOwnerSettingsIndexRoute
 }
 
 export interface FileRouteTypes {
@@ -213,6 +233,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/menu'
     | '/orders'
+    | '/settings'
   fileRoutesByTo: FileRoutesByTo
   to:
     | ''
@@ -224,6 +245,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/menu'
     | '/orders'
+    | '/settings'
   id:
     | '__root__'
     | '/_auth'
@@ -235,6 +257,7 @@ export interface FileRouteTypes {
     | '/_public/register/'
     | '/_auth/_restaurant-owner/menu/'
     | '/_auth/_restaurant-owner/orders/'
+    | '/_auth/_restaurant-owner/settings/'
   fileRoutesById: FileRoutesById
 }
 
@@ -279,7 +302,8 @@ export const routeTree = rootRoute
       "children": [
         "/_auth/protected",
         "/_auth/_restaurant-owner/menu/",
-        "/_auth/_restaurant-owner/orders/"
+        "/_auth/_restaurant-owner/orders/",
+        "/_auth/_restaurant-owner/settings/"
       ]
     },
     "/_auth/protected": {
@@ -307,6 +331,10 @@ export const routeTree = rootRoute
     },
     "/_auth/_restaurant-owner/orders/": {
       "filePath": "_auth/_restaurant-owner/orders/index.tsx",
+      "parent": "/_auth"
+    },
+    "/_auth/_restaurant-owner/settings/": {
+      "filePath": "_auth/_restaurant-owner/settings/index.tsx",
       "parent": "/_auth"
     }
   }
