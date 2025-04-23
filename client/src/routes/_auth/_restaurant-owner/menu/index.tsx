@@ -44,7 +44,7 @@ import { z } from 'zod';
 import { useState } from 'react';
 import { Textarea } from '@/components/ui/textarea';
 
-export const Route = createFileRoute('/_root/_dashboards/_resturant-owner/menu/')({
+export const Route = createFileRoute('/_auth/_restaurant-owner/menu/')({
   component: RouteComponent,
 });
 

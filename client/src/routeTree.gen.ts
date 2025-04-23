@@ -18,8 +18,8 @@ import { Route as HomeIndexImport } from './routes/_home/index'
 import { Route as AuthProtectedImport } from './routes/_auth/protected'
 import { Route as PublicRegisterIndexImport } from './routes/_public/register/index'
 import { Route as PublicLoginIndexImport } from './routes/_public/login/index'
-import { Route as RootDashboardsResturantOwnerOrdersIndexImport } from './routes/_root/_dashboards/_resturant-owner/orders/index'
-import { Route as RootDashboardsResturantOwnerMenuIndexImport } from './routes/_root/_dashboards/_resturant-owner/menu/index'
+import { Route as AuthRestaurantOwnerOrdersIndexImport } from './routes/_auth/_restaurant-owner/orders/index'
+import { Route as AuthRestaurantOwnerMenuIndexImport } from './routes/_auth/_restaurant-owner/menu/index'
 
 // Create/Update Routes
 
@@ -64,18 +64,18 @@ const PublicLoginIndexRoute = PublicLoginIndexImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const RootDashboardsResturantOwnerOrdersIndexRoute =
-  RootDashboardsResturantOwnerOrdersIndexImport.update({
-    id: '/_root/_dashboards/_resturant-owner/orders/',
+const AuthRestaurantOwnerOrdersIndexRoute =
+  AuthRestaurantOwnerOrdersIndexImport.update({
+    id: '/_restaurant-owner/orders/',
     path: '/orders/',
-    getParentRoute: () => rootRoute,
+    getParentRoute: () => AuthRoute,
   } as any)
 
-const RootDashboardsResturantOwnerMenuIndexRoute =
-  RootDashboardsResturantOwnerMenuIndexImport.update({
-    id: '/_root/_dashboards/_resturant-owner/menu/',
+const AuthRestaurantOwnerMenuIndexRoute =
+  AuthRestaurantOwnerMenuIndexImport.update({
+    id: '/_restaurant-owner/menu/',
     path: '/menu/',
-    getParentRoute: () => rootRoute,
+    getParentRoute: () => AuthRoute,
   } as any)
 
 // Populate the FileRoutesByPath interface
@@ -131,19 +131,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicRegisterIndexImport
       parentRoute: typeof rootRoute
     }
-    '/_root/_dashboards/_resturant-owner/menu/': {
-      id: '/_root/_dashboards/_resturant-owner/menu/'
+    '/_auth/_restaurant-owner/menu/': {
+      id: '/_auth/_restaurant-owner/menu/'
       path: '/menu'
       fullPath: '/menu'
-      preLoaderRoute: typeof RootDashboardsResturantOwnerMenuIndexImport
-      parentRoute: typeof rootRoute
+      preLoaderRoute: typeof AuthRestaurantOwnerMenuIndexImport
+      parentRoute: typeof AuthImport
     }
-    '/_root/_dashboards/_resturant-owner/orders/': {
-      id: '/_root/_dashboards/_resturant-owner/orders/'
+    '/_auth/_restaurant-owner/orders/': {
+      id: '/_auth/_restaurant-owner/orders/'
       path: '/orders'
       fullPath: '/orders'
-      preLoaderRoute: typeof RootDashboardsResturantOwnerOrdersIndexImport
-      parentRoute: typeof rootRoute
+      preLoaderRoute: typeof AuthRestaurantOwnerOrdersIndexImport
+      parentRoute: typeof AuthImport
     }
   }
 }
@@ -152,10 +152,14 @@ declare module '@tanstack/react-router' {
 
 interface AuthRouteChildren {
   AuthProtectedRoute: typeof AuthProtectedRoute
+  AuthRestaurantOwnerMenuIndexRoute: typeof AuthRestaurantOwnerMenuIndexRoute
+  AuthRestaurantOwnerOrdersIndexRoute: typeof AuthRestaurantOwnerOrdersIndexRoute
 }
 
 const AuthRouteChildren: AuthRouteChildren = {
   AuthProtectedRoute: AuthProtectedRoute,
+  AuthRestaurantOwnerMenuIndexRoute: AuthRestaurantOwnerMenuIndexRoute,
+  AuthRestaurantOwnerOrdersIndexRoute: AuthRestaurantOwnerOrdersIndexRoute,
 }
 
 const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
@@ -168,8 +172,8 @@ export interface FileRoutesByFullPath {
   '/checkout': typeof CheckoutIndexRoute
   '/login': typeof PublicLoginIndexRoute
   '/register': typeof PublicRegisterIndexRoute
-  '/menu': typeof RootDashboardsResturantOwnerMenuIndexRoute
-  '/orders': typeof RootDashboardsResturantOwnerOrdersIndexRoute
+  '/menu': typeof AuthRestaurantOwnerMenuIndexRoute
+  '/orders': typeof AuthRestaurantOwnerOrdersIndexRoute
 }
 
 export interface FileRoutesByTo {
@@ -180,8 +184,8 @@ export interface FileRoutesByTo {
   '/checkout': typeof CheckoutIndexRoute
   '/login': typeof PublicLoginIndexRoute
   '/register': typeof PublicRegisterIndexRoute
-  '/menu': typeof RootDashboardsResturantOwnerMenuIndexRoute
-  '/orders': typeof RootDashboardsResturantOwnerOrdersIndexRoute
+  '/menu': typeof AuthRestaurantOwnerMenuIndexRoute
+  '/orders': typeof AuthRestaurantOwnerOrdersIndexRoute
 }
 
 export interface FileRoutesById {
@@ -193,8 +197,8 @@ export interface FileRoutesById {
   '/checkout/': typeof CheckoutIndexRoute
   '/_public/login/': typeof PublicLoginIndexRoute
   '/_public/register/': typeof PublicRegisterIndexRoute
-  '/_root/_dashboards/_resturant-owner/menu/': typeof RootDashboardsResturantOwnerMenuIndexRoute
-  '/_root/_dashboards/_resturant-owner/orders/': typeof RootDashboardsResturantOwnerOrdersIndexRoute
+  '/_auth/_restaurant-owner/menu/': typeof AuthRestaurantOwnerMenuIndexRoute
+  '/_auth/_restaurant-owner/orders/': typeof AuthRestaurantOwnerOrdersIndexRoute
 }
 
 export interface FileRouteTypes {
@@ -229,8 +233,8 @@ export interface FileRouteTypes {
     | '/checkout/'
     | '/_public/login/'
     | '/_public/register/'
-    | '/_root/_dashboards/_resturant-owner/menu/'
-    | '/_root/_dashboards/_resturant-owner/orders/'
+    | '/_auth/_restaurant-owner/menu/'
+    | '/_auth/_restaurant-owner/orders/'
   fileRoutesById: FileRoutesById
 }
 
@@ -241,8 +245,6 @@ export interface RootRouteChildren {
   CheckoutIndexRoute: typeof CheckoutIndexRoute
   PublicLoginIndexRoute: typeof PublicLoginIndexRoute
   PublicRegisterIndexRoute: typeof PublicRegisterIndexRoute
-  RootDashboardsResturantOwnerMenuIndexRoute: typeof RootDashboardsResturantOwnerMenuIndexRoute
-  RootDashboardsResturantOwnerOrdersIndexRoute: typeof RootDashboardsResturantOwnerOrdersIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -252,10 +254,6 @@ const rootRouteChildren: RootRouteChildren = {
   CheckoutIndexRoute: CheckoutIndexRoute,
   PublicLoginIndexRoute: PublicLoginIndexRoute,
   PublicRegisterIndexRoute: PublicRegisterIndexRoute,
-  RootDashboardsResturantOwnerMenuIndexRoute:
-    RootDashboardsResturantOwnerMenuIndexRoute,
-  RootDashboardsResturantOwnerOrdersIndexRoute:
-    RootDashboardsResturantOwnerOrdersIndexRoute,
 }
 
 export const routeTree = rootRoute
@@ -273,15 +271,15 @@ export const routeTree = rootRoute
         "/about/",
         "/checkout/",
         "/_public/login/",
-        "/_public/register/",
-        "/_root/_dashboards/_resturant-owner/menu/",
-        "/_root/_dashboards/_resturant-owner/orders/"
+        "/_public/register/"
       ]
     },
     "/_auth": {
       "filePath": "_auth.tsx",
       "children": [
-        "/_auth/protected"
+        "/_auth/protected",
+        "/_auth/_restaurant-owner/menu/",
+        "/_auth/_restaurant-owner/orders/"
       ]
     },
     "/_auth/protected": {
@@ -303,11 +301,13 @@ export const routeTree = rootRoute
     "/_public/register/": {
       "filePath": "_public/register/index.tsx"
     },
-    "/_root/_dashboards/_resturant-owner/menu/": {
-      "filePath": "_root/_dashboards/_resturant-owner/menu/index.tsx"
+    "/_auth/_restaurant-owner/menu/": {
+      "filePath": "_auth/_restaurant-owner/menu/index.tsx",
+      "parent": "/_auth"
     },
-    "/_root/_dashboards/_resturant-owner/orders/": {
-      "filePath": "_root/_dashboards/_resturant-owner/orders/index.tsx"
+    "/_auth/_restaurant-owner/orders/": {
+      "filePath": "_auth/_restaurant-owner/orders/index.tsx",
+      "parent": "/_auth"
     }
   }
 }

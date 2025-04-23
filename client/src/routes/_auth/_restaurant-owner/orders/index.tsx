@@ -11,7 +11,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 
-export const Route = createFileRoute('/_root/_dashboards/_resturant-owner/orders/')({
+export const Route = createFileRoute('/_auth/_restaurant-owner/orders/')({
   component: RouteComponent,
 });
 
