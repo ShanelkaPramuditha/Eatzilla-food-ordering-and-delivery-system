@@ -11,4 +11,8 @@ export class PaymentService {
   getStatus() {
     return this.paymentClient.send({ cmd: 'get.status' }, {});
   }
+
+  getProducts() {
+    return this.paymentClient.send({ cmd: 'get.products' }, {});
+  }
 }

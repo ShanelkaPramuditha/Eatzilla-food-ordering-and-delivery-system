@@ -24,7 +24,9 @@ export const apiGatewayEnvSchema = commonEnvSchema.extend({
 });
 
 // Payment service specific schema
-export const paymentServiceEnvSchema = commonEnvSchema.extend({});
+export const paymentServiceEnvSchema = commonEnvSchema.extend({
+  STRIPE_SECRET_KEY: z.string().min(1),
+});
 
 // Alert service specific schema
 export const alertServiceEnvSchema = commonEnvSchema.extend({

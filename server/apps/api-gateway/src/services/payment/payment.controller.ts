@@ -9,4 +9,9 @@ export class PaymentController {
   getStatus() {
     return this.paymentService.getStatus();
   }
+
+  @Get('products')
+  getProducts() {
+    return this.paymentService.getProducts();
+  }
 }
