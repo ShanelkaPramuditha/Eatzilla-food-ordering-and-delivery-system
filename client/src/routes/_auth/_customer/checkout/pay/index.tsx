@@ -3,7 +3,7 @@ import { loadStripe } from '@stripe/stripe-js';
 import { EmbeddedCheckoutProvider, EmbeddedCheckout } from '@stripe/react-stripe-js';
 import { useCallback, useState, useEffect } from 'react';
 import { useCartStore } from '@/store/cart.store';
-import { formatCurrency } from '@/lib/utils';
+import { formatCurrency } from '@/utils/common-utils';
 import { ArrowLeft, ShoppingBag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
