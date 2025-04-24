@@ -34,3 +34,21 @@ export const RestaurantOwnerSidebarItems = [
     icon: IconSettings,
   },
 ];
+
+export const DeliveryPersonSidebarItems = [
+  {
+    title: 'Dashboard',
+    url: '/',
+    icon: IconLayoutDashboardFilled,
+  },
+  {
+    title: 'Orders',
+    url: '/orders',
+    icon: IconTruckDelivery,
+  },
+  {
+    title: 'Delivery',
+    url: '/delivery',
+    icon: IconTruckDelivery,
+  }
+];

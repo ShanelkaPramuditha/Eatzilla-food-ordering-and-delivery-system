@@ -6,8 +6,8 @@ import { MessagePattern } from '@nestjs/microservices';
 export class PaymentController {
   constructor(private readonly paymentService: PaymentService) {}
 
-  @MessagePattern({ cmd: 'get.payment' })
-  getPayment(): string {
-    return this.paymentService.getPayment();
+  @MessagePattern({ cmd: 'get.status' })
+  getStatus(): string {
+    return this.paymentService.getStatus();
   }
 }

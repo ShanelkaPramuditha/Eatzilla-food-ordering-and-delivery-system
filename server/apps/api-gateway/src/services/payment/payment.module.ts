@@ -25,5 +25,6 @@ import { ConfigModule } from '@nestjs/config';
   ],
   providers: [PaymentService],
   controllers: [PaymentController],
+  exports: [PaymentService],
 })
 export class PaymentModule {}

@@ -10,301 +10,357 @@
 
 // Import Routes
 
-import { Route as rootRoute } from './routes/__root'
-import { Route as AuthImport } from './routes/_auth'
-import { Route as CheckoutIndexImport } from './routes/checkout/index'
-import { Route as AboutIndexImport } from './routes/about/index'
-import { Route as HomeIndexImport } from './routes/_home/index'
-import { Route as AuthProtectedImport } from './routes/_auth/protected'
-import { Route as PublicRegisterIndexImport } from './routes/_public/register/index'
-import { Route as PublicLoginIndexImport } from './routes/_public/login/index'
-import { Route as AuthRestaurantOwnerSettingsIndexImport } from './routes/_auth/_restaurant-owner/settings/index'
-import { Route as AuthRestaurantOwnerReviewsIndexImport } from './routes/_auth/_restaurant-owner/reviews/index'
-import { Route as AuthRestaurantOwnerOrdersIndexImport } from './routes/_auth/_restaurant-owner/orders/index'
-import { Route as AuthRestaurantOwnerMenuIndexImport } from './routes/_auth/_restaurant-owner/menu/index'
+import { Route as rootRoute } from './routes/__root';
+import { Route as AuthImport } from './routes/_auth';
+import { Route as AboutIndexImport } from './routes/about/index';
+import { Route as HomeIndexImport } from './routes/_home/index';
+import { Route as AuthProtectedImport } from './routes/_auth/protected';
+import { Route as AuthDeliveryPersonImport } from './routes/_auth/_delivery-person';
+import { Route as PublicRegisterIndexImport } from './routes/_public/register/index';
+import { Route as PublicLoginIndexImport } from './routes/_public/login/index';
+import { Route as AuthRestaurantOwnerSettingsIndexImport } from './routes/_auth/_restaurant-owner/settings/index';
+import { Route as AuthRestaurantOwnerReviewsIndexImport } from './routes/_auth/_restaurant-owner/reviews/index';
+import { Route as AuthRestaurantOwnerOrdersIndexImport } from './routes/_auth/_restaurant-owner/orders/index';
+import { Route as AuthRestaurantOwnerMenuIndexImport } from './routes/_auth/_restaurant-owner/menu/index';
+import { Route as AuthCustomerCheckoutIndexImport } from './routes/_auth/_customer/checkout/index';
+import { Route as AuthCustomerCheckoutPayIndexImport } from './routes/_auth/_customer/checkout/pay/index';
+import { Route as AuthCustomerCheckoutPayReturnImport } from './routes/_auth/_customer/checkout/pay/return';
 
 // Create/Update Routes
 
 const AuthRoute = AuthImport.update({
   id: '/_auth',
   getParentRoute: () => rootRoute,
-} as any)
-
-const CheckoutIndexRoute = CheckoutIndexImport.update({
-  id: '/checkout/',
-  path: '/checkout/',
-  getParentRoute: () => rootRoute,
-} as any)
+} as any);
 
 const AboutIndexRoute = AboutIndexImport.update({
   id: '/about/',
   path: '/about/',
   getParentRoute: () => rootRoute,
-} as any)
+} as any);
 
 const HomeIndexRoute = HomeIndexImport.update({
   id: '/_home/',
   path: '/',
   getParentRoute: () => rootRoute,
-} as any)
+} as any);
 
 const AuthProtectedRoute = AuthProtectedImport.update({
   id: '/protected',
   path: '/protected',
   getParentRoute: () => AuthRoute,
-} as any)
+} as any);
+
+const AuthDeliveryPersonRoute = AuthDeliveryPersonImport.update({
+  id: '/_delivery-person',
+  getParentRoute: () => AuthRoute,
+} as any);
 
 const PublicRegisterIndexRoute = PublicRegisterIndexImport.update({
   id: '/_public/register/',
   path: '/register/',
   getParentRoute: () => rootRoute,
-} as any)
+} as any);
 
 const PublicLoginIndexRoute = PublicLoginIndexImport.update({
   id: '/_public/login/',
   path: '/login/',
   getParentRoute: () => rootRoute,
-} as any)
+} as any);
 
-const AuthRestaurantOwnerSettingsIndexRoute =
-  AuthRestaurantOwnerSettingsIndexImport.update({
-    id: '/_restaurant-owner/settings/',
-    path: '/settings/',
-    getParentRoute: () => AuthRoute,
-  } as any)
+const AuthRestaurantOwnerSettingsIndexRoute = AuthRestaurantOwnerSettingsIndexImport.update({
+  id: '/_restaurant-owner/settings/',
+  path: '/settings/',
+  getParentRoute: () => AuthRoute,
+} as any);
 
-const AuthRestaurantOwnerReviewsIndexRoute =
-  AuthRestaurantOwnerReviewsIndexImport.update({
-    id: '/_restaurant-owner/reviews/',
-    path: '/reviews/',
-    getParentRoute: () => AuthRoute,
-  } as any)
+const AuthRestaurantOwnerReviewsIndexRoute = AuthRestaurantOwnerReviewsIndexImport.update({
+  id: '/_restaurant-owner/reviews/',
+  path: '/reviews/',
+  getParentRoute: () => AuthRoute,
+} as any);
 
-const AuthRestaurantOwnerOrdersIndexRoute =
-  AuthRestaurantOwnerOrdersIndexImport.update({
-    id: '/_restaurant-owner/orders/',
-    path: '/orders/',
-    getParentRoute: () => AuthRoute,
-  } as any)
+const AuthRestaurantOwnerOrdersIndexRoute = AuthRestaurantOwnerOrdersIndexImport.update({
+  id: '/_restaurant-owner/orders/',
+  path: '/orders/',
+  getParentRoute: () => AuthRoute,
+} as any);
 
-const AuthRestaurantOwnerMenuIndexRoute =
-  AuthRestaurantOwnerMenuIndexImport.update({
-    id: '/_restaurant-owner/menu/',
-    path: '/menu/',
-    getParentRoute: () => AuthRoute,
-  } as any)
+const AuthRestaurantOwnerMenuIndexRoute = AuthRestaurantOwnerMenuIndexImport.update({
+  id: '/_restaurant-owner/menu/',
+  path: '/menu/',
+  getParentRoute: () => AuthRoute,
+} as any);
+
+const AuthCustomerCheckoutIndexRoute = AuthCustomerCheckoutIndexImport.update({
+  id: '/_customer/checkout/',
+  path: '/checkout/',
+  getParentRoute: () => AuthRoute,
+} as any);
+
+const AuthCustomerCheckoutPayIndexRoute = AuthCustomerCheckoutPayIndexImport.update({
+  id: '/_customer/checkout/pay/',
+  path: '/checkout/pay/',
+  getParentRoute: () => AuthRoute,
+} as any);
+
+const AuthCustomerCheckoutPayReturnRoute = AuthCustomerCheckoutPayReturnImport.update({
+  id: '/_customer/checkout/pay/return',
+  path: '/checkout/pay/return',
+  getParentRoute: () => AuthRoute,
+} as any);
 
 // Populate the FileRoutesByPath interface
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
     '/_auth': {
-      id: '/_auth'
-      path: ''
-      fullPath: ''
-      preLoaderRoute: typeof AuthImport
-      parentRoute: typeof rootRoute
-    }
+      id: '/_auth';
+      path: '';
+      fullPath: '';
+      preLoaderRoute: typeof AuthImport;
+      parentRoute: typeof rootRoute;
+    };
+    '/_auth/_delivery-person': {
+      id: '/_auth/_delivery-person';
+      path: '';
+      fullPath: '';
+      preLoaderRoute: typeof AuthDeliveryPersonImport;
+      parentRoute: typeof AuthImport;
+    };
     '/_auth/protected': {
-      id: '/_auth/protected'
-      path: '/protected'
-      fullPath: '/protected'
-      preLoaderRoute: typeof AuthProtectedImport
-      parentRoute: typeof AuthImport
-    }
+      id: '/_auth/protected';
+      path: '/protected';
+      fullPath: '/protected';
+      preLoaderRoute: typeof AuthProtectedImport;
+      parentRoute: typeof AuthImport;
+    };
     '/_home/': {
-      id: '/_home/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof HomeIndexImport
-      parentRoute: typeof rootRoute
-    }
+      id: '/_home/';
+      path: '/';
+      fullPath: '/';
+      preLoaderRoute: typeof HomeIndexImport;
+      parentRoute: typeof rootRoute;
+    };
     '/about/': {
-      id: '/about/'
-      path: '/about'
-      fullPath: '/about'
-      preLoaderRoute: typeof AboutIndexImport
-      parentRoute: typeof rootRoute
-    }
-    '/checkout/': {
-      id: '/checkout/'
-      path: '/checkout'
-      fullPath: '/checkout'
-      preLoaderRoute: typeof CheckoutIndexImport
-      parentRoute: typeof rootRoute
-    }
+      id: '/about/';
+      path: '/about';
+      fullPath: '/about';
+      preLoaderRoute: typeof AboutIndexImport;
+      parentRoute: typeof rootRoute;
+    };
     '/_public/login/': {
-      id: '/_public/login/'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof PublicLoginIndexImport
-      parentRoute: typeof rootRoute
-    }
+      id: '/_public/login/';
+      path: '/login';
+      fullPath: '/login';
+      preLoaderRoute: typeof PublicLoginIndexImport;
+      parentRoute: typeof rootRoute;
+    };
     '/_public/register/': {
-      id: '/_public/register/'
-      path: '/register'
-      fullPath: '/register'
-      preLoaderRoute: typeof PublicRegisterIndexImport
-      parentRoute: typeof rootRoute
-    }
+      id: '/_public/register/';
+      path: '/register';
+      fullPath: '/register';
+      preLoaderRoute: typeof PublicRegisterIndexImport;
+      parentRoute: typeof rootRoute;
+    };
+    '/_auth/_customer/checkout/': {
+      id: '/_auth/_customer/checkout/';
+      path: '/checkout';
+      fullPath: '/checkout';
+      preLoaderRoute: typeof AuthCustomerCheckoutIndexImport;
+      parentRoute: typeof AuthImport;
+    };
     '/_auth/_restaurant-owner/menu/': {
-      id: '/_auth/_restaurant-owner/menu/'
-      path: '/menu'
-      fullPath: '/menu'
-      preLoaderRoute: typeof AuthRestaurantOwnerMenuIndexImport
-      parentRoute: typeof AuthImport
-    }
+      id: '/_auth/_restaurant-owner/menu/';
+      path: '/menu';
+      fullPath: '/menu';
+      preLoaderRoute: typeof AuthRestaurantOwnerMenuIndexImport;
+      parentRoute: typeof AuthImport;
+    };
     '/_auth/_restaurant-owner/orders/': {
-      id: '/_auth/_restaurant-owner/orders/'
-      path: '/orders'
-      fullPath: '/orders'
-      preLoaderRoute: typeof AuthRestaurantOwnerOrdersIndexImport
-      parentRoute: typeof AuthImport
-    }
+      id: '/_auth/_restaurant-owner/orders/';
+      path: '/orders';
+      fullPath: '/orders';
+      preLoaderRoute: typeof AuthRestaurantOwnerOrdersIndexImport;
+      parentRoute: typeof AuthImport;
+    };
     '/_auth/_restaurant-owner/reviews/': {
-      id: '/_auth/_restaurant-owner/reviews/'
-      path: '/reviews'
-      fullPath: '/reviews'
-      preLoaderRoute: typeof AuthRestaurantOwnerReviewsIndexImport
-      parentRoute: typeof AuthImport
-    }
+      id: '/_auth/_restaurant-owner/reviews/';
+      path: '/reviews';
+      fullPath: '/reviews';
+      preLoaderRoute: typeof AuthRestaurantOwnerReviewsIndexImport;
+      parentRoute: typeof AuthImport;
+    };
     '/_auth/_restaurant-owner/settings/': {
-      id: '/_auth/_restaurant-owner/settings/'
-      path: '/settings'
-      fullPath: '/settings'
-      preLoaderRoute: typeof AuthRestaurantOwnerSettingsIndexImport
-      parentRoute: typeof AuthImport
-    }
+      id: '/_auth/_restaurant-owner/settings/';
+      path: '/settings';
+      fullPath: '/settings';
+      preLoaderRoute: typeof AuthRestaurantOwnerSettingsIndexImport;
+      '/_auth/_customer/checkout/pay/return': {
+        id: '/_auth/_customer/checkout/pay/return';
+        path: '/checkout/pay/return';
+        fullPath: '/checkout/pay/return';
+        preLoaderRoute: typeof AuthCustomerCheckoutPayReturnImport;
+        parentRoute: typeof AuthImport;
+      };
+      '/_auth/_customer/checkout/pay/': {
+        id: '/_auth/_customer/checkout/pay/';
+        path: '/checkout/pay';
+        fullPath: '/checkout/pay';
+        preLoaderRoute: typeof AuthCustomerCheckoutPayIndexImport;
+        parentRoute: typeof AuthImport;
+      };
+    };
   }
 }
 
 // Create and export the route tree
 
 interface AuthRouteChildren {
-  AuthProtectedRoute: typeof AuthProtectedRoute
-  AuthRestaurantOwnerMenuIndexRoute: typeof AuthRestaurantOwnerMenuIndexRoute
-  AuthRestaurantOwnerOrdersIndexRoute: typeof AuthRestaurantOwnerOrdersIndexRoute
-  AuthRestaurantOwnerReviewsIndexRoute: typeof AuthRestaurantOwnerReviewsIndexRoute
-  AuthRestaurantOwnerSettingsIndexRoute: typeof AuthRestaurantOwnerSettingsIndexRoute
+  AuthDeliveryPersonRoute: typeof AuthDeliveryPersonRoute;
+  AuthProtectedRoute: typeof AuthProtectedRoute;
+  AuthCustomerCheckoutIndexRoute: typeof AuthCustomerCheckoutIndexRoute;
+  AuthRestaurantOwnerMenuIndexRoute: typeof AuthRestaurantOwnerMenuIndexRoute;
+  AuthRestaurantOwnerOrdersIndexRoute: typeof AuthRestaurantOwnerOrdersIndexRoute;
+  AuthRestaurantOwnerReviewsIndexRoute: typeof AuthRestaurantOwnerReviewsIndexRoute;
+  AuthRestaurantOwnerSettingsIndexRoute: typeof AuthRestaurantOwnerSettingsIndexRoute;
+  AuthCustomerCheckoutPayReturnRoute: typeof AuthCustomerCheckoutPayReturnRoute;
+  AuthCustomerCheckoutPayIndexRoute: typeof AuthCustomerCheckoutPayIndexRoute;
 }
 
 const AuthRouteChildren: AuthRouteChildren = {
+  AuthDeliveryPersonRoute: AuthDeliveryPersonRoute,
   AuthProtectedRoute: AuthProtectedRoute,
+  AuthCustomerCheckoutIndexRoute: AuthCustomerCheckoutIndexRoute,
   AuthRestaurantOwnerMenuIndexRoute: AuthRestaurantOwnerMenuIndexRoute,
   AuthRestaurantOwnerOrdersIndexRoute: AuthRestaurantOwnerOrdersIndexRoute,
   AuthRestaurantOwnerReviewsIndexRoute: AuthRestaurantOwnerReviewsIndexRoute,
   AuthRestaurantOwnerSettingsIndexRoute: AuthRestaurantOwnerSettingsIndexRoute,
-}
+  AuthCustomerCheckoutPayReturnRoute: AuthCustomerCheckoutPayReturnRoute,
+  AuthCustomerCheckoutPayIndexRoute: AuthCustomerCheckoutPayIndexRoute,
+};
 
-const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
+const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren);
 
 export interface FileRoutesByFullPath {
-  '': typeof AuthRouteWithChildren
-  '/protected': typeof AuthProtectedRoute
-  '/': typeof HomeIndexRoute
-  '/about': typeof AboutIndexRoute
-  '/checkout': typeof CheckoutIndexRoute
-  '/login': typeof PublicLoginIndexRoute
-  '/register': typeof PublicRegisterIndexRoute
-  '/menu': typeof AuthRestaurantOwnerMenuIndexRoute
-  '/orders': typeof AuthRestaurantOwnerOrdersIndexRoute
-  '/reviews': typeof AuthRestaurantOwnerReviewsIndexRoute
-  '/settings': typeof AuthRestaurantOwnerSettingsIndexRoute
+  '': typeof AuthDeliveryPersonRoute;
+  '/protected': typeof AuthProtectedRoute;
+  '/': typeof HomeIndexRoute;
+  '/about': typeof AboutIndexRoute;
+  '/login': typeof PublicLoginIndexRoute;
+  '/register': typeof PublicRegisterIndexRoute;
+  '/checkout': typeof AuthCustomerCheckoutIndexRoute;
+  '/menu': typeof AuthRestaurantOwnerMenuIndexRoute;
+  '/orders': typeof AuthRestaurantOwnerOrdersIndexRoute;
+  '/reviews': typeof AuthRestaurantOwnerReviewsIndexRoute;
+  '/settings': typeof AuthRestaurantOwnerSettingsIndexRoute;
+  '/checkout/pay/return': typeof AuthCustomerCheckoutPayReturnRoute;
+  '/checkout/pay': typeof AuthCustomerCheckoutPayIndexRoute;
 }
 
 export interface FileRoutesByTo {
-  '': typeof AuthRouteWithChildren
-  '/protected': typeof AuthProtectedRoute
-  '/': typeof HomeIndexRoute
-  '/about': typeof AboutIndexRoute
-  '/checkout': typeof CheckoutIndexRoute
-  '/login': typeof PublicLoginIndexRoute
-  '/register': typeof PublicRegisterIndexRoute
-  '/menu': typeof AuthRestaurantOwnerMenuIndexRoute
-  '/orders': typeof AuthRestaurantOwnerOrdersIndexRoute
-  '/reviews': typeof AuthRestaurantOwnerReviewsIndexRoute
-  '/settings': typeof AuthRestaurantOwnerSettingsIndexRoute
+  '': typeof AuthDeliveryPersonRoute;
+  '/protected': typeof AuthProtectedRoute;
+  '/': typeof HomeIndexRoute;
+  '/about': typeof AboutIndexRoute;
+  '/login': typeof PublicLoginIndexRoute;
+  '/register': typeof PublicRegisterIndexRoute;
+  '/checkout': typeof AuthCustomerCheckoutIndexRoute;
+  '/menu': typeof AuthRestaurantOwnerMenuIndexRoute;
+  '/orders': typeof AuthRestaurantOwnerOrdersIndexRoute;
+  '/reviews': typeof AuthRestaurantOwnerReviewsIndexRoute;
+  '/settings': typeof AuthRestaurantOwnerSettingsIndexRoute;
+  '/checkout/pay/return': typeof AuthCustomerCheckoutPayReturnRoute;
+  '/checkout/pay': typeof AuthCustomerCheckoutPayIndexRoute;
 }
 
 export interface FileRoutesById {
-  __root__: typeof rootRoute
-  '/_auth': typeof AuthRouteWithChildren
-  '/_auth/protected': typeof AuthProtectedRoute
-  '/_home/': typeof HomeIndexRoute
-  '/about/': typeof AboutIndexRoute
-  '/checkout/': typeof CheckoutIndexRoute
-  '/_public/login/': typeof PublicLoginIndexRoute
-  '/_public/register/': typeof PublicRegisterIndexRoute
-  '/_auth/_restaurant-owner/menu/': typeof AuthRestaurantOwnerMenuIndexRoute
-  '/_auth/_restaurant-owner/orders/': typeof AuthRestaurantOwnerOrdersIndexRoute
-  '/_auth/_restaurant-owner/reviews/': typeof AuthRestaurantOwnerReviewsIndexRoute
-  '/_auth/_restaurant-owner/settings/': typeof AuthRestaurantOwnerSettingsIndexRoute
+  __root__: typeof rootRoute;
+  '/_auth': typeof AuthRouteWithChildren;
+  '/_auth/_delivery-person': typeof AuthDeliveryPersonRoute;
+  '/_auth/protected': typeof AuthProtectedRoute;
+  '/_home/': typeof HomeIndexRoute;
+  '/about/': typeof AboutIndexRoute;
+  '/_public/login/': typeof PublicLoginIndexRoute;
+  '/_public/register/': typeof PublicRegisterIndexRoute;
+  '/_auth/_customer/checkout/': typeof AuthCustomerCheckoutIndexRoute;
+  '/_auth/_restaurant-owner/menu/': typeof AuthRestaurantOwnerMenuIndexRoute;
+  '/_auth/_restaurant-owner/orders/': typeof AuthRestaurantOwnerOrdersIndexRoute;
+  '/_auth/_restaurant-owner/reviews/': typeof AuthRestaurantOwnerReviewsIndexRoute;
+  '/_auth/_restaurant-owner/settings/': typeof AuthRestaurantOwnerSettingsIndexRoute;
+  '/_auth/_customer/checkout/pay/return': typeof AuthCustomerCheckoutPayReturnRoute;
+  '/_auth/_customer/checkout/pay/': typeof AuthCustomerCheckoutPayIndexRoute;
 }
 
 export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath
+  fileRoutesByFullPath: FileRoutesByFullPath;
   fullPaths:
     | ''
     | '/protected'
     | '/'
     | '/about'
-    | '/checkout'
     | '/login'
     | '/register'
+    | '/checkout'
     | '/menu'
     | '/orders'
     | '/reviews'
     | '/settings'
-  fileRoutesByTo: FileRoutesByTo
+    | '/checkout/pay/return'
+    | '/checkout/pay';
+  fileRoutesByTo: FileRoutesByTo;
   to:
     | ''
     | '/protected'
     | '/'
     | '/about'
-    | '/checkout'
     | '/login'
     | '/register'
+    | '/checkout'
     | '/menu'
     | '/orders'
     | '/reviews'
     | '/settings'
+    | '/checkout/pay/return'
+    | '/checkout/pay';
   id:
     | '__root__'
     | '/_auth'
+    | '/_auth/_delivery-person'
     | '/_auth/protected'
     | '/_home/'
     | '/about/'
-    | '/checkout/'
     | '/_public/login/'
     | '/_public/register/'
+    | '/_auth/_customer/checkout/'
     | '/_auth/_restaurant-owner/menu/'
     | '/_auth/_restaurant-owner/orders/'
     | '/_auth/_restaurant-owner/reviews/'
     | '/_auth/_restaurant-owner/settings/'
-  fileRoutesById: FileRoutesById
+    | '/_auth/_customer/checkout/pay/return'
+    | '/_auth/_customer/checkout/pay/';
+  fileRoutesById: FileRoutesById;
 }
 
 export interface RootRouteChildren {
-  AuthRoute: typeof AuthRouteWithChildren
-  HomeIndexRoute: typeof HomeIndexRoute
-  AboutIndexRoute: typeof AboutIndexRoute
-  CheckoutIndexRoute: typeof CheckoutIndexRoute
-  PublicLoginIndexRoute: typeof PublicLoginIndexRoute
-  PublicRegisterIndexRoute: typeof PublicRegisterIndexRoute
+  AuthRoute: typeof AuthRouteWithChildren;
+  HomeIndexRoute: typeof HomeIndexRoute;
+  AboutIndexRoute: typeof AboutIndexRoute;
+  PublicLoginIndexRoute: typeof PublicLoginIndexRoute;
+  PublicRegisterIndexRoute: typeof PublicRegisterIndexRoute;
 }
 
 const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRouteWithChildren,
   HomeIndexRoute: HomeIndexRoute,
   AboutIndexRoute: AboutIndexRoute,
-  CheckoutIndexRoute: CheckoutIndexRoute,
   PublicLoginIndexRoute: PublicLoginIndexRoute,
   PublicRegisterIndexRoute: PublicRegisterIndexRoute,
-}
+};
 
 export const routeTree = rootRoute
   ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>()
+  ._addFileTypes<FileRouteTypes>();
 
 /* ROUTE_MANIFEST_START
 {
@@ -315,7 +371,6 @@ export const routeTree = rootRoute
         "/_auth",
         "/_home/",
         "/about/",
-        "/checkout/",
         "/_public/login/",
         "/_public/register/"
       ]
@@ -323,12 +378,20 @@ export const routeTree = rootRoute
     "/_auth": {
       "filePath": "_auth.tsx",
       "children": [
+        "/_auth/_delivery-person",
         "/_auth/protected",
+        "/_auth/_customer/checkout/",
         "/_auth/_restaurant-owner/menu/",
         "/_auth/_restaurant-owner/orders/",
         "/_auth/_restaurant-owner/reviews/",
         "/_auth/_restaurant-owner/settings/"
+        "/_auth/_customer/checkout/pay/return",
+        "/_auth/_customer/checkout/pay/"
       ]
+    },
+    "/_auth/_delivery-person": {
+      "filePath": "_auth/_delivery-person.tsx",
+      "parent": "/_auth"
     },
     "/_auth/protected": {
       "filePath": "_auth/protected.tsx",
@@ -340,14 +403,15 @@ export const routeTree = rootRoute
     "/about/": {
       "filePath": "about/index.tsx"
     },
-    "/checkout/": {
-      "filePath": "checkout/index.tsx"
-    },
     "/_public/login/": {
       "filePath": "_public/login/index.tsx"
     },
     "/_public/register/": {
       "filePath": "_public/register/index.tsx"
+    },
+    "/_auth/_customer/checkout/": {
+      "filePath": "_auth/_customer/checkout/index.tsx",
+      "parent": "/_auth"
     },
     "/_auth/_restaurant-owner/menu/": {
       "filePath": "_auth/_restaurant-owner/menu/index.tsx",
@@ -363,6 +427,12 @@ export const routeTree = rootRoute
     },
     "/_auth/_restaurant-owner/settings/": {
       "filePath": "_auth/_restaurant-owner/settings/index.tsx",
+    "/_auth/_customer/checkout/pay/return": {
+      "filePath": "_auth/_customer/checkout/pay/return.tsx",
+      "parent": "/_auth"
+    },
+    "/_auth/_customer/checkout/pay/": {
+      "filePath": "_auth/_customer/checkout/pay/index.tsx",
       "parent": "/_auth"
     }
   }

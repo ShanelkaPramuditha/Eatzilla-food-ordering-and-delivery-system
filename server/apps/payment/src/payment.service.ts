@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class PaymentService {
-  getPayment(): string {
+  getStatus(): string {
     return 'Payment service is running';
   }
 }

@@ -1,6 +1,4 @@
-// src/routes/checkout.tsx
 import { createFileRoute, useRouter } from '@tanstack/react-router';
-import { useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, FormProvider } from 'react-hook-form';
 import { useCartStore } from '@/store/cart.store';
@@ -13,7 +11,7 @@ import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 import { formatCurrency } from '@/lib/utils';
 import { toast } from 'sonner';
-import { AlertCircle, Loader } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 import {
   Form,
   FormControl,
@@ -23,15 +21,15 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { checkoutFormSchema, type CheckoutFormValues } from '@/schemas/checkout.schema';
-import OrderService from '@/services/order.service';
+import { useOrderStore } from '@/store/order.store';
 
-export const Route = createFileRoute('/checkout/')({
+export const Route = createFileRoute('/_auth/_customer/checkout/')({
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  const { cart, cartTotal, clearCart } = useCartStore();
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { cart, cartTotal } = useCartStore();
+  const { setOrder } = useOrderStore();
   const router = useRouter();
 
   const form = useForm<CheckoutFormValues>({
@@ -44,7 +42,7 @@ function RouteComponent() {
         postalCode: '',
         instructions: '',
       },
-      payment: 'cash',
+      payment: 'card',
       specialInstructions: '',
     },
     mode: 'onBlur',
@@ -56,30 +54,12 @@ function RouteComponent() {
       return;
     }
 
-    setIsSubmitting(true);
-
     try {
-      // Create the order
-      const order = await OrderService.createOrder(
-        cart,
-        data.address,
-        data.payment,
-        data.specialInstructions,
-      );
-
-      // Process payment if method is card
-
-      // Clear cart and show success
-      clearCart();
-      toast.success('Order placed successfully!');
-      await router.navigate({ to: `/orders/${order._id}` });
+      setOrder(data);
+      router.navigate({ to: `/checkout/pay` });
     } catch (error) {
-      console.error('Checkout error:', error);
-      toast.error(
-        error instanceof Error ? error.message : 'There was an error processing your order',
-      );
-    } finally {
-      setIsSubmitting(false);
+      console.error('Error placing order:', error);
+      toast.error('Failed to place order. Please try again.');
     }
   };
 
@@ -149,7 +129,7 @@ function RouteComponent() {
                         <FormItem>
                           <FormLabel>Street Address</FormLabel>
                           <FormControl>
-                            <Input placeholder='123 Main St' {...field} disabled={isSubmitting} />
+                            <Input placeholder='123 Main St' {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -164,7 +144,7 @@ function RouteComponent() {
                           <FormItem>
                             <FormLabel>City</FormLabel>
                             <FormControl>
-                              <Input placeholder='New York' {...field} disabled={isSubmitting} />
+                              <Input placeholder='New York' {...field} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -178,7 +158,7 @@ function RouteComponent() {
                           <FormItem>
                             <FormLabel>State</FormLabel>
                             <FormControl>
-                              <Input placeholder='NY' {...field} disabled={isSubmitting} />
+                              <Input placeholder='NY' {...field} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -193,7 +173,7 @@ function RouteComponent() {
                         <FormItem>
                           <FormLabel>Postal Code</FormLabel>
                           <FormControl>
-                            <Input placeholder='10001' {...field} disabled={isSubmitting} />
+                            <Input placeholder='10001' {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -210,7 +190,6 @@ function RouteComponent() {
                             <Textarea
                               placeholder='Gate code, building instructions, etc.'
                               {...field}
-                              disabled={isSubmitting}
                             />
                           </FormControl>
                           <FormMessage />
@@ -222,7 +201,7 @@ function RouteComponent() {
               </Card>
 
               {/* Payment Method */}
-              <Card className='mb-8'>
+              <Card className='mb-8 hidden'>
                 <CardHeader>
                   <CardTitle>Payment Method</CardTitle>
                 </CardHeader>
@@ -237,7 +216,6 @@ function RouteComponent() {
                             onValueChange={field.onChange}
                             value={field.value}
                             className='grid gap-4'
-                            disabled={isSubmitting}
                           >
                             <div className='flex items-center space-x-2 rounded-md border p-4'>
                               <RadioGroupItem value='cash' id='cash' />
@@ -276,7 +254,6 @@ function RouteComponent() {
                             placeholder='Any special requests for your order?'
                             className='min-h-[100px]'
                             {...field}
-                            disabled={isSubmitting}
                           />
                         </FormControl>
                         <FormMessage />
@@ -343,15 +320,8 @@ function RouteComponent() {
                     </div>
                   </div>
 
-                  <Button className='mt-6 w-full' size='lg' type='submit' disabled={isSubmitting}>
-                    {isSubmitting ? (
-                      <>
-                        <Loader className='mr-2 h-4 w-4 animate-spin' />
-                        Placing Order...
-                      </>
-                    ) : (
-                      'Place Order'
-                    )}
+                  <Button className='mt-6 w-full' size='lg' type='submit'>
+                    Place Order
                   </Button>
 
                   <div className='bg-muted mt-4 flex items-start gap-2 rounded-md p-3 text-sm'>

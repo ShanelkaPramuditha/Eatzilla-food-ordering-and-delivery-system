@@ -149,3 +149,16 @@
     @apply bg-background text-foreground;
   }
 }
+
+html {
+  overflow-y: scroll;
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+}
+
+@layer base {
+  body {
+    @apply bg-background text-foreground;
+    @apply !min-w-full;
+  }
+}
