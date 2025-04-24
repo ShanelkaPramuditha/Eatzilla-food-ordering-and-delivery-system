@@ -12,7 +12,6 @@
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as AuthImport } from './routes/_auth'
-import { Route as CheckoutIndexImport } from './routes/checkout/index'
 import { Route as AboutIndexImport } from './routes/about/index'
 import { Route as HomeIndexImport } from './routes/_home/index'
 import { Route as AuthProtectedImport } from './routes/_auth/protected'
@@ -20,17 +19,14 @@ import { Route as PublicRegisterIndexImport } from './routes/_public/register/in
 import { Route as PublicLoginIndexImport } from './routes/_public/login/index'
 import { Route as AuthRestaurantOwnerOrdersIndexImport } from './routes/_auth/_restaurant-owner/orders/index'
 import { Route as AuthRestaurantOwnerMenuIndexImport } from './routes/_auth/_restaurant-owner/menu/index'
+import { Route as AuthCustomerCheckoutIndexImport } from './routes/_auth/_customer/checkout/index'
+import { Route as AuthCustomerCheckoutPayIndexImport } from './routes/_auth/_customer/checkout/pay/index'
+import { Route as AuthCustomerCheckoutPayReturnImport } from './routes/_auth/_customer/checkout/pay/return'
 
 // Create/Update Routes
 
 const AuthRoute = AuthImport.update({
   id: '/_auth',
-  getParentRoute: () => rootRoute,
-} as any)
-
-const CheckoutIndexRoute = CheckoutIndexImport.update({
-  id: '/checkout/',
-  path: '/checkout/',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -78,6 +74,26 @@ const AuthRestaurantOwnerMenuIndexRoute =
     getParentRoute: () => AuthRoute,
   } as any)
 
+const AuthCustomerCheckoutIndexRoute = AuthCustomerCheckoutIndexImport.update({
+  id: '/_customer/checkout/',
+  path: '/checkout/',
+  getParentRoute: () => AuthRoute,
+} as any)
+
+const AuthCustomerCheckoutPayIndexRoute =
+  AuthCustomerCheckoutPayIndexImport.update({
+    id: '/_customer/checkout/pay/',
+    path: '/checkout/pay/',
+    getParentRoute: () => AuthRoute,
+  } as any)
+
+const AuthCustomerCheckoutPayReturnRoute =
+  AuthCustomerCheckoutPayReturnImport.update({
+    id: '/_customer/checkout/pay/return',
+    path: '/checkout/pay/return',
+    getParentRoute: () => AuthRoute,
+  } as any)
+
 // Populate the FileRoutesByPath interface
 
 declare module '@tanstack/react-router' {
@@ -110,13 +126,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AboutIndexImport
       parentRoute: typeof rootRoute
     }
-    '/checkout/': {
-      id: '/checkout/'
-      path: '/checkout'
-      fullPath: '/checkout'
-      preLoaderRoute: typeof CheckoutIndexImport
-      parentRoute: typeof rootRoute
-    }
     '/_public/login/': {
       id: '/_public/login/'
       path: '/login'
@@ -130,6 +139,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/register'
       preLoaderRoute: typeof PublicRegisterIndexImport
       parentRoute: typeof rootRoute
+    }
+    '/_auth/_customer/checkout/': {
+      id: '/_auth/_customer/checkout/'
+      path: '/checkout'
+      fullPath: '/checkout'
+      preLoaderRoute: typeof AuthCustomerCheckoutIndexImport
+      parentRoute: typeof AuthImport
     }
     '/_auth/_restaurant-owner/menu/': {
       id: '/_auth/_restaurant-owner/menu/'
@@ -145,6 +161,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRestaurantOwnerOrdersIndexImport
       parentRoute: typeof AuthImport
     }
+    '/_auth/_customer/checkout/pay/return': {
+      id: '/_auth/_customer/checkout/pay/return'
+      path: '/checkout/pay/return'
+      fullPath: '/checkout/pay/return'
+      preLoaderRoute: typeof AuthCustomerCheckoutPayReturnImport
+      parentRoute: typeof AuthImport
+    }
+    '/_auth/_customer/checkout/pay/': {
+      id: '/_auth/_customer/checkout/pay/'
+      path: '/checkout/pay'
+      fullPath: '/checkout/pay'
+      preLoaderRoute: typeof AuthCustomerCheckoutPayIndexImport
+      parentRoute: typeof AuthImport
+    }
   }
 }
 
@@ -152,14 +182,20 @@ declare module '@tanstack/react-router' {
 
 interface AuthRouteChildren {
   AuthProtectedRoute: typeof AuthProtectedRoute
+  AuthCustomerCheckoutIndexRoute: typeof AuthCustomerCheckoutIndexRoute
   AuthRestaurantOwnerMenuIndexRoute: typeof AuthRestaurantOwnerMenuIndexRoute
   AuthRestaurantOwnerOrdersIndexRoute: typeof AuthRestaurantOwnerOrdersIndexRoute
+  AuthCustomerCheckoutPayReturnRoute: typeof AuthCustomerCheckoutPayReturnRoute
+  AuthCustomerCheckoutPayIndexRoute: typeof AuthCustomerCheckoutPayIndexRoute
 }
 
 const AuthRouteChildren: AuthRouteChildren = {
   AuthProtectedRoute: AuthProtectedRoute,
+  AuthCustomerCheckoutIndexRoute: AuthCustomerCheckoutIndexRoute,
   AuthRestaurantOwnerMenuIndexRoute: AuthRestaurantOwnerMenuIndexRoute,
   AuthRestaurantOwnerOrdersIndexRoute: AuthRestaurantOwnerOrdersIndexRoute,
+  AuthCustomerCheckoutPayReturnRoute: AuthCustomerCheckoutPayReturnRoute,
+  AuthCustomerCheckoutPayIndexRoute: AuthCustomerCheckoutPayIndexRoute,
 }
 
 const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
@@ -169,11 +205,13 @@ export interface FileRoutesByFullPath {
   '/protected': typeof AuthProtectedRoute
   '/': typeof HomeIndexRoute
   '/about': typeof AboutIndexRoute
-  '/checkout': typeof CheckoutIndexRoute
   '/login': typeof PublicLoginIndexRoute
   '/register': typeof PublicRegisterIndexRoute
+  '/checkout': typeof AuthCustomerCheckoutIndexRoute
   '/menu': typeof AuthRestaurantOwnerMenuIndexRoute
   '/orders': typeof AuthRestaurantOwnerOrdersIndexRoute
+  '/checkout/pay/return': typeof AuthCustomerCheckoutPayReturnRoute
+  '/checkout/pay': typeof AuthCustomerCheckoutPayIndexRoute
 }
 
 export interface FileRoutesByTo {
@@ -181,11 +219,13 @@ export interface FileRoutesByTo {
   '/protected': typeof AuthProtectedRoute
   '/': typeof HomeIndexRoute
   '/about': typeof AboutIndexRoute
-  '/checkout': typeof CheckoutIndexRoute
   '/login': typeof PublicLoginIndexRoute
   '/register': typeof PublicRegisterIndexRoute
+  '/checkout': typeof AuthCustomerCheckoutIndexRoute
   '/menu': typeof AuthRestaurantOwnerMenuIndexRoute
   '/orders': typeof AuthRestaurantOwnerOrdersIndexRoute
+  '/checkout/pay/return': typeof AuthCustomerCheckoutPayReturnRoute
+  '/checkout/pay': typeof AuthCustomerCheckoutPayIndexRoute
 }
 
 export interface FileRoutesById {
@@ -194,11 +234,13 @@ export interface FileRoutesById {
   '/_auth/protected': typeof AuthProtectedRoute
   '/_home/': typeof HomeIndexRoute
   '/about/': typeof AboutIndexRoute
-  '/checkout/': typeof CheckoutIndexRoute
   '/_public/login/': typeof PublicLoginIndexRoute
   '/_public/register/': typeof PublicRegisterIndexRoute
+  '/_auth/_customer/checkout/': typeof AuthCustomerCheckoutIndexRoute
   '/_auth/_restaurant-owner/menu/': typeof AuthRestaurantOwnerMenuIndexRoute
   '/_auth/_restaurant-owner/orders/': typeof AuthRestaurantOwnerOrdersIndexRoute
+  '/_auth/_customer/checkout/pay/return': typeof AuthCustomerCheckoutPayReturnRoute
+  '/_auth/_customer/checkout/pay/': typeof AuthCustomerCheckoutPayIndexRoute
 }
 
 export interface FileRouteTypes {
@@ -208,33 +250,39 @@ export interface FileRouteTypes {
     | '/protected'
     | '/'
     | '/about'
-    | '/checkout'
     | '/login'
     | '/register'
+    | '/checkout'
     | '/menu'
     | '/orders'
+    | '/checkout/pay/return'
+    | '/checkout/pay'
   fileRoutesByTo: FileRoutesByTo
   to:
     | ''
     | '/protected'
     | '/'
     | '/about'
-    | '/checkout'
     | '/login'
     | '/register'
+    | '/checkout'
     | '/menu'
     | '/orders'
+    | '/checkout/pay/return'
+    | '/checkout/pay'
   id:
     | '__root__'
     | '/_auth'
     | '/_auth/protected'
     | '/_home/'
     | '/about/'
-    | '/checkout/'
     | '/_public/login/'
     | '/_public/register/'
+    | '/_auth/_customer/checkout/'
     | '/_auth/_restaurant-owner/menu/'
     | '/_auth/_restaurant-owner/orders/'
+    | '/_auth/_customer/checkout/pay/return'
+    | '/_auth/_customer/checkout/pay/'
   fileRoutesById: FileRoutesById
 }
 
@@ -242,7 +290,6 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRouteWithChildren
   HomeIndexRoute: typeof HomeIndexRoute
   AboutIndexRoute: typeof AboutIndexRoute
-  CheckoutIndexRoute: typeof CheckoutIndexRoute
   PublicLoginIndexRoute: typeof PublicLoginIndexRoute
   PublicRegisterIndexRoute: typeof PublicRegisterIndexRoute
 }
@@ -251,7 +298,6 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRouteWithChildren,
   HomeIndexRoute: HomeIndexRoute,
   AboutIndexRoute: AboutIndexRoute,
-  CheckoutIndexRoute: CheckoutIndexRoute,
   PublicLoginIndexRoute: PublicLoginIndexRoute,
   PublicRegisterIndexRoute: PublicRegisterIndexRoute,
 }
@@ -269,7 +315,6 @@ export const routeTree = rootRoute
         "/_auth",
         "/_home/",
         "/about/",
-        "/checkout/",
         "/_public/login/",
         "/_public/register/"
       ]
@@ -278,8 +323,11 @@ export const routeTree = rootRoute
       "filePath": "_auth.tsx",
       "children": [
         "/_auth/protected",
+        "/_auth/_customer/checkout/",
         "/_auth/_restaurant-owner/menu/",
-        "/_auth/_restaurant-owner/orders/"
+        "/_auth/_restaurant-owner/orders/",
+        "/_auth/_customer/checkout/pay/return",
+        "/_auth/_customer/checkout/pay/"
       ]
     },
     "/_auth/protected": {
@@ -292,14 +340,15 @@ export const routeTree = rootRoute
     "/about/": {
       "filePath": "about/index.tsx"
     },
-    "/checkout/": {
-      "filePath": "checkout/index.tsx"
-    },
     "/_public/login/": {
       "filePath": "_public/login/index.tsx"
     },
     "/_public/register/": {
       "filePath": "_public/register/index.tsx"
+    },
+    "/_auth/_customer/checkout/": {
+      "filePath": "_auth/_customer/checkout/index.tsx",
+      "parent": "/_auth"
     },
     "/_auth/_restaurant-owner/menu/": {
       "filePath": "_auth/_restaurant-owner/menu/index.tsx",
@@ -307,6 +356,14 @@ export const routeTree = rootRoute
     },
     "/_auth/_restaurant-owner/orders/": {
       "filePath": "_auth/_restaurant-owner/orders/index.tsx",
+      "parent": "/_auth"
+    },
+    "/_auth/_customer/checkout/pay/return": {
+      "filePath": "_auth/_customer/checkout/pay/return.tsx",
+      "parent": "/_auth"
+    },
+    "/_auth/_customer/checkout/pay/": {
+      "filePath": "_auth/_customer/checkout/pay/index.tsx",
       "parent": "/_auth"
     }
   }
