@@ -1,4 +1,3 @@
-// src/routes/checkout.tsx
 import { createFileRoute, useRouter } from '@tanstack/react-router';
 import { useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
