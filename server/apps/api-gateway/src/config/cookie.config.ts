@@ -24,7 +24,7 @@ export class CookieConfigService {
     return {
       httpOnly: true,
       secure: false,
-      sameSite: 'none',
+      sameSite: 'strict',
     } as const;
   }
 
