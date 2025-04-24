@@ -48,7 +48,7 @@ export class StripeService {
           },
         ],
         mode: 'payment',
-        return_url: `http://localhost:5173/pay/return?session_id={CHECKOUT_SESSION_ID}`,
+        return_url: `http://localhost:5173/checkouts/return?session_id={CHECKOUT_SESSION_ID}`,
       });
       this.logger.log('Checkout session created successfully');
       return { clientSecret: session.client_secret };
