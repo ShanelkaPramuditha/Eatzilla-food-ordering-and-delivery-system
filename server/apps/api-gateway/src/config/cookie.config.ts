@@ -22,9 +22,9 @@ export class CookieConfigService {
 
   get secureOptions(): CookieOptions {
     return {
-      httpOnly: true,
+      httpOnly: false,
       secure: false,
-      sameSite: 'strict',
+      sameSite: 'lax',
     } as const;
   }
 
