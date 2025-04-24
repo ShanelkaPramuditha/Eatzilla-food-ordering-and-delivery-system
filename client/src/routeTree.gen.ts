@@ -196,20 +196,21 @@ declare module '@tanstack/react-router' {
       path: '/settings';
       fullPath: '/settings';
       preLoaderRoute: typeof AuthRestaurantOwnerSettingsIndexImport;
-      '/_auth/_customer/checkout/pay/return': {
-        id: '/_auth/_customer/checkout/pay/return';
-        path: '/checkout/pay/return';
-        fullPath: '/checkout/pay/return';
-        preLoaderRoute: typeof AuthCustomerCheckoutPayReturnImport;
-        parentRoute: typeof AuthImport;
-      };
-      '/_auth/_customer/checkout/pay/': {
-        id: '/_auth/_customer/checkout/pay/';
-        path: '/checkout/pay';
-        fullPath: '/checkout/pay';
-        preLoaderRoute: typeof AuthCustomerCheckoutPayIndexImport;
-        parentRoute: typeof AuthImport;
-      };
+      parentRoute: typeof AuthImport;
+    };
+    '/_auth/_customer/checkout/pay/return': {
+      id: '/_auth/_customer/checkout/pay/return';
+      path: '/checkout/pay/return';
+      fullPath: '/checkout/pay/return';
+      preLoaderRoute: typeof AuthCustomerCheckoutPayReturnImport;
+      parentRoute: typeof AuthImport;
+    };
+    '/_auth/_customer/checkout/pay/': {
+      id: '/_auth/_customer/checkout/pay/';
+      path: '/checkout/pay';
+      fullPath: '/checkout/pay';
+      preLoaderRoute: typeof AuthCustomerCheckoutPayIndexImport;
+      parentRoute: typeof AuthImport;
     };
   }
 }
@@ -384,7 +385,7 @@ export const routeTree = rootRoute
         "/_auth/_restaurant-owner/menu/",
         "/_auth/_restaurant-owner/orders/",
         "/_auth/_restaurant-owner/reviews/",
-        "/_auth/_restaurant-owner/settings/"
+        "/_auth/_restaurant-owner/settings/",
         "/_auth/_customer/checkout/pay/return",
         "/_auth/_customer/checkout/pay/"
       ]
@@ -427,6 +428,8 @@ export const routeTree = rootRoute
     },
     "/_auth/_restaurant-owner/settings/": {
       "filePath": "_auth/_restaurant-owner/settings/index.tsx",
+      "parent": "/_auth"
+    },
     "/_auth/_customer/checkout/pay/return": {
       "filePath": "_auth/_customer/checkout/pay/return.tsx",
       "parent": "/_auth"
