@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { useCartStore } from '@/store/cart.store';
-import { formatCurrency } from '@/lib/utils';
+import { formatCurrency } from '@/utils/common-utils';
 import { useRouter } from '@tanstack/react-router';
 
 export function CartDrawer() {
