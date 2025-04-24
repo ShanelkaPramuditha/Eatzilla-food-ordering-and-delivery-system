@@ -29,4 +29,9 @@ export const DeliveryPersonSidebarItems = [
     url: '/orders',
     icon: IconTruckDelivery,
   },
+  {
+    title: 'Delivery',
+    url: '/delivery',
+    icon: IconTruckDelivery,
+  }
 ];
