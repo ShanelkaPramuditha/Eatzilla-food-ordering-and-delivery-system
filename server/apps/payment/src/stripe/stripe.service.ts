@@ -20,8 +20,7 @@ export class StripeService {
       this.logger.log('Products fetched successfully');
       console.log('products');
       return products.data;
-    } catch (error) {
-      this.logger.error('Failed to fetch products from Stripe', error.stack);
+    } catch {
       throw new Error('Unable to fetch products from Stripe');
     }
   }
@@ -31,9 +30,32 @@ export class StripeService {
       const customers = await this.stripe.customers.list();
       this.logger.log('Customers fetched successfully');
       return customers.data;
-    } catch (error) {
-      this.logger.error('Failed to fetch customers from Stripe', error.stack);
+    } catch {
       throw new Error('Unable to fetch customers from Stripe');
+    }
+  }
+
+  async createCheckoutSession(priceId: string, quantity: number = 1) {
+    console.log('Creating checkout session');
+    try {
+      const session = await this.stripe.checkout.sessions.create({
+        ui_mode: 'embedded',
+        line_items: [
+          {
+            // Use the provided price ID from the parameter
+            price: 'price_1RHJJCCr6SCSfshwjvrM2aRI',
+            quantity,
+          },
+        ],
+        mode: 'payment',
+        return_url: `http://localhost:5173/pay/return?session_id={CHECKOUT_SESSION_ID}`,
+      });
+      this.logger.log('Checkout session created successfully');
+      return { clientSecret: session.client_secret };
+    } catch (error) {
+      console.error('Error creating checkout session:', error);
+      this.logger.error(`Error creating checkout session: ${error}`);
+      throw new Error('Unable to create checkout session');
     }
   }
 }

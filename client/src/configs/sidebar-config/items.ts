@@ -17,3 +17,21 @@ export const RestaurantOwnerSidebarItems = [
     icon: IconTruckDelivery,
   },
 ];
+
+export const DeliveryPersonSidebarItems = [
+  {
+    title: 'Dashboard',
+    url: '/',
+    icon: IconLayoutDashboardFilled,
+  },
+  {
+    title: 'Orders',
+    url: '/orders',
+    icon: IconTruckDelivery,
+  },
+  {
+    title: 'Delivery',
+    url: '/delivery',
+    icon: IconTruckDelivery,
+  }
+];

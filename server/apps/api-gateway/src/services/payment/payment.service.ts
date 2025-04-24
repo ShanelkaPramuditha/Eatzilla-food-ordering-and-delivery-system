@@ -1,6 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 
+interface CheckoutPayload {
+  priceId?: string;
+  quantity?: number;
+}
+
 @Injectable()
 export class PaymentService {
   constructor(
@@ -14,5 +19,9 @@ export class PaymentService {
 
   getProducts() {
     return this.paymentClient.send({ cmd: 'get.products' }, {});
+  }
+
+  checkout(payload: CheckoutPayload) {
+    return this.paymentClient.send({ cmd: 'post.checkout' }, {});
   }
 }
