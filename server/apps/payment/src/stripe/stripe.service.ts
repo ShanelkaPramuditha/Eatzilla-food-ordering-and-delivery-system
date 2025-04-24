@@ -2,6 +2,17 @@ import { Injectable, Logger } from '@nestjs/common';
 import Stripe from 'stripe';
 import { StripeConfigService } from '../config/stripe.config';
 
+export type CheckoutPayload = {
+  currency: string;
+  unit_amount: number;
+  quantity: number;
+  customerEmail: string;
+  customerName: string;
+  productName: string;
+  productDescription?: string;
+  productImage?: string;
+  productId: string;
+};
 @Injectable()
 export class StripeService {
   private readonly stripe: Stripe;
@@ -14,48 +25,44 @@ export class StripeService {
     this.logger.log('StripeService initialized with API version 2025-03-31.basil');
   }
 
-  async getProducts(): Promise<Stripe.Product[]> {
-    try {
-      const products = await this.stripe.products.list();
-      this.logger.log('Products fetched successfully');
-      console.log('products');
-      return products.data;
-    } catch {
-      throw new Error('Unable to fetch products from Stripe');
-    }
-  }
-
-  async getCustomers(): Promise<Stripe.Customer[]> {
-    try {
-      const customers = await this.stripe.customers.list();
-      this.logger.log('Customers fetched successfully');
-      return customers.data;
-    } catch {
-      throw new Error('Unable to fetch customers from Stripe');
-    }
-  }
-
-  async createCheckoutSession(priceId: string, quantity: number = 1) {
-    console.log('Creating checkout session');
+  async createCheckoutSessionWithPrice(data: CheckoutPayload) {
     try {
       const session = await this.stripe.checkout.sessions.create({
         ui_mode: 'embedded',
+        payment_method_types: ['card'],
         line_items: [
           {
-            // Use the provided price ID from the parameter
-            price: 'price_1RHJJCCr6SCSfshwjvrM2aRI',
-            quantity,
+            price_data: {
+              currency: 'lkr',
+              product_data: {
+                description: 'Food Delivery Order',
+                name: 'Food Delivery Order',
+                images: ['https://picsum.photos/200/300'],
+                metadata: {
+                  product_id: 'product_123',
+                  order_id: 'order_123',
+                  customer_id: 'cus_123',
+                  customer_name: 'John Doe',
+                  customer_email: 'john.doe@example.com',
+                },
+              },
+              unit_amount: 12000,
+            },
+            quantity: 1,
           },
         ],
         mode: 'payment',
         return_url: `http://localhost:5173/checkouts/return?session_id={CHECKOUT_SESSION_ID}`,
       });
-      this.logger.log('Checkout session created successfully');
-      return { clientSecret: session.client_secret };
+      this.logger.log('Checkout session with price created successfully');
+
+      return {
+        client_secret: session.client_secret,
+      };
     } catch (error) {
-      console.error('Error creating checkout session:', error);
-      this.logger.error(`Error creating checkout session: ${error}`);
-      throw new Error('Unable to create checkout session');
+      console.error('Error creating checkout session with price:', error);
+      this.logger.error(`Error creating checkout session with price: ${error}`);
+      throw new Error('Unable to create checkout session with price');
     }
   }
 }
