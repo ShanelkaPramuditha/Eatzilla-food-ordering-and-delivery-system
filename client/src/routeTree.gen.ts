@@ -15,6 +15,7 @@ import { Route as AuthImport } from './routes/_auth'
 import { Route as AboutIndexImport } from './routes/about/index'
 import { Route as HomeIndexImport } from './routes/_home/index'
 import { Route as AuthProtectedImport } from './routes/_auth/protected'
+import { Route as AuthDeliveryPersonImport } from './routes/_auth/_delivery-person'
 import { Route as PublicRegisterIndexImport } from './routes/_public/register/index'
 import { Route as PublicLoginIndexImport } from './routes/_public/login/index'
 import { Route as AuthRestaurantOwnerOrdersIndexImport } from './routes/_auth/_restaurant-owner/orders/index'
@@ -45,6 +46,11 @@ const HomeIndexRoute = HomeIndexImport.update({
 const AuthProtectedRoute = AuthProtectedImport.update({
   id: '/protected',
   path: '/protected',
+  getParentRoute: () => AuthRoute,
+} as any)
+
+const AuthDeliveryPersonRoute = AuthDeliveryPersonImport.update({
+  id: '/_delivery-person',
   getParentRoute: () => AuthRoute,
 } as any)
 
@@ -104,6 +110,13 @@ declare module '@tanstack/react-router' {
       fullPath: ''
       preLoaderRoute: typeof AuthImport
       parentRoute: typeof rootRoute
+    }
+    '/_auth/_delivery-person': {
+      id: '/_auth/_delivery-person'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof AuthDeliveryPersonImport
+      parentRoute: typeof AuthImport
     }
     '/_auth/protected': {
       id: '/_auth/protected'
@@ -181,6 +194,7 @@ declare module '@tanstack/react-router' {
 // Create and export the route tree
 
 interface AuthRouteChildren {
+  AuthDeliveryPersonRoute: typeof AuthDeliveryPersonRoute
   AuthProtectedRoute: typeof AuthProtectedRoute
   AuthCustomerCheckoutIndexRoute: typeof AuthCustomerCheckoutIndexRoute
   AuthRestaurantOwnerMenuIndexRoute: typeof AuthRestaurantOwnerMenuIndexRoute
@@ -190,6 +204,7 @@ interface AuthRouteChildren {
 }
 
 const AuthRouteChildren: AuthRouteChildren = {
+  AuthDeliveryPersonRoute: AuthDeliveryPersonRoute,
   AuthProtectedRoute: AuthProtectedRoute,
   AuthCustomerCheckoutIndexRoute: AuthCustomerCheckoutIndexRoute,
   AuthRestaurantOwnerMenuIndexRoute: AuthRestaurantOwnerMenuIndexRoute,
@@ -201,7 +216,7 @@ const AuthRouteChildren: AuthRouteChildren = {
 const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
 
 export interface FileRoutesByFullPath {
-  '': typeof AuthRouteWithChildren
+  '': typeof AuthDeliveryPersonRoute
   '/protected': typeof AuthProtectedRoute
   '/': typeof HomeIndexRoute
   '/about': typeof AboutIndexRoute
@@ -215,7 +230,7 @@ export interface FileRoutesByFullPath {
 }
 
 export interface FileRoutesByTo {
-  '': typeof AuthRouteWithChildren
+  '': typeof AuthDeliveryPersonRoute
   '/protected': typeof AuthProtectedRoute
   '/': typeof HomeIndexRoute
   '/about': typeof AboutIndexRoute
@@ -231,6 +246,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/_auth': typeof AuthRouteWithChildren
+  '/_auth/_delivery-person': typeof AuthDeliveryPersonRoute
   '/_auth/protected': typeof AuthProtectedRoute
   '/_home/': typeof HomeIndexRoute
   '/about/': typeof AboutIndexRoute
@@ -273,6 +289,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/_auth'
+    | '/_auth/_delivery-person'
     | '/_auth/protected'
     | '/_home/'
     | '/about/'
@@ -322,6 +339,7 @@ export const routeTree = rootRoute
     "/_auth": {
       "filePath": "_auth.tsx",
       "children": [
+        "/_auth/_delivery-person",
         "/_auth/protected",
         "/_auth/_customer/checkout/",
         "/_auth/_restaurant-owner/menu/",
@@ -329,6 +347,10 @@ export const routeTree = rootRoute
         "/_auth/_customer/checkout/pay/return",
         "/_auth/_customer/checkout/pay/"
       ]
+    },
+    "/_auth/_delivery-person": {
+      "filePath": "_auth/_delivery-person.tsx",
+      "parent": "/_auth"
     },
     "/_auth/protected": {
       "filePath": "_auth/protected.tsx",
