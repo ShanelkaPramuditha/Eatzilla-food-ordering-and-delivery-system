@@ -1,4 +1,4 @@
-import { RestaurantOwnerSidebarItems } from './items';
+import { DeliveryPersonSidebarItems, RestaurantOwnerSidebarItems } from './items';
 import { USER } from '@/constants';
 
 export type SidebarItemType = {
@@ -11,6 +11,8 @@ export function getSidebarItemsByRole(role: string): SidebarItemType[] {
   switch (role) {
     case USER.UserRole.RESTAURANT_OWNER:
       return RestaurantOwnerSidebarItems;
+    case USER.UserRole.DELIVERY_PERSON:
+      return DeliveryPersonSidebarItems
     default:
       return [];
   }
