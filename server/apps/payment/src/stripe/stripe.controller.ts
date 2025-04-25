@@ -9,7 +9,7 @@ export class StripeController {
   constructor(private readonly stripeService: StripeService) {}
 
   @MessagePattern({ cmd: 'post.checkout' })
-  async createCheckoutSession(data: CheckoutPayload) {
+  async createCheckoutSession(data: CheckoutPayload[]) {
     try {
       const session = await this.stripeService.createCheckoutSessionWithPrice(data);
 
