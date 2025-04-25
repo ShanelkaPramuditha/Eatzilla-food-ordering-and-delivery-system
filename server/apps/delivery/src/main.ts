@@ -13,6 +13,7 @@ async function bootstrap() {
       retryDelay: 3000,
     },
   });
+
   await app.listen();
   const logger = new Logger('DeliveryService');
   logger.log('Delivery service is running and listening on TCP...');

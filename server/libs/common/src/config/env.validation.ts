@@ -40,6 +40,11 @@ export const orderServiceEnvSchema = commonEnvSchema.extend({
   ORDER_SERVICE_PORT: z.coerce.number().default(3003),
 });
 
+export const deliveryServiceEnvSchema = commonEnvSchema.extend({
+  DELIVERY_SERVICE_HOST: z.string().min(1),
+  DELIVERY_SERVICE_PORT: z.coerce.number().default(3004),
+});
+
 // Function to validate environment variables
 export function validateEnv<T>(config: Record<string, unknown>, schema: z.ZodType<T>): T {
   const result = schema.safeParse(config);
