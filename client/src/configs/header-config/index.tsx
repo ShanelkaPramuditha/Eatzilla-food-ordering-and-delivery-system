@@ -72,6 +72,10 @@ export const headerConfig: HeaderConfig = {
         label: 'Dashboard',
         path: '/',
       },
+      {
+        label: 'About',
+        path: '/about',
+      }
     ],
     icons: {
       showCart: false,
