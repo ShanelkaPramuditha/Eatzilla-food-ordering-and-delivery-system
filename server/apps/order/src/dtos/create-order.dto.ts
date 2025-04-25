@@ -189,10 +189,10 @@ export class OrderResponseDto extends CalculatedOrderFields {
   specialInstructions?: string;
 
   @ApiProperty({ description: 'Created at timestamp' })
-  createdAt: Date;
+  createdAt?: Date;
 
   @ApiProperty({ description: 'Updated at timestamp' })
-  updatedAt: Date;
+  updatedAt?: Date;
 }
 
 // ============ UPDATE SUBORDER STATUS ============

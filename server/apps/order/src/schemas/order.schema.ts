@@ -122,14 +122,6 @@ export class Order extends Document {
   deliveryAddress: Address;
 
   @Prop()
-  @ApiProperty({ description: 'Estimated delivery time', required: false })
-  estimatedDeliveryTime?: Date;
-
-  @Prop()
-  @ApiProperty({ description: 'Actual delivery time', required: false })
-  actualDeliveryTime?: Date;
-
-  @Prop()
   @ApiProperty({ description: 'Payment ID', required: false })
   paymentId?: string;
 
@@ -142,8 +134,17 @@ export class Order extends Document {
   isPaid: boolean;
 
   @Prop()
-  @ApiProperty({ description: 'Special instructions', required: false })
+  @ApiProperty({ description: 'Special Instructions' })
   specialInstructions?: string;
+
+  @ApiProperty({ description: 'MongoDB ObjectId' })
+  declare _id: Types.ObjectId;
+
+  @ApiProperty({ description: 'Created at timestamp' })
+  declare createdAt: Date;
+
+  @ApiProperty({ description: 'Updated at timestamp' })
+  declare updatedAt: Date;
 }
 
 export const OrderSchema = SchemaFactory.createForClass(Order);
@@ -154,6 +155,10 @@ OrderSchema.pre('save', function (next) {
     this.suborders.forEach((suborder) => {
       suborder.subtotal = suborder.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
     });
+
+    // Calculate delivery fee and tax
+    this.deliveryFee = 5.99; // Example fixed delivery fee
+    this.tax = this.subtotal * 0.1; // Example 10% tax
 
     // Calculate order totals
     this.subtotal = this.suborders.reduce((sum, suborder) => sum + suborder.subtotal, 0);

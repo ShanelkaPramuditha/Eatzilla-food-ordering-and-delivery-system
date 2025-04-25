@@ -1,115 +1,49 @@
-import { CartItem, MenuItem } from '@/types/cart';
+// File: lib/cart.ts
+// Export functions that use the store
+import { useCartStore } from '@/store/cart.store';
+import { MenuItem } from '@/types/cart';
 
-// Save cart to localStorage
-export const saveCart = (cart: CartItem[]): void => {
-  if (typeof window !== 'undefined') {
-    localStorage.setItem('food-ordering-cart', JSON.stringify(cart));
-  }
-};
-
-// Load cart from localStorage
-export const loadCart = (): CartItem[] => {
-  if (typeof window !== 'undefined') {
-    const cart = localStorage.getItem('food-ordering-cart');
-    return cart ? JSON.parse(cart) : [];
-  }
-  return [];
-};
-
-// Add item to cart
+// These functions are just wrappers around the store methods for compatibility
 export const addToCart = (
   item: MenuItem,
   quantity: number = 1,
-  customizations?: Record<string, any>,
-): CartItem[] => {
-  const cart = loadCart();
-
-  // Check if item already exists in cart
-  const existingItemIndex = cart.findIndex(
-    (cartItem) =>
-      cartItem.menuItemId === item.id &&
-      JSON.stringify(cartItem.customizations || {}) === JSON.stringify(customizations || {}),
-  );
-
-  if (existingItemIndex >= 0) {
-    // Update quantity if item exists
-    cart[existingItemIndex].quantity += quantity;
-  } else {
-    // Add new item
-    cart.push({
-      menuItemId: item.id,
-      name: item.name,
-      price: item.price,
-      quantity,
-      customizations,
-      image: item.image,
-      restaurantId: item.restaurantId || 'default-restaurant',
-    });
-  }
-
-  saveCart(cart);
-  return cart;
+  customizations?: Record<string, unknown>,
+) => {
+  const { addToCart: addItemToCart } = useCartStore.getState();
+  addItemToCart(item, quantity, customizations);
+  return useCartStore.getState().cart;
 };
 
-// Remove item from cart
-export const removeFromCart = (
-  menuItemId: string,
-  customizations?: Record<string, any>,
-): CartItem[] => {
-  const cart = loadCart();
-  const updatedCart = cart.filter(
-    (item) =>
-      !(
-        item.menuItemId === menuItemId &&
-        JSON.stringify(item.customizations || {}) === JSON.stringify(customizations || {})
-      ),
-  );
-
-  saveCart(updatedCart);
-  return updatedCart;
+export const removeFromCart = (menuItemId: string, customizations?: Record<string, unknown>) => {
+  const { removeItem } = useCartStore.getState();
+  removeItem(menuItemId, customizations);
+  return useCartStore.getState().cart;
 };
 
-// Update item quantity
 export const updateCartItemQuantity = (
   menuItemId: string,
   quantity: number,
-  customizations?: Record<string, any>,
-): CartItem[] => {
-  const cart = loadCart();
-
-  const itemIndex = cart.findIndex(
-    (item) =>
-      item.menuItemId === menuItemId &&
-      JSON.stringify(item.customizations || {}) === JSON.stringify(customizations || {}),
-  );
-
-  if (itemIndex >= 0) {
-    if (quantity > 0) {
-      cart[itemIndex].quantity = quantity;
-    } else {
-      // Remove item if quantity is 0 or negative
-      cart.splice(itemIndex, 1);
-    }
-  }
-
-  saveCart(cart);
-  return cart;
+  customizations?: Record<string, unknown>,
+) => {
+  const { updateQuantity } = useCartStore.getState();
+  updateQuantity(menuItemId, quantity, customizations);
+  return useCartStore.getState().cart;
 };
 
-// Clear cart
-export const clearCart = (): CartItem[] => {
-  saveCart([]);
-  return [];
+export const clearCart = () => {
+  const { clearCart: emptyCarts } = useCartStore.getState();
+  emptyCarts();
+  return useCartStore.getState().cart;
 };
 
-// Calculate cart total
-export const calculateCartTotal = (cart: CartItem[]): number => {
-  return cart.reduce((total, item) => {
-    return total + item.price * item.quantity;
-  }, 0);
+export const calculateCartTotal = () => {
+  return useCartStore.getState().cartTotal;
 };
 
-// Get cart item count
-export const getCartItemCount = (cart: CartItem[]): number => {
-  return cart.reduce((count, item) => count + item.quantity, 0);
+export const getCartItemCount = () => {
+  return useCartStore.getState().itemCount;
 };
+
+// No need for these functions anymore as Zustand's persist handles storage
+// export const saveCart = () => {}; // Not needed
+// export const loadCart

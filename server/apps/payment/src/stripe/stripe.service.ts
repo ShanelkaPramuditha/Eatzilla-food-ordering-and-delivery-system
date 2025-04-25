@@ -2,6 +2,20 @@ import { Injectable, Logger } from '@nestjs/common';
 import Stripe from 'stripe';
 import { StripeConfigService } from '../config/stripe.config';
 
+export type CheckoutPayload = {
+  paymentType: 'card' | 'cashapp';
+  currencyType: string;
+  unit_amount: number;
+  quantity: number;
+  orderId: string;
+  customerId: string;
+  customerEmail: string;
+  customerName: string;
+  productId: string;
+  productName: string;
+  productDescription?: string;
+  productImages?: string[];
+};
 @Injectable()
 export class StripeService {
   private readonly stripe: Stripe;
@@ -14,48 +28,46 @@ export class StripeService {
     this.logger.log('StripeService initialized with API version 2025-03-31.basil');
   }
 
-  async getProducts(): Promise<Stripe.Product[]> {
+  async createCheckoutSessionWithPrice(data: CheckoutPayload[]) {
     try {
-      const products = await this.stripe.products.list();
-      this.logger.log('Products fetched successfully');
-      console.log('products');
-      return products.data;
-    } catch {
-      throw new Error('Unable to fetch products from Stripe');
-    }
-  }
+      console.log('Creating checkout session with price:', data);
 
-  async getCustomers(): Promise<Stripe.Customer[]> {
-    try {
-      const customers = await this.stripe.customers.list();
-      this.logger.log('Customers fetched successfully');
-      return customers.data;
-    } catch {
-      throw new Error('Unable to fetch customers from Stripe');
-    }
-  }
+      const mappedData = data?.map((item) => ({
+        price_data: {
+          currency: item.currencyType,
+          product_data: {
+            name: item.productName,
+            description: item.productDescription,
+            images: item.productImages?.length ? [item.productImages[0]] : [],
+            metadata: {
+              product_id: item.productId,
+              order_id: item.orderId,
+              customer_id: item.customerId,
+              customer_name: item.customerName,
+              customer_email: item.customerEmail,
+            },
+          },
+          unit_amount: item.unit_amount,
+        },
+        quantity: item.quantity,
+      }));
 
-  async createCheckoutSession(priceId: string, quantity: number = 1) {
-    console.log('Creating checkout session');
-    try {
+      console.log('Mapped data for checkout session:', mappedData);
+
       const session = await this.stripe.checkout.sessions.create({
         ui_mode: 'embedded',
-        line_items: [
-          {
-            // Use the provided price ID from the parameter
-            price: 'price_1RHJJCCr6SCSfshwjvrM2aRI',
-            quantity,
-          },
-        ],
+        payment_method_types: ['card'],
+        line_items: mappedData,
         mode: 'payment',
-        return_url: `http://localhost:5173/pay/return?session_id={CHECKOUT_SESSION_ID}`,
+        return_url: `http://localhost:5173/checkout/pay/return?session_id={CHECKOUT_SESSION_ID}`,
       });
-      this.logger.log('Checkout session created successfully');
-      return { clientSecret: session.client_secret };
+
+      return {
+        client_secret: session.client_secret,
+      };
     } catch (error) {
-      console.error('Error creating checkout session:', error);
-      this.logger.error(`Error creating checkout session: ${error}`);
-      throw new Error('Unable to create checkout session');
+      this.logger.error(`Error creating checkout session with price: ${error}`);
+      throw new Error('Unable to create checkout session with price');
     }
   }
 }

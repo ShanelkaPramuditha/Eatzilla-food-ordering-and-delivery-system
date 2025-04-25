@@ -1,11 +1,6 @@
 import { Body, Controller, Get, Post } from '@nestjs/common';
-import { PaymentService } from './payment.service';
+import { CheckoutPayload, PaymentService } from './payment.service';
 import { Public } from '../../auth/decorator/public.decorator';
-
-interface CheckoutDto {
-  priceId?: string;
-  quantity?: number;
-}
 
 @Controller('payment')
 export class PaymentController {
@@ -23,7 +18,7 @@ export class PaymentController {
 
   @Public()
   @Post('checkout')
-  checkout(@Body() checkoutDto: CheckoutDto) {
+  checkout(@Body() checkoutDto: CheckoutPayload[]) {
     return this.paymentService.checkout(checkoutDto);
   }
 }

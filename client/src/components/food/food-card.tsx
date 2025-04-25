@@ -4,7 +4,7 @@ import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { PlusIcon, MinusIcon, ShoppingCart } from 'lucide-react';
 import { useCartStore } from '@/store/cart.store';
 import { MenuItem } from '../../types/cart';
-import { formatCurrency } from '@/lib/utils';
+import { formatCurrency } from '@/utils/common-utils';
 import { Link } from '@tanstack/react-router';
 
 interface FoodCardProps {
