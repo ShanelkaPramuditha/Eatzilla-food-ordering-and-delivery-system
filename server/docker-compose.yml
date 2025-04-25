@@ -38,7 +38,7 @@ services:
       context: .
       dockerfile: ./apps/delivery/Dockerfile
       target: development
-    command: pnpm run start:dev delivery-service
+    command: pnpm run start:dev delivery
     volumes:
       - .:/usr/src/app
     networks:
