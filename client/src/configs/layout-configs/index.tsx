@@ -14,7 +14,6 @@ export const LAYOUT_CONFIG: Partial<Record<UserRole, LayoutConfig>> = {
   },
   [UserRole.DELIVERY_PERSON]: {
     showHeader: true,
-    showSidebar: true,
     showFooter: true,
   },
   [UserRole.ADMIN]: {
