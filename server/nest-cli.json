@@ -63,6 +63,15 @@
       "compilerOptions": {
         "tsConfigPath": "apps/payment/tsconfig.app.json"
       }
+    },
+    "restaurant": {
+      "type": "application",
+      "root": "apps/restaurant",
+      "entryFile": "main",
+      "sourceRoot": "apps/restaurant/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/restaurant/tsconfig.app.json"
+      }
     }
   }
 }
