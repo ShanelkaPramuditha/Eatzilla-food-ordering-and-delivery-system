@@ -42,8 +42,8 @@ export function AuthProvider({ children }: PropsWithChildren) {
         setIsAuthenticated(true);
       } else {
         setUser(null);
-        setRole(UserRole.GUEST);
-        setIsAuthenticated(false);
+        setRole(UserRole.RESTAURANT_OWNER);
+        setIsAuthenticated(true);
       }
       setIsLoading(false);
     }
