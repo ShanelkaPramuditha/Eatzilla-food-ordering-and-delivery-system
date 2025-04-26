@@ -33,6 +33,17 @@ services:
     networks:
       - default
 
+  restaurnat-service:
+    build:
+      context: .
+      dockerfile: ./apps/restaurant/Dockerfile
+      target: development
+    command: pnpm run start:dev restaurant
+    volumes:
+      - .:/usr/src/app
+    networks:
+      - default
+
   delivery-service:
     build:
       context: .
