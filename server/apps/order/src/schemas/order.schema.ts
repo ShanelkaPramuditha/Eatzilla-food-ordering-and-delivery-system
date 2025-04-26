@@ -1,16 +1,9 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Schema as MongooseSchema, Types } from 'mongoose';
 import { ApiProperty } from '@nestjs/swagger';
+import { OrderStatus } from '@app/common/dtos/order.dto';
 
-export enum OrderStatus {
-  CREATED = 'created',
-  CONFIRMED = 'confirmed',
-  PREPARING = 'preparing',
-  READY_FOR_PICKUP = 'ready_for_pickup',
-  OUT_FOR_DELIVERY = 'out_for_delivery',
-  DELIVERED = 'delivered',
-  CANCELLED = 'cancelled',
-}
+const currencyType = 'LKR'; // Default currency
 
 // --------------------- OrderItem ---------------------
 @Schema()
@@ -110,6 +103,10 @@ export class Order {
   @ApiProperty({ description: 'Subtotal amount' })
   subtotal: number;
 
+  @Prop({ required: true, default: 'LKR' })
+  @ApiProperty({ description: 'Currency' })
+  currency: string;
+
   @Prop({ required: true, default: 0 })
   @ApiProperty({ description: 'Delivery fee' })
   deliveryFee: number;
@@ -171,6 +168,7 @@ OrderSchema.pre('save', function (next) {
 
     this.subtotal = this.suborders.reduce((sum, suborder) => sum + suborder.subtotal, 0);
     this.deliveryFee = 5.99;
+    this.currency = currencyType; // Default currency
     this.tax = this.subtotal * 0.1;
     this.total = this.subtotal + this.deliveryFee + this.tax;
   }

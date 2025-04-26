@@ -1,12 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import {
-  CreateOrderInput,
-  UpdateOrderInput,
-  UpdateSuborderStatusInput,
-  OrderOutput,
-} from './interfaces/order.interface';
+
 import { Microservice } from '../../constants/microservice';
+import { CreateOrderDto, OrderResponseDto } from '@app/common/dtos/order.dto';
 
 @Injectable()
 export class OrderService {
@@ -19,8 +15,8 @@ export class OrderService {
     return this.orderClient.send({ cmd: 'get.status' }, {});
   }
 
-  createOrder(dto: CreateOrderInput, userId?: string) {
-    return this.orderClient.send<OrderOutput>({ cmd: 'order.create' }, { dto, userId });
+  createOrder(dto: CreateOrderDto, userId: string) {
+    return this.orderClient.send<OrderResponseDto>({ cmd: 'order.create' }, { dto, userId });
   }
 
   // getMyOrders(userId: string) {

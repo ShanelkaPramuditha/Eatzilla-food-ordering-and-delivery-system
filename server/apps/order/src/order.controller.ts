@@ -5,8 +5,8 @@ import {
   UpdateOrderDto,
   UpdateSuborderStatusDto,
   OrderResponseDto,
-} from './dtos/order.dto';
-import { OrderStatus } from './schemas/order.schema';
+  OrderStatus,
+} from '@app/common/dtos/order.dto';
 import { MessagePattern } from '@nestjs/microservices';
 
 @Controller('orders')
@@ -20,8 +20,8 @@ export class OrderController {
   }
 
   @MessagePattern({ cmd: 'order.create' })
-  async create(@Body() createOrderDto: CreateOrderDto) {
-    const order = await this.orderService.create(createOrderDto);
+  async create(@Body() req: { dto: CreateOrderDto; userId: string }) {
+    const order = await this.orderService.create(req);
     return this.mapToOrderResponseDto(order);
   }
 
@@ -107,6 +107,7 @@ export class OrderController {
         subtotal: suborder.subtotal,
         status: suborder.status,
       })),
+      currency: order.currency,
       deliveryAddress: order.deliveryAddress,
       subtotal: order.subtotal,
       deliveryFee: order.deliveryFee,

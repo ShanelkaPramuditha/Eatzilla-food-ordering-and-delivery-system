@@ -1,8 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import { Address, Order, OrderDocument, OrderItem, OrderStatus } from './schemas/order.schema';
-import { CreateOrderDto, UpdateOrderDto, UpdateSuborderStatusDto } from './dtos/order.dto';
+import { Address, Order, OrderDocument, OrderItem } from './schemas/order.schema';
+import {
+  CreateOrderDto,
+  OrderStatus,
+  UpdateOrderDto,
+  UpdateSuborderStatusDto,
+} from '@app/common/dtos/order.dto';
+import { dot } from 'node:test/reporters';
 
 @Injectable()
 export class OrderService {
@@ -12,11 +18,12 @@ export class OrderService {
     return 'Order service is running';
   }
 
-  async create(createOrderDto: CreateOrderDto): Promise<OrderDocument> {
+  async create(req: { dto: CreateOrderDto; userId: string }): Promise<OrderDocument> {
+    console.log('Creating order with DTO:', req);
     // Convert string IDs to ObjectIds
-    const customerId = new Types.ObjectId(createOrderDto.customerId);
+    const customerId = new Types.ObjectId(req.userId);
 
-    const suborders = createOrderDto.suborders.map((suborder) => ({
+    const suborders = req.dto.suborders.map((suborder) => ({
       ...suborder,
       restaurantId: new Types.ObjectId(suborder.restaurantId),
       items: suborder.items.map((item) => ({
@@ -29,10 +36,10 @@ export class OrderService {
     const newOrder = new this.orderModel({
       customerId,
       suborders,
-      deliveryAddress: createOrderDto.deliveryAddress,
-      paymentMethod: createOrderDto.paymentMethod,
-      paymentId: createOrderDto.paymentId,
-      specialInstructions: createOrderDto.specialInstructions,
+      deliveryAddress: req.dto.deliveryAddress,
+      paymentMethod: req.dto.paymentMethod,
+      paymentId: req.dto.paymentId,
+      specialInstructions: req.dto.specialInstructions,
       status: OrderStatus.CREATED,
       isPaid: false,
     });

@@ -1,8 +1,12 @@
-import { MenuItem } from "@/types/cart";
+import { MenuItem } from '@/types/cart';
+
+const restaurantOne = '662b8afcc6d3f2f5938b1d01';
+const restaurantTwo = '662b8afcc6d3f2f5938b1d02';
+const restaurantThree = '662b8afcc6d3f2f5938b1d03';
 
 export const menuItems: MenuItem[] = [
   {
-    id: '1',
+    id: '662b8b11c6d3f2f5938b1d11',
     name: 'Classic Cheeseburger',
     description:
       'Juicy beef patty with melted cheddar cheese, fresh lettuce, tomato, and our special sauce on a toasted brioche bun.',
@@ -13,10 +17,10 @@ export const menuItems: MenuItem[] = [
     tags: ['beef', 'cheese', 'classic'],
     available: true,
     popular: true,
-    restaurantId: 'another one',
+    restaurantId: restaurantOne,
   },
   {
-    id: '2',
+    id: '662b8b2fc6d3f2f5938b1d12',
     name: 'Margherita Pizza',
     description:
       'Traditional Italian pizza with fresh mozzarella, tomatoes, basil leaves, and a drizzle of olive oil on our handmade crust.',
@@ -27,10 +31,10 @@ export const menuItems: MenuItem[] = [
     tags: ['vegetarian', 'cheese', 'classic'],
     available: true,
     popular: true,
-    restaurantId: 'another one',
+    restaurantId: restaurantOne,
   },
   {
-    id: '3',
+    id: '662b8b43c6d3f2f5938b1d13',
     name: 'Spicy Thai Noodles',
     description:
       'Rice noodles stir-fried with vegetables, eggs, and our house spicy sauce. Topped with crushed peanuts and fresh cilantro.',
@@ -40,10 +44,10 @@ export const menuItems: MenuItem[] = [
     category: 'asian',
     tags: ['spicy', 'noodles', 'vegetarian'],
     available: true,
-    restaurantId: 'another one',
+    restaurantId: restaurantOne,
   },
   {
-    id: '4',
+    id: '662b8b59c6d3f2f5938b1d14',
     name: 'Caesar Salad',
     description:
       'Crisp romaine lettuce, house-made croutons, parmesan cheese, and our creamy Caesar dressing.',
@@ -53,10 +57,10 @@ export const menuItems: MenuItem[] = [
     category: 'salads',
     tags: ['healthy', 'vegetarian'],
     available: true,
-    restaurantId: 'another one',
+    restaurantId: restaurantOne,
   },
   {
-    id: '5',
+    id: '662b8b6bc6d3f2f5938b1d15',
     name: 'Chocolate Brownie Sundae',
     description:
       'Warm chocolate brownie topped with vanilla ice cream, hot fudge sauce, whipped cream, and a cherry.',
@@ -66,10 +70,10 @@ export const menuItems: MenuItem[] = [
     category: 'desserts',
     tags: ['chocolate', 'ice cream', 'sweet'],
     available: true,
-    restaurantId: 'another one',
+    restaurantId: restaurantOne,
   },
   {
-    id: '6',
+    id: '662b8b7dc6d3f2f5938b1d16',
     name: 'BBQ Chicken Wings',
     description:
       'Crispy chicken wings tossed in our signature BBQ sauce. Served with celery sticks and blue cheese dressing.',
@@ -79,10 +83,10 @@ export const menuItems: MenuItem[] = [
     category: 'appetizers',
     tags: ['chicken', 'bbq', 'spicy'],
     available: true,
-    restaurantId: 'another one',
+    restaurantId: restaurantOne,
   },
   {
-    id: '7',
+    id: '662b8b8fc6d3f2f5938b1d17',
     name: 'Vegetable Stir Fry',
     description:
       'Fresh seasonal vegetables stir-fried in a savory sauce with your choice of rice or noodles.',
@@ -92,10 +96,10 @@ export const menuItems: MenuItem[] = [
     category: 'asian',
     tags: ['vegetarian', 'healthy', 'vegan'],
     available: true,
-    restaurantId: 'another two',
+    restaurantId: restaurantTwo,
   },
   {
-    id: '8',
+    id: '662b8ba0c6d3f2f5938b1d18',
     name: 'Double Bacon Burger',
     description:
       'Two beef patties with crispy bacon, American cheese, lettuce, tomato, and our special sauce.',
@@ -106,10 +110,10 @@ export const menuItems: MenuItem[] = [
     tags: ['beef', 'bacon', 'cheese'],
     available: true,
     popular: true,
-    restaurantId: 'another two',
+    restaurantId: restaurantTwo,
   },
   {
-    id: '9',
+    id: '662b8bb2c6d3f2f5938b1d19',
     name: 'Pepperoni Pizza',
     description:
       'Our classic pizza topped with pepperoni, mozzarella cheese, and oregano on our signature sauce.',
@@ -119,10 +123,10 @@ export const menuItems: MenuItem[] = [
     category: 'pizza',
     tags: ['pepperoni', 'cheese'],
     available: true,
-    restaurantId: 'another two',
+    restaurantId: restaurantTwo,
   },
   {
-    id: '10',
+    id: '662b8bc3c6d3f2f5938b1d1a',
     name: 'Greek Salad',
     description:
       'Fresh cucumbers, tomatoes, bell peppers, red onions, Kalamata olives, and feta cheese with our house dressing.',
@@ -132,10 +136,10 @@ export const menuItems: MenuItem[] = [
     category: 'salads',
     tags: ['healthy', 'vegetarian'],
     available: true,
-    restaurantId: 'another two',
+    restaurantId: restaurantTwo,
   },
   {
-    id: '11',
+    id: '662b8bd5c6d3f2f5938b1d1b',
     name: 'Fish and Chips',
     description: 'Beer-battered cod served with our crispy fries, tartar sauce, and a lemon wedge.',
     price: 16.99,
@@ -144,10 +148,10 @@ export const menuItems: MenuItem[] = [
     category: 'mains',
     tags: ['seafood', 'fried'],
     available: true,
-    restaurantId: 'another two',
+    restaurantId: restaurantThree,
   },
   {
-    id: '12',
+    id: '662b8be7c6d3f2f5938b1d1c',
     name: 'Cheesecake',
     description:
       'Creamy New York style cheesecake with a graham cracker crust, topped with fresh berries.',
@@ -157,19 +161,19 @@ export const menuItems: MenuItem[] = [
     category: 'desserts',
     tags: ['cheese', 'sweet'],
     available: true,
-    restaurantId: 'another two',
+    restaurantId: restaurantThree,
   },
 ];
 
 export const categories = [
-  { id: "all", name: "All Items" },
-  { id: "burgers", name: "Burgers" },
-  { id: "pizza", name: "Pizza" },
-  { id: "asian", name: "Asian" },
-  { id: "salads", name: "Salads" },
-  { id: "appetizers", name: "Appetizers" },
-  { id: "mains", name: "Main Courses" },
-  { id: "desserts", name: "Desserts" },
+  { id: 'all', name: 'All Items' },
+  { id: 'burgers', name: 'Burgers' },
+  { id: 'pizza', name: 'Pizza' },
+  { id: 'asian', name: 'Asian' },
+  { id: 'salads', name: 'Salads' },
+  { id: 'appetizers', name: 'Appetizers' },
+  { id: 'mains', name: 'Main Courses' },
+  { id: 'desserts', name: 'Desserts' },
 ];
 
-export const popularItems = menuItems.filter(item => item.popular);
+export const popularItems = menuItems.filter((item) => item.popular);
