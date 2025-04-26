@@ -23,8 +23,7 @@ export interface ApiGatewayEnvironmentVariables extends CommonEnvironmentVariabl
 }
 
 export interface AlertEnvironmentVariables extends CommonEnvironmentVariables {
-  ALERT_SERVICE_HOST: string;
-  ALERT_SERVICE_PORT: number;
+  ALERT_SERVICE_RABBITMQ_URL: string;
 }
 
 export interface PaymentEnvironmentVariables extends CommonEnvironmentVariables {

@@ -27,8 +27,7 @@ export const apiGatewayEnvSchema = commonEnvSchema.extend({
 
 // Alert service specific schema
 export const alertServiceEnvSchema = commonEnvSchema.extend({
-  ALERT_SERVICE_HOST: z.string().min(1),
-  ALERT_SERVICE_PORT: z.coerce.number().default(3001),
+  ALERT_SERVICE_RABBITMQ_URL: z.string().min(1),
 });
 
 // Payment service specific schema

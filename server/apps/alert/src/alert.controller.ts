@@ -1,12 +1,13 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller } from '@nestjs/common';
 import { AlertService } from './alert.service';
+import { MessagePattern } from '@nestjs/microservices';
 
 @Controller()
 export class AlertController {
   constructor(private readonly alertService: AlertService) {}
 
-  @Get()
+  @MessagePattern({ cmd: 'get.status' })
   getHello(): string {
-    return this.alertService.getHello();
+    return this.alertService.getStatus();
   }
 }
