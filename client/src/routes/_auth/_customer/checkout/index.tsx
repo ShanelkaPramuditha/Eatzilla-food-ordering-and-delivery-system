@@ -63,6 +63,12 @@ function RouteComponent() {
         data.payment,
         data.specialInstructions
       )
+
+      if (!response) {
+        toast.error('Failed to place order. Please try again.');
+        return;
+      }
+      
       console.log('Order placed successfully:', response);
 
       router.navigate({ to: `/checkout/pay` });
