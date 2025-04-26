@@ -27,6 +27,6 @@ WORKDIR /usr/src/app
 COPY --from=production /usr/src/app/node_modules ./node_modules
 COPY --from=production /usr/src/app/dist ./dist
 
-EXPOSE 3001
+EXPOSE 3002
 
 CMD ["node", "dist/apps/payment/main.js"]

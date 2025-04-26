@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import Stripe from 'stripe';
-import { StripeConfigService } from '../config/stripe.config';
+import { PaymentConfigService } from '../config/payment-config.service';
 
 export type CheckoutPayload = {
   paymentType: 'card' | 'cashapp';
@@ -21,17 +21,15 @@ export class StripeService {
   private readonly stripe: Stripe;
   private readonly logger = new Logger(StripeService.name);
 
-  constructor(private readonly stripeConfigService: StripeConfigService) {
-    this.stripe = new Stripe(this.stripeConfigService.secret, {
-      apiVersion: '2025-03-31.basil',
+  constructor(private readonly paymentConfigService: PaymentConfigService) {
+    this.stripe = new Stripe(this.paymentConfigService.stripe.secretKey, {
+      apiVersion: this.paymentConfigService.stripe.apiVersion,
     });
     this.logger.log('StripeService initialized with API version 2025-03-31.basil');
   }
 
   async createCheckoutSessionWithPrice(data: CheckoutPayload[]) {
     try {
-      console.log('Creating checkout session with price:', data);
-
       const mappedData = data?.map((item) => ({
         price_data: {
           currency: item.currencyType,
@@ -51,8 +49,6 @@ export class StripeService {
         },
         quantity: item.quantity,
       }));
-
-      console.log('Mapped data for checkout session:', mappedData);
 
       const session = await this.stripe.checkout.sessions.create({
         ui_mode: 'embedded',

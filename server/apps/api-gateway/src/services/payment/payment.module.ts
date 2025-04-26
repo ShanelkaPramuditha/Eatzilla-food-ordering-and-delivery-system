@@ -2,24 +2,27 @@ import { Module } from '@nestjs/common';
 import { PaymentService } from './payment.service';
 import { PaymentController } from './payment.controller';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { ConfigModule } from '@nestjs/config';
+import {
+  MicroserviceConfigModule,
+  MicroserviceConfigService,
+} from '../../config/microservice.config';
+import { Microservice } from '../../constants/microservice';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-      envFilePath: ['.env'],
-      expandVariables: true,
-      load: [],
-    }),
-    ClientsModule.register([
+    MicroserviceConfigModule,
+    ClientsModule.registerAsync([
       {
-        name: 'PAYMENT_SERVICE',
-        transport: Transport.TCP,
-        options: {
-          host: process.env.PAYMENT_SERVICE_HOST || '',
-          port: Number(process.env.PAYMENT_SERVICE_PORT) || 3001,
-        },
+        imports: [MicroserviceConfigModule],
+        inject: [MicroserviceConfigService],
+        name: Microservice.PAYMENT_SERVICE,
+        useFactory: (microserviceConfigService: MicroserviceConfigService) => ({
+          transport: Transport.TCP,
+          options: {
+            host: microserviceConfigService.paymentService.host,
+            port: microserviceConfigService.paymentService.port,
+          },
+        }),
       },
     ]),
   ],

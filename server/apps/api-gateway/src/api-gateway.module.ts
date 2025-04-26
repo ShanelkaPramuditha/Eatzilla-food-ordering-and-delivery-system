@@ -9,6 +9,8 @@ import { UsersModule } from './users/users.module';
 import { validateEnv, apiGatewayEnvSchema } from '@app/common/config';
 import { AppConfigModule } from './config/app.config';
 import { OrderModule } from './services/order/order.module';
+import { DeliveryModule } from './services/delivery/delivery.module';
+import { AlertModule } from './services/alert/alert.module';
 
 @Module({
   imports: [
@@ -20,10 +22,12 @@ import { OrderModule } from './services/order/order.module';
     }),
     AppConfigModule,
     DatabaseModule,
+    AlertModule,
     PaymentModule,
     AuthModule,
     UsersModule,
     OrderModule,
+    DeliveryModule,
   ],
   controllers: [ApiGatewayController],
   providers: [ApiGatewayService],
