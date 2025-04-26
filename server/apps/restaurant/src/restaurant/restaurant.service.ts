@@ -12,7 +12,7 @@ export class RestaurantService {
   }
 
   async update(id: string, restaurant: any) {
-    return new this.restaurantModel(restaurant).save();
+    return this.restaurantModel.findByIdAndUpdate(id, restaurant, { new: true });
   }
 
   async delete(id: string) {

@@ -21,12 +21,37 @@ export class RestaurantService {
   }
 
   // Get a specific restaurant's details by its ID
-  findtById(id: string) {
+  findById(id: string) {
     return this.restaurantClient.send({ cmd: 'get.restaurant' }, id);
   }
 
   // Get a list of all restaurants
   findAll() {
     return this.restaurantClient.send({ cmd: 'get.restaurants' }, {});
+  }
+
+  // Create a new menu item
+  createMenuItem(menuItem: any) {
+    return this.restaurantClient.send({ cmd: 'post.menu-item' }, menuItem);
+  }
+
+  // Update a menu item
+  updateMenuItem(id: string, menuItem: any) {
+    return this.restaurantClient.send({ cmd: 'put.menu-item' }, { id, menuItem });
+  }
+
+  // Delete a menu item
+  deleteMenuItem(id: string) {
+    return this.restaurantClient.send({ cmd: 'delete.menu-item' }, id);
+  }
+
+  // Get a specific restaurant's details by its ID
+  findMenuItemById(id: string) {
+    return this.restaurantClient.send({ cmd: 'get.menu-item' }, id);
+  }
+
+  // Get a list of all restaurants
+  findAllMenuItems() {
+    return this.restaurantClient.send({ cmd: 'get.menu' }, {});
   }
 }
