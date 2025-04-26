@@ -3,6 +3,8 @@ import { OrderService } from './order.service';
 import { Public } from '../../auth/decorator/public.decorator';
 import { UserRequest } from '../../types/auth';
 import { CreateOrderDto } from '@app/common/dtos/order.dto';
+import { Roles } from '../../auth/decorator/roles.decorator';
+import { UserRole } from '@app/common/types/user';
 
 @Controller('order')
 export class OrderController {
@@ -14,12 +16,10 @@ export class OrderController {
     return this.orderService.getStatus();
   }
 
-  @Public()
   @Post()
+  @Roles(UserRole.ADMIN, UserRole.CUSTOMER)
   createOrder(@Req() req: UserRequest, @Body() createOrderDto: CreateOrderDto) {
     const userId = req.user?.sub;
-    console.log('userId', userId);
-    console.log('createOrderDto', createOrderDto);
     return this.orderService.createOrder(createOrderDto, userId);
   }
 
