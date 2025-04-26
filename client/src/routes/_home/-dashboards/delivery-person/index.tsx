@@ -1,3 +1,5 @@
+import { DeliveryDashboard } from "./delivery-dashboard";
+
 export function DeliveryPersonHome() {
-  return <div>Hello /_home/-dashboards/_delivery-person!</div>;
+  return <DeliveryDashboard />;
 }
