@@ -72,6 +72,11 @@ export class AddressDto {
 
 // ============ SUBORDER ============
 export class SuborderDto {
+  @ApiProperty({ description: 'Suborder ID' })
+  @IsString()
+  @IsOptional()
+  _id?: string;
+
   @ApiProperty({ description: 'Restaurant ID' })
   @IsNotEmpty()
   @IsString()
@@ -82,6 +87,16 @@ export class SuborderDto {
   @ValidateNested({ each: true })
   @Type(() => OrderItemDto)
   items: OrderItemDto[];
+
+  @ApiProperty({ description: 'Subtotal for these items' })
+  @IsNumber()
+  @IsPositive()
+  subtotal: number;
+
+  @ApiProperty({ enum: OrderStatus, description: 'Suborder status' })
+  @IsEnum(OrderStatus)
+  @IsNotEmpty()
+  status: OrderStatus;
 }
 
 // ============ CREATE ORDER ============
@@ -102,10 +117,15 @@ export class CreateOrderDto {
   @Type(() => AddressDto)
   deliveryAddress: AddressDto;
 
-  @ApiProperty({ description: 'Payment method' })
-  @IsNotEmpty()
+  @ApiProperty({ description: 'Payment method', required: false })
   @IsString()
-  paymentMethod: string;
+  @IsOptional()
+  paymentMethod?: string;
+
+  @ApiProperty({ description: 'Payment ID', required: false })
+  @IsString()
+  @IsOptional()
+  paymentId?: string;
 
   @ApiProperty({ description: 'Special instructions', required: false })
   @IsString()
@@ -116,15 +136,23 @@ export class CreateOrderDto {
 // ============ INTERNAL CALCULATED FIELDS ============
 export class CalculatedOrderFields {
   @ApiProperty({ description: 'Subtotal amount' })
+  @IsNumber()
+  @IsPositive()
   subtotal: number;
 
   @ApiProperty({ description: 'Delivery fee' })
+  @IsNumber()
+  @IsPositive()
   deliveryFee: number;
 
   @ApiProperty({ description: 'Tax amount' })
+  @IsNumber()
+  @IsPositive()
   tax: number;
 
   @ApiProperty({ description: 'Total amount' })
+  @IsNumber()
+  @IsPositive()
   total: number;
 }
 
@@ -145,22 +173,14 @@ export class UpdateOrderDto {
   @IsString()
   paymentId?: string;
 
-  @ApiProperty({ description: 'Estimated delivery time', required: false })
-  @IsOptional()
-  estimatedDeliveryTime?: Date;
-
-  @ApiProperty({ description: 'Actual delivery time', required: false })
-  @IsOptional()
-  actualDeliveryTime?: Date;
-
-  @ApiProperty({ description: 'Delivery person ID', required: false })
+  @ApiProperty({ description: 'Payment method', required: false })
   @IsOptional()
   @IsString()
-  deliveryPersonId?: string;
+  paymentMethod?: string;
 }
 
-// ============ ORDER RESPONSE ============
-export class OrderResponseDto extends CalculatedOrderFields {
+// ============ ORDER RESPONSE DTO ============
+export class OrderResponseDto {
   @ApiProperty({ description: 'Order ID' })
   _id: string;
 
@@ -168,7 +188,7 @@ export class OrderResponseDto extends CalculatedOrderFields {
   customerId: string;
 
   @ApiProperty({ description: 'Suborders grouped by restaurant' })
-  suborders: any[];
+  suborders: SuborderDto[];
 
   @ApiProperty({ enum: OrderStatus, description: 'Order status' })
   status: OrderStatus;
@@ -176,8 +196,20 @@ export class OrderResponseDto extends CalculatedOrderFields {
   @ApiProperty({ description: 'Delivery address' })
   deliveryAddress: AddressDto;
 
-  @ApiProperty({ description: 'Payment method' })
-  paymentMethod: string;
+  @ApiProperty({ description: 'Subtotal amount' })
+  subtotal: number;
+
+  @ApiProperty({ description: 'Delivery fee' })
+  deliveryFee: number;
+
+  @ApiProperty({ description: 'Tax amount' })
+  tax: number;
+
+  @ApiProperty({ description: 'Total amount' })
+  total: number;
+
+  @ApiProperty({ description: 'Payment method', required: false })
+  paymentMethod?: string;
 
   @ApiProperty({ description: 'Payment status' })
   isPaid: boolean;
