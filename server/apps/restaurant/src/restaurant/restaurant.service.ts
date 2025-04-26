@@ -11,7 +11,7 @@ export class RestaurantService {
     return new this.restaurantModel(restaurant).save();
   }
 
-  async update(restaurant: any) {
+  async update(id: string, restaurant: any) {
     return new this.restaurantModel(restaurant).save();
   }
 
@@ -20,7 +20,7 @@ export class RestaurantService {
   }
 
   async findById(id: string) {
-    return { statusCode: 404 };
+    return this.restaurantModel.findById(id);
   }
 
   async findAll() {
