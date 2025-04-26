@@ -2,7 +2,7 @@ export type Address = {
   street: string;
   city: string;
   state: string;
-  cordinates: {
+  coordinates: {
     lat: { type: Number };
     lng: { type: Number };
   };
