@@ -6,6 +6,7 @@ import { Public } from '../../auth/decorator/public.decorator';
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
 
+  @Public()
   @Get()
   getStatus() {
     return this.orderService.getStatus();

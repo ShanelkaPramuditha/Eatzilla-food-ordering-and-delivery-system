@@ -8,6 +8,10 @@ import { CreateOrderDto, UpdateOrderDto, UpdateSuborderStatusDto } from './dtos/
 export class OrderService {
   constructor(@InjectModel(Order.name) private orderModel: Model<OrderDocument>) {}
 
+  getStatus(): string {
+    return 'Order service is running';
+  }
+
   async create(createOrderDto: CreateOrderDto): Promise<OrderDocument> {
     // Convert string IDs to ObjectIds
     const customerId = new Types.ObjectId(createOrderDto.customerId);
@@ -66,7 +70,9 @@ export class OrderService {
   }
 
   async update(id: string, updateOrderDto: UpdateOrderDto): Promise<OrderDocument> {
-    const updatedOrder = await this.orderModel.findByIdAndUpdate(id, { $set: updateOrderDto }, { new: true }).exec();
+    const updatedOrder = await this.orderModel
+      .findByIdAndUpdate(id, { $set: updateOrderDto }, { new: true })
+      .exec();
     if (!updatedOrder) {
       throw new Error('Order not found');
     }
