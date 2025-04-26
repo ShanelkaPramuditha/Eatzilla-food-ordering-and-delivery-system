@@ -1,13 +1,6 @@
+import { UserRole } from '@app/common/types/user';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Types } from 'mongoose';
-
-export enum UserRole {
-  ADMIN = 'admin',
-  RESTAURANT_OWNER = 'restaurant_owner',
-  DELIVERY_PERSON = 'delivery_person',
-  CUSTOMER = 'customer',
-  GUEST = 'guest',
-}
+import { Types } from 'mongoose';
 
 export interface UserDocument extends Document {
   _id: Types.ObjectId;
@@ -33,7 +26,7 @@ export class User {
   @Prop()
   picture?: string;
 
-  @Prop({ required: true, enum: UserRole, default: UserRole.CUSTOMER })
+  @Prop({ required: true, type: String, enum: UserRole, default: UserRole.CUSTOMER })
   role: UserRole;
 
   @Prop({ default: true })
