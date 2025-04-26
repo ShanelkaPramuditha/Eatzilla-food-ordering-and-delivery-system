@@ -1,6 +1,5 @@
 import { Injectable, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { PaymentEnvironmentVariables } from '@app/common/config/environment.interface';
 
 @Injectable()
 export class MicroserviceConfigService {
@@ -13,8 +12,10 @@ export class MicroserviceConfigService {
     };
   }
 
-  get<T extends keyof PaymentEnvironmentVariables>(key: T): PaymentEnvironmentVariables[T] {
-    return this.configService.get<PaymentEnvironmentVariables[T]>(key as string)!;
+  get alertService(): { url: string } {
+    return {
+      url: this.configService.get<string>('ALERT_SERVICE_RABBITMQ_URL')!,
+    };
   }
 }
 

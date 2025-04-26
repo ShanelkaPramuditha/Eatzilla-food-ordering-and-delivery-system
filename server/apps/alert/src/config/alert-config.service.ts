@@ -6,12 +6,8 @@ import { AlertEnvironmentVariables } from '@app/common/config/environment.interf
 export class AlertConfigService {
   constructor(private configService: ConfigService) {}
 
-  get alertServiceHost(): string {
-    return this.configService.get<string>('ALERT_SERVICE_HOST')!;
-  }
-
-  get alertServicePort(): number {
-    return this.configService.get<number>('ALERT_SERVICE_PORT')!;
+  get rabbitMQUrl(): string {
+    return this.configService.get<string>('ALERT_SERVICE_RABBITMQ_URL')!;
   }
 
   get mongoUri(): string {

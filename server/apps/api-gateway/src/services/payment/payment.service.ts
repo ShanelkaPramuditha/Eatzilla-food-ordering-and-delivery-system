@@ -20,7 +20,7 @@ export type CheckoutPayload = {
 @Injectable()
 export class PaymentService {
   constructor(
-    @Inject(Microservice.PAYMENT)
+    @Inject(Microservice.PAYMENT_SERVICE)
     private readonly paymentClient: ClientProxy,
   ) {}
 

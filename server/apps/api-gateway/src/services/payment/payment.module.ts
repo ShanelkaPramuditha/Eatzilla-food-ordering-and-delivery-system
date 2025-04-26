@@ -15,7 +15,7 @@ import { Microservice } from '../../constants/microservice';
       {
         imports: [MicroserviceConfigModule],
         inject: [MicroserviceConfigService],
-        name: Microservice.PAYMENT,
+        name: Microservice.PAYMENT_SERVICE,
         useFactory: (microserviceConfigService: MicroserviceConfigService) => ({
           transport: Transport.TCP,
           options: {
