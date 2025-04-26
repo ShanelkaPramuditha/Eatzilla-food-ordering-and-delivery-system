@@ -1,14 +1,14 @@
 import { NestFactory } from '@nestjs/core';
-import { AlertModule } from './alert.module';
+import { AppModule } from './app.module';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { Logger } from '@nestjs/common';
 import { AlertConfigService } from './config/alert-config.service';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AlertModule);
+  const app = await NestFactory.create(AppModule);
   const configService = app.get(AlertConfigService);
 
-  const microservice = await NestFactory.createMicroservice<MicroserviceOptions>(AlertModule, {
+  const microservice = await NestFactory.createMicroservice<MicroserviceOptions>(AppModule, {
     transport: Transport.RMQ,
     options: {
       urls: [configService.rabbitMQUrl],
