@@ -39,18 +39,35 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { useForm } from 'react-hook-form';
+import { use, useEffect, useState } from 'react';
+import { Textarea } from '@/components/ui/textarea';
+import RestaurantService from '@/services/restaurnat.service';
+import { useAuth } from '@/contexts/auth-context';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useState } from 'react';
-import { Textarea } from '@/components/ui/textarea';
 
 export const Route = createFileRoute('/_auth/_restaurant-owner/menu/')({
   component: RouteComponent,
 });
 
 function RouteComponent() {
+  const { user } = useAuth();
+  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+  useEffect(() => {
+    fetchMenuItems();
+  }, []);
+
+  const fetchMenuItems = async () => {
+    try {
+      const response = await RestaurantService.getMenuItems(user?.id);
+      setMenuItems(response);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
-    <div className='rounded-2xl border border-gray-200 bg-white p-5 lg:p-6 dark:border-gray-800 dark:bg-white/[0.03]'>
+    <div className='grow rounded-2xl border border-gray-200 bg-white p-5 lg:p-6 dark:border-gray-800 dark:bg-white/[0.03]'>
       <div className='flex flex-col items-start justify-between sm:flex-row'>
         <h3 className='mb-4 text-lg font-semibold text-gray-800 dark:text-white/90'>
           Menu Management
@@ -64,6 +81,7 @@ function RouteComponent() {
               <span>Add Item</span>
             </button>
           }
+          refetch={fetchMenuItems}
         />
       </div>
       <div className='mb-4 flex items-center justify-between gap-2'>
@@ -130,10 +148,10 @@ function RouteComponent() {
         </div>
       </div>
 
-      {menuItems.length > 0 ? (
+      {menuItems?.length > 0 ? (
         <div className='grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4'>
           {menuItems.map((item) => (
-            <MenuItemCard key={item.id} item={item} />
+            <MenuItemCard key={item._id} item={item} refetch={fetchMenuItems} />
           ))}
         </div>
       ) : (
@@ -143,61 +161,8 @@ function RouteComponent() {
   );
 }
 
-const menuItems = [
-  {
-    id: 1,
-    name: 'Crispy Calamari',
-    description: 'Tender calamari rings, lightly battered and fried, served with a zesty lemon.',
-    price: 12.99,
-    category: 'Appetizers',
-    image:
-      'https://images.pexels.com/photos/1437267/pexels-photo-1437267.jpeg?auto=compress&cs=tinysrgb&w=600',
-    available: true,
-  },
-  {
-    id: 2,
-    name: 'Crispy Calamari',
-    description: 'Tender calamari rings, lightly battered and fried, served with a zesty lemon.',
-    price: 12.99,
-    category: 'Appetizers',
-    image:
-      'https://images.pexels.com/photos/1437267/pexels-photo-1437267.jpeg?auto=compress&cs=tinysrgb&w=600',
-    available: true,
-  },
-  {
-    id: 3,
-    name: 'Crispy Calamari',
-    description: 'Tender calamari rings, lightly battered and fried, served with a zesty lemon.',
-    price: 12.99,
-    category: 'Appetizers',
-    image:
-      'https://images.pexels.com/photos/1437267/pexels-photo-1437267.jpeg?auto=compress&cs=tinysrgb&w=600',
-    available: true,
-  },
-  {
-    id: 5,
-    name: 'Crispy Calamari',
-    description: 'Tender calamari rings, lightly battered and fried, served with a zesty lemon.',
-    price: 12.99,
-    category: 'Appetizers',
-    image:
-      'https://images.pexels.com/photos/1437267/pexels-photo-1437267.jpeg?auto=compress&cs=tinysrgb&w=600',
-    available: true,
-  },
-  {
-    id: 6,
-    name: 'Crispy Calamari',
-    description: 'Tender calamari rings, lightly battered and fried, served with a zesty lemon.',
-    price: 12.99,
-    category: 'Appetizers',
-    image:
-      'https://images.pexels.com/photos/1437267/pexels-photo-1437267.jpeg?auto=compress&cs=tinysrgb&w=600',
-    available: true,
-  },
-];
-
 type MenuItem = {
-  id: number;
+  _id: number;
   name: string;
   description: string;
   price: number;
@@ -208,9 +173,30 @@ type MenuItem = {
 
 interface MenuItemCardProps {
   item: MenuItem;
+  refetch: () => void;
 }
 
-const MenuItemCard = ({ item }: MenuItemCardProps) => {
+const MenuItemCard = ({ item, refetch }: MenuItemCardProps) => {
+  const { user } = useAuth();
+  const [availablity, setAvailability] = useState(item.available);
+
+  const handleUpdate = async () => {
+    try {
+      await RestaurantService.putMenuItem({ ...item, available: !availablity }, user?.id, item._id);
+      setAvailability(!availablity);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleDelete = async () => {
+    try {
+      await RestaurantService.deleteMenuItem(item._id);
+      refetch();
+    } catch (error) {
+      console.log(error);
+    }
+  };
   return (
     <div className='rounded-2xl border border-gray-200 dark:border-gray-800'>
       <div>
@@ -220,8 +206,12 @@ const MenuItemCard = ({ item }: MenuItemCardProps) => {
         <div className='mb-2 flex items-center justify-between'>
           <h3 className='text-lg font-semibold'>{item.name}</h3>
           <div className='flex gap-2 text-xs font-semibold'>
-            {item.available ? 'Available' : 'Unavailable'}
-            <Switch className='data-[state=checked]:bg-indigo-500' onCheckedChange={() => {}} />
+            {availablity ? 'Available' : 'Unavailable'}
+            <Switch
+              className='data-[state=checked]:bg-indigo-500'
+              checked={availablity}
+              onCheckedChange={handleUpdate}
+            />
           </div>
         </div>
         <p className='text-sm font-medium text-gray-500'>{item.description}</p>
@@ -254,6 +244,8 @@ const MenuItemCard = ({ item }: MenuItemCardProps) => {
               </button>
             }
             item={item}
+            isEdit={true}
+            refetch={refetch}
           />
           <Dialog>
             <DialogTrigger asChild>
@@ -344,7 +336,10 @@ const MenuItemCard = ({ item }: MenuItemCardProps) => {
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction className='bg-indigo-500 hover:bg-indigo-700'>
+                <AlertDialogAction
+                  onClick={handleDelete}
+                  className='bg-indigo-500 hover:bg-indigo-700'
+                >
                   Continue
                 </AlertDialogAction>
               </AlertDialogFooter>
@@ -363,8 +358,8 @@ const formSchema = z.object({
   category: z.string().min(2, {
     message: 'Category must be at least 2 characters.',
   }),
-  price: z.string().regex(/^\d+(\.\d{1,2})?$/, {
-    message: 'Price must be a valid number (e.g. 10 or 10.99).',
+  price: z.coerce.number().positive({
+    message: 'Price must be a positive number.',
   }),
   description: z.string().min(5, {
     message: 'Description must be at least 5 characters.',
@@ -375,34 +370,48 @@ const formSchema = z.object({
 interface MenuItemFormProps {
   trigger: React.ReactNode;
   item?: MenuItem;
+  isEdit?: boolean;
+  refetch: () => void;
 }
 
-const MenuItemForm = ({ trigger, item }: MenuItemFormProps) => {
+const MenuItemForm = ({ trigger, item, isEdit = false, refetch }: MenuItemFormProps) => {
+  const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: item?.name || '',
       category: item?.category || '',
-      price: item?.price.toString() || '',
+      price: item?.price || 0,
       description: item?.description || '',
       image: item?.image || '',
     },
   });
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
-    console.log(values);
-    setIsOpen(false);
-    form.reset();
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    try {
+      if (isEdit) {
+        await RestaurantService.putMenuItem(values, user?.id, item?._id);
+      } else {
+        await RestaurantService.postMenuItem(values, user?.id);
+      }
+      setIsOpen(false);
+      form.reset();
+      refetch();
+    } catch (error) {
+      console.log(error);
+    }
   };
   return (
     <Dialog open={isOpen} onOpenChange={() => setIsOpen(!isOpen)}>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Add Menu Item</DialogTitle>
+          <DialogTitle> {isEdit ? 'Edit Menu Item' : 'Add Menu Item'}</DialogTitle>
           <DialogDescription>
-            Fill in the details below to add a new item to your menu.
+            {isEdit
+              ? 'Edit the details below to update item on your menu.'
+              : 'Fill in the details below to add a new item to your menu.'}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -466,20 +475,7 @@ const MenuItemForm = ({ trigger, item }: MenuItemFormProps) => {
                 <FormItem>
                   <FormLabel>Image</FormLabel>
                   <FormControl>
-                    <Input
-                      type='file'
-                      accept='image/*'
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) {
-                          const reader = new FileReader();
-                          reader.onloadend = () => {
-                            field.onChange(reader.result); // set base64 string
-                          };
-                          reader.readAsDataURL(file);
-                        }
-                      }}
-                    />
+                    <Input className='focus-visible:ring-0' {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -487,7 +483,7 @@ const MenuItemForm = ({ trigger, item }: MenuItemFormProps) => {
             />
             <div className='flex'>
               <Button className='ml-auto bg-indigo-500 hover:bg-indigo-700' type='submit'>
-                Add Item
+                {isEdit ? 'Save' : 'Add Menu Item'}
               </Button>
             </div>
           </form>

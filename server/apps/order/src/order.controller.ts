@@ -20,9 +20,15 @@ export class OrderController {
   }
 
   @MessagePattern({ cmd: 'order.create' })
-  async create(@Body() req: { dto: CreateOrderDto; userId: string }) {
+  async create(req: { dto: CreateOrderDto; userId: string }) {
     const order = await this.orderService.create(req);
     return this.mapToOrderResponseDto(order);
+  }
+
+  @MessagePattern({ cmd: 'order.get.my-orders' })
+  async getMyOrders(req: { userId: string }) {
+    const orders = await this.orderService.findAllByCustomer(req.userId);
+    return orders.map((order) => this.mapToOrderResponseDto(order));
   }
 
   @MessagePattern({ cmd: 'order.findAll' })
@@ -31,7 +37,7 @@ export class OrderController {
     return orders.map((order) => this.mapToOrderResponseDto(order));
   }
 
-  @MessagePattern({ cmd: 'order.findOne' })
+  @MessagePattern({ cmd: 'order.get.by-id' })
   async findOne(@Param('id') id: string) {
     const order = await this.orderService.findOne(id);
     return this.mapToOrderResponseDto(order);
@@ -69,8 +75,9 @@ export class OrderController {
     return orders.map((order) => this.mapToOrderResponseDto(order));
   }
 
-  @MessagePattern({ cmd: 'order.findByRestaurant' })
-  async findByRestaurant(@Param('restaurantId') restaurantId: string) {
+  // In your Order microservice controller
+  @MessagePattern({ cmd: 'order.get.restaurant-orders' })
+  async findByRestaurant(restaurantId: string) {
     const orders = await this.orderService.findAllByRestaurant(restaurantId);
     return orders.map((order) => this.mapToOrderResponseDto(order));
   }

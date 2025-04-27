@@ -11,6 +11,7 @@ import { AppConfigModule } from './config/app.config';
 import { OrderModule } from './services/order/order.module';
 import { DeliveryModule } from './services/delivery/delivery.module';
 import { AlertModule } from './services/alert/alert.module';
+import { RestaurantModule } from './services/restaurant/restaurant.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { AlertModule } from './services/alert/alert.module';
     UsersModule,
     OrderModule,
     DeliveryModule,
+    RestaurantModule,
   ],
   controllers: [ApiGatewayController],
   providers: [ApiGatewayService],

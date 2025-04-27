@@ -28,7 +28,7 @@ export class MenuItemController {
   }
 
   @MessagePattern({ cmd: 'get.menu' })
-  findAll() {
-    return this.menuItemService.findAll();
+  findAll(@Payload() id: string) {
+    return this.menuItemService.findAll(id);
   }
 }
