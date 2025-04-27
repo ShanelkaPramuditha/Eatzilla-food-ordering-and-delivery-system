@@ -1,9 +1,21 @@
+import { useEffect, useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import DeliveryList from './delivery-list';
 import DeliveryMap from './delivery-map';
 import DeliveryStats from './delivery-stats';
+import { calculateDeliveryMetrics } from '@/data/delivery-data';
+import { DeliveryMetrics } from '@/types/delivery';
 
 export function DeliveryDashboard() {
+  const [deliveryMetrics, setDeliveryMetrics] = useState<DeliveryMetrics | null>(null);
+
+  useEffect(() => {
+    // Get delivery metrics for the current driver
+    // In a real app, you would use the authenticated user's ID
+    const driverMetrics = calculateDeliveryMetrics('driver-001');
+    setDeliveryMetrics(driverMetrics);
+  }, []);
+
   return (
     <Tabs defaultValue='list' className='w-full'>
       <TabsList className='grid w-full grid-cols-3'>
@@ -21,7 +33,7 @@ export function DeliveryDashboard() {
       </TabsContent>
 
       <TabsContent value='stats'>
-        <DeliveryStats />
+        <DeliveryStats metrics={deliveryMetrics} />
       </TabsContent>
     </Tabs>
   );
