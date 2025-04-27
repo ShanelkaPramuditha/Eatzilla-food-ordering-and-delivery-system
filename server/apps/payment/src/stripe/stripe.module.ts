@@ -11,6 +11,7 @@ export class StripeModule {
       controllers: [StripeController],
       imports: [PaymentConfigModule],
       providers: [StripeService],
+      exports: [StripeService],
     };
   }
 }

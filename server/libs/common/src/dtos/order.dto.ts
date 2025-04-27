@@ -12,7 +12,16 @@ import {
   IsString,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { OrderStatus } from '../schemas/order.schema';
+
+export enum OrderStatus {
+  CREATED = 'created',
+  CONFIRMED = 'confirmed',
+  PREPARING = 'preparing',
+  READY_FOR_PICKUP = 'ready_for_pickup',
+  OUT_FOR_DELIVERY = 'out_for_delivery',
+  DELIVERED = 'delivered',
+  CANCELLED = 'cancelled',
+}
 
 // ============ ORDER ITEM ============
 export class OrderItemDto {
@@ -101,11 +110,6 @@ export class SuborderDto {
 
 // ============ CREATE ORDER ============
 export class CreateOrderDto {
-  @ApiProperty({ description: 'Customer ID' })
-  @IsNotEmpty()
-  @IsString()
-  customerId: string;
-
   @ApiProperty({ description: 'Suborders grouped by restaurant', type: [SuborderDto] })
   @IsArray()
   @ValidateNested({ each: true })
@@ -198,6 +202,9 @@ export class OrderResponseDto {
 
   @ApiProperty({ description: 'Subtotal amount' })
   subtotal: number;
+
+  @ApiProperty({description: 'Default currency'})
+  currency: string;
 
   @ApiProperty({ description: 'Delivery fee' })
   deliveryFee: number;

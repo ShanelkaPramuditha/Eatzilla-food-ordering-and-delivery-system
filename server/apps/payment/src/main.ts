@@ -1,17 +1,17 @@
 import { NestFactory } from '@nestjs/core';
-import { PaymentModule } from './payment.module';
+import { AppModule } from './app.module';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { Logger } from '@nestjs/common';
 import { PaymentConfigService } from './config/payment-config.service';
 
 async function bootstrap() {
   // Create the NestJS application
-  const app = await NestFactory.create(PaymentModule);
+  const app = await NestFactory.create(AppModule);
   const configService = app.get(PaymentConfigService);
   const port = configService.port;
 
   // Create the microservice with the port from config
-  const microservice = await NestFactory.createMicroservice<MicroserviceOptions>(PaymentModule, {
+  const microservice = await NestFactory.createMicroservice<MicroserviceOptions>(AppModule, {
     transport: Transport.TCP,
     options: {
       host: configService.allowedHost,
