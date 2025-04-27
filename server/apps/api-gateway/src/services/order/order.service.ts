@@ -30,7 +30,7 @@ export class OrderService {
   }
 
   getOrder(id: string) {
-    return this.orderClient.send<OrderResponseDto>({ cmd: 'order.get.by-id' },  id );
+    return this.orderClient.send<OrderResponseDto>({ cmd: 'order.get.by-id' }, id);
   }
 
   updateOrder(id: string, dto: UpdateOrderDto) {

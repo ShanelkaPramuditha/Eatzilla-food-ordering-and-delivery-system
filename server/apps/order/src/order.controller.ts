@@ -50,16 +50,8 @@ export class OrderController {
   }
 
   @MessagePattern({ cmd: 'order.updateSuborderStatus' })
-  async updateSuborderStatus(
-    orderId: string,
-    suborderId: string,
-    status: OrderStatus,
-  ) {
-    const order = await this.orderService.updateSuborderStatus(
-      orderId,
-      suborderId,
-      status,
-    );
+  async updateSuborderStatus(orderId: string, suborderId: string, status: OrderStatus) {
+    const order = await this.orderService.updateSuborderStatus(orderId, suborderId, status);
     return this.mapToOrderResponseDto(order);
   }
 
@@ -94,6 +86,13 @@ export class OrderController {
     @Query('status') status?: OrderStatus,
   ) {
     return await this.orderService.getRestaurantSuborders(restaurantId, status);
+  }
+
+  @MessagePattern({ cmd: 'order.updatePaymentStatus' })
+  async updatePaymentStatus(payload: { orderId: string; isPaid: boolean }) {
+    const { orderId, isPaid } = payload;
+    const order = await this.orderService.updatePaymentStatus(orderId, isPaid);
+    return this.mapToOrderResponseDto(order);
   }
 
   // Helper method to map MongoDB document to DTO

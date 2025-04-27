@@ -7,6 +7,7 @@ interface CartStore {
   isCartOpen: boolean;
   cartTotal: number;
   itemCount: number;
+  deliveryFee: number;
   addToCart: (item: MenuItem, quantity: number, customizations?: Record<string, unknown>) => void;
   removeItem: (menuItemId: string, customizations?: Record<string, unknown>) => void;
   updateQuantity: (
@@ -36,6 +37,7 @@ export const useCartStore = create<CartStore>()(
       isCartOpen: false,
       cartTotal: 0,
       itemCount: 0,
+      deliveryFee: 0,
 
       addToCart: (item, quantity = 1, customizations) => {
         const currentCart = [...get().cart];
@@ -68,6 +70,7 @@ export const useCartStore = create<CartStore>()(
           cartTotal: calculateCartTotal(currentCart),
           itemCount: getCartItemCount(currentCart),
           isCartOpen: true,
+          deliveryFee: 100,
         });
       },
 
@@ -85,6 +88,7 @@ export const useCartStore = create<CartStore>()(
           cart: updatedCart,
           cartTotal: calculateCartTotal(updatedCart),
           itemCount: getCartItemCount(updatedCart),
+          deliveryFee: 100,
         });
       },
 
@@ -117,6 +121,8 @@ export const useCartStore = create<CartStore>()(
           cart: [],
           cartTotal: 0,
           itemCount: 0,
+          deliveryFee: 0,
+          isCartOpen: false,
         });
       },
 

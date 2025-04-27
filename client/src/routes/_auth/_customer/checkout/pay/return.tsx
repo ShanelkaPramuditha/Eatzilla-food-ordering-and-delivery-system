@@ -3,8 +3,10 @@ import { useOrderStore } from '@/store/order.store';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { CheckCircle, AlertCircle, ArrowRight, Home, Clock } from 'lucide-react';
+import { CheckCircle, AlertCircle, ArrowRight, Home, Clock, FileText } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
+import { useGetReceiptUrl } from '@/services/tanstack-hooks/payment';
+import { toast } from 'sonner';
 
 export const Route = createFileRoute('/_auth/_customer/checkout/pay/return')({
   component: RouteComponent,
@@ -15,17 +17,22 @@ function RouteComponent() {
   const [status, setStatus] = useState<string | null>(null);
   const [customerEmail, setCustomerEmail] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const [sessionId, setSessionId] = useState<string | null>(null);
   const navigate = useNavigate();
   const { clearCart } = useCartStore();
   const { resetOrder } = useOrderStore();
 
+  // Fetch receipt URL
+  const { data: receiptData, isLoading: isReceiptLoading } = useGetReceiptUrl(sessionId);
+
   useEffect(() => {
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
-    const sessionId = urlParams.get('session_id');
+    const session = urlParams.get('session_id');
+    setSessionId(session);
 
-    if (sessionId) {
-      fetch(`/session-status?session_id=${sessionId}`)
+    if (session) {
+      fetch(`/session-status?session_id=${session}`)
         .then((res) => res.json())
         .then((data) => {
           setStatus(data.status);
@@ -50,6 +57,15 @@ function RouteComponent() {
       navigate({ to: '/checkout', replace: true });
     }
   }, [navigate, clearCart, resetOrder]);
+
+  const handleDownloadReceipt = () => {
+    if (receiptData?.receiptUrl) {
+      // Open the receipt URL in a new tab
+      window.open(receiptData.receiptUrl, '_blank');
+    } else {
+      toast.error('Receipt is not available yet. Please try again later.');
+    }
+  };
 
   if (isLoading) {
     return (
@@ -109,6 +125,28 @@ function RouteComponent() {
                   <p className='text-gray-600'>Payment Method</p>
                   <p className='font-medium'>Credit Card</p>
                 </div>
+              </div>
+
+              <div className='mt-4 flex justify-end'>
+                <Button
+                  variant='outline'
+                  size='sm'
+                  className='flex items-center gap-2'
+                  onClick={handleDownloadReceipt}
+                  disabled={isReceiptLoading || !receiptData?.receiptUrl}
+                >
+                  {isReceiptLoading ? (
+                    <>
+                      <div className='h-4 w-4 animate-spin rounded-full border-b-2 border-green-600'></div>
+                      Loading Receipt...
+                    </>
+                  ) : (
+                    <>
+                      <FileText className='h-4 w-4' />
+                      Download Receipt
+                    </>
+                  )}
+                </Button>
               </div>
             </div>
 

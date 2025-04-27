@@ -23,4 +23,15 @@ export class StripeController {
       );
     }
   }
+
+  @MessagePattern({ cmd: 'get.receipt' })
+  async getReceiptUrl(sessionId: string) {
+    try {
+      const receiptData = await this.stripeService.getReceiptUrl(sessionId);
+      return receiptData;
+    } catch (error) {
+      this.logger.error(`Error retrieving receipt: ${error}`);
+      throw new HttpException('Failed to retrieve receipt', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
 }

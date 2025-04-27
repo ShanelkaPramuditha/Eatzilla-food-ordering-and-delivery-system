@@ -1,9 +1,19 @@
 import PaymentService from '@/services/payment.service';
 import { CheckoutPayload } from '@/types/payment';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 
 export const useGetStripeClientSecret = () => {
   return useMutation<unknown, Error, CheckoutPayload>({
     mutationFn: (data) => PaymentService.getStripeClientSecret(data),
+  });
+};
+
+export const useGetReceiptUrl = (sessionId: string | null) => {
+  return useQuery({
+    queryKey: ['receipt', sessionId],
+    queryFn: () => PaymentService.getReceiptUrl(sessionId as string),
+    enabled: !!sessionId,
+    retry: 3,
+    staleTime: Infinity,
   });
 };

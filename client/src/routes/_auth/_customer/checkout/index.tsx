@@ -22,13 +22,14 @@ import {
 } from '@/components/ui/form';
 import { checkoutFormSchema, type CheckoutFormValues } from '@/schemas/checkout.schema';
 import OrderService from '@/services/order.service';
+import { OrderSummary } from '@/routes/_auth/_customer/checkout/-order-summary';
 
 export const Route = createFileRoute('/_auth/_customer/checkout/')({
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  const { cart, cartTotal } = useCartStore();
+  const { cart, cartTotal, clearCart } = useCartStore();
   const router = useRouter();
 
   const form = useForm<CheckoutFormValues>({
@@ -47,7 +48,6 @@ function RouteComponent() {
     mode: 'onBlur',
   });
 
-
   const onSubmit = async (data: CheckoutFormValues) => {
     if (cart.length === 0) {
       toast.error('Your cart is empty');
@@ -55,32 +55,27 @@ function RouteComponent() {
     }
 
     try {
-      //  run the order placement logic here
-      const response = await OrderService.createOrder(
-        cart,
-        data.address,
-        data.payment,
-        data.specialInstructions
-      )
-
-      if (!response) {
-        toast.error('Failed to place order. Please try again.');
-        return;
-      }
-      
-      console.log('Order placed successfully:', response);
-
-      router.navigate({ to: `/checkout/pay` });
-    } catch (error) { 
+      await OrderService.createOrder(cart, data.address, data.payment, data.specialInstructions)
+        .then((res) => {
+          router.navigate({
+            to: `/checkout/pay`,
+            search: { orderId: res._id },
+          });
+        })
+        .finally(() => {
+          // Clear the cart after placing the order
+          clearCart();
+        });
+    } catch (error) {
       console.error('Error placing order:', error);
       toast.error('Failed to place order. Please try again.');
     }
   };
 
   // Calculate order totals (these will be calculated by the backend)
-  const deliveryFee = 3.99; // This will come from the backend response
+  const deliveryFee = 100; // This will come from the backend response
   const taxRate = 0.08; // This will come from the backend response
-  const tax = cartTotal * taxRate;
+  const tax = taxRate * 0;
   const total = cartTotal + deliveryFee + tax;
 
   if (cart.length === 0) {
@@ -312,27 +307,13 @@ function RouteComponent() {
 
                   <Separator className='my-4' />
 
-                  <div className='space-y-2'>
-                    <div className='flex justify-between'>
-                      <span className='text-muted-foreground'>Subtotal</span>
-                      <span>{formatCurrency(cartTotal)}</span>
-                    </div>
-                    <div className='flex justify-between'>
-                      <span className='text-muted-foreground'>Delivery Fee</span>
-                      <span>{formatCurrency(deliveryFee)}</span>
-                    </div>
-                    <div className='flex justify-between'>
-                      <span className='text-muted-foreground'>Tax</span>
-                      <span>{formatCurrency(tax)}</span>
-                    </div>
-
-                    <Separator className='my-2' />
-
-                    <div className='flex justify-between font-bold'>
-                      <span>Total</span>
-                      <span>{formatCurrency(total)}</span>
-                    </div>
-                  </div>
+                  <OrderSummary
+                    subtotal={cartTotal}
+                    deliveryFee={deliveryFee}
+                    tax={tax}
+                    total={total}
+                    showTitle={false}
+                  />
 
                   <Button className='mt-6 w-full' size='lg' type='submit'>
                     Place Order
