@@ -18,6 +18,7 @@ import { OrderProgressBar } from './-order-progress-bar';
 import { Clock, CreditCard, MapPin, MessageSquare } from 'lucide-react';
 import { getStatusColor } from './-order-card';
 import { OrderStatus } from '@/constants/order';
+import { useNavigate } from '@tanstack/react-router';
 
 interface OrderDetailsDialogProps {
   order: Order | null;
@@ -26,6 +27,8 @@ interface OrderDetailsDialogProps {
 }
 
 export function OrderDetailsDialog({ order, open, onOpenChange }: OrderDetailsDialogProps) {
+  const navigate = useNavigate();
+
   if (!order) return null;
 
   const date = new Date(order.createdAt);
@@ -280,8 +283,7 @@ export function OrderDetailsDialog({ order, open, onOpenChange }: OrderDetailsDi
               variant='destructive'
               className='bg-green-600 text-white hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-800'
               onClick={() => {
-                // Handle cancel order logic here
-                console.log('Cancel Order');
+                navigate({ to: '/checkout/pay', search: { orderId: order._id } });
               }}
             >
               Proceed with Payment

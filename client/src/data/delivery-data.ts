@@ -1,5 +1,5 @@
 import { DeliveryOrder, DeliveryStatus } from '@/types/delivery';
-import { OrderStatus } from '@/types/cart';
+import { OrderStatus } from '@/constants/order';
 
 // Sample delivery orders with complete information for delivery management
 export const deliveryOrders: DeliveryOrder[] = [

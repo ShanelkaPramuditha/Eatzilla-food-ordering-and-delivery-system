@@ -5,6 +5,7 @@ import { Microservice } from '../../constants/microservice';
 import {
   CreateOrderDto,
   OrderResponseDto,
+  OrderStatus,
   UpdateOrderDto,
   UpdateSuborderStatusDto,
 } from '@app/common/dtos/order.dto';
@@ -29,7 +30,7 @@ export class OrderService {
   }
 
   getOrder(id: string) {
-    return this.orderClient.send<OrderResponseDto>({ cmd: 'order.get.by-id' }, { id });
+    return this.orderClient.send<OrderResponseDto>({ cmd: 'order.get.by-id' }, id);
   }
 
   updateOrder(id: string, dto: UpdateOrderDto) {
@@ -47,8 +48,11 @@ export class OrderService {
     );
   }
 
-  updateOrderStatus(id: string, dto: UpdateSuborderStatusDto) {
-    return this.orderClient.send<OrderResponseDto>({ cmd: 'order.update.status' }, { id, dto });
+  updateOrderStatus(id: string, suborderId: string, status: OrderStatus) {
+    return this.orderClient.send<OrderResponseDto>(
+      { cmd: 'order.updateSuborderStatus' },
+      { id, suborderId, status },
+    );
   }
 
   // getAllOrders(filters: { status?: string; restaurantId?: string }) {

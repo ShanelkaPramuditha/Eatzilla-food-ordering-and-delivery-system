@@ -5,7 +5,7 @@ export type CheckoutPayload = {
   currencyType: string;
   customerEmail: string;
   customerName: string;
-  shippigFee: number;
+  deliveryFee: number;
   products: {
     productId: string;
     productName: string;

@@ -171,7 +171,7 @@ OrderSchema.pre('save', function (next) {
     });
 
     this.subtotal = this.suborders.reduce((sum, suborder) => sum + suborder.subtotal, 0);
-    this.deliveryFee = 5.99;
+    this.deliveryFee = 100;
     this.currency = currencyType; // Default currency
     this.tax = this.subtotal * 0.1;
     this.total = this.subtotal + this.deliveryFee + this.tax;
