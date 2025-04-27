@@ -38,33 +38,33 @@ export class OrderController {
   }
 
   @MessagePattern({ cmd: 'order.get.by-id' })
-  async findOne(@Param('id') id: string) {
+  async findOne(id: string) {
     const order = await this.orderService.findOne(id);
     return this.mapToOrderResponseDto(order);
   }
 
   @MessagePattern({ cmd: 'order.update' })
-  async update(@Param('id') id: string, @Body() updateOrderDto: UpdateOrderDto) {
+  async update(id: string, updateOrderDto: UpdateOrderDto) {
     const order = await this.orderService.update(id, updateOrderDto);
     return this.mapToOrderResponseDto(order);
   }
 
   @MessagePattern({ cmd: 'order.updateSuborderStatus' })
   async updateSuborderStatus(
-    @Param('id') orderId: string,
-    @Param('suborderId') suborderId: string,
-    @Body() updateSuborderStatusDto: UpdateSuborderStatusDto,
+    orderId: string,
+    suborderId: string,
+    status: OrderStatus,
   ) {
     const order = await this.orderService.updateSuborderStatus(
       orderId,
       suborderId,
-      updateSuborderStatusDto,
+      status,
     );
     return this.mapToOrderResponseDto(order);
   }
 
-  @MessagePattern({ cmd: 'order.remove' })
-  async remove(@Param('id') id: string) {
+  @MessagePattern({ cmd: 'order.cancel' })
+  async remove(id: string) {
     const order = await this.orderService.remove(id);
     return this.mapToOrderResponseDto(order);
   }
@@ -116,6 +116,7 @@ export class OrderController {
       })),
       currency: order.currency,
       deliveryAddress: order.deliveryAddress,
+      deliveryPersonId: order.deliveryPersonId?.toString(),
       subtotal: order.subtotal,
       deliveryFee: order.deliveryFee,
       tax: order.tax,
