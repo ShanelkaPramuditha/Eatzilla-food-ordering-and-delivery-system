@@ -10,6 +10,29 @@ services:
       - '3000:3000'
     volumes:
       - .:/usr/src/app
+    environment:
+      - NODE_ENV=development
+    restart: unless-stopped
+    depends_on:
+      - alert-service
+      - payment-service
+      - order-service
+      - restaurant-service
+      - delivery-service
+
+  alert-service:
+    build:
+      context: .
+      dockerfile: ./apps/alert/Dockerfile
+      target: development
+    command: pnpm run start:dev alert
+    volumes:
+      - .:/usr/src/app
+    networks:
+      - default
+    environment:
+      - NODE_ENV=development
+    restart: unless-stopped
 
   payment-service:
     build:
@@ -21,6 +44,9 @@ services:
       - .:/usr/src/app
     networks:
       - default
+    environment:
+      - NODE_ENV=development
+    restart: unless-stopped
 
   order-service:
     build:
@@ -32,6 +58,23 @@ services:
       - .:/usr/src/app
     networks:
       - default
+    environment:
+      - NODE_ENV=development
+    restart: unless-stopped
+
+  restaurant-service:
+    build:
+      context: .
+      dockerfile: ./apps/restaurant/Dockerfile
+      target: development
+    command: pnpm run start:dev restaurant
+    volumes:
+      - .:/usr/src/app
+    networks:
+      - default
+    environment:
+      - NODE_ENV=development
+    restart: unless-stopped
 
   delivery-service:
     build:
@@ -43,6 +86,9 @@ services:
       - .:/usr/src/app
     networks:
       - default
+    environment:
+      - NODE_ENV=development
+    restart: unless-stopped
 
 networks:
   default:

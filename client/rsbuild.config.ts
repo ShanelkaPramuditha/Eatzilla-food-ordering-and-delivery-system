@@ -21,4 +21,8 @@ export default defineConfig({
       ],
     },
   },
+  html: {
+    title: 'EatZilla',
+    favicon: './public/favicon.ico',
+  },
 });

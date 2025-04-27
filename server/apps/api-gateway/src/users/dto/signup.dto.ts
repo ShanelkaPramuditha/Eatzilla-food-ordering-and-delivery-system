@@ -1,6 +1,5 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { UserRole } from '../models/user.schema';
+import { UserRole } from '@app/common/types/user';
 import {
   IsEmail,
   IsString,

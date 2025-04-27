@@ -1,17 +1,11 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Schema as MongooseSchema, type Types } from 'mongoose';
+import { Document, Schema as MongooseSchema, Types } from 'mongoose';
 import { ApiProperty } from '@nestjs/swagger';
+import { OrderStatus } from '@app/common/dtos/order.dto';
 
-export enum OrderStatus {
-  CREATED = 'created',
-  CONFIRMED = 'confirmed',
-  PREPARING = 'preparing',
-  READY_FOR_PICKUP = 'ready_for_pickup',
-  OUT_FOR_DELIVERY = 'out_for_delivery',
-  DELIVERED = 'delivered',
-  CANCELLED = 'cancelled',
-}
+const currencyType = 'LKR'; // Default currency
 
+// --------------------- OrderItem ---------------------
 @Schema()
 export class OrderItem {
   @Prop({ type: MongooseSchema.Types.ObjectId, required: true })
@@ -35,14 +29,20 @@ export class OrderItem {
   customizations?: Record<string, any>;
 }
 
-@Schema()
+export const OrderItemSchema = SchemaFactory.createForClass(OrderItem);
+
+// --------------------- Suborder ---------------------
+@Schema({ _id: true }) // Explicitly enable _id generation
 export class Suborder {
+  @ApiProperty({ description: 'Suborder ID' })
+  _id: Types.ObjectId;
+
   @Prop({ type: MongooseSchema.Types.ObjectId, required: true, ref: 'Restaurant' })
   @ApiProperty({ description: 'Restaurant ID' })
   restaurantId: Types.ObjectId;
 
-  @Prop({ type: [{ type: Object, ref: OrderItem }], required: true })
-  @ApiProperty({ description: 'Items from this restaurant' })
+  @Prop({ type: [OrderItemSchema], required: true })
+  @ApiProperty({ description: 'Items from this restaurant', type: [OrderItem] })
   items: OrderItem[];
 
   @Prop({ required: true, default: 0 })
@@ -58,6 +58,9 @@ export class Suborder {
   status: OrderStatus;
 }
 
+export const SuborderSchema = SchemaFactory.createForClass(Suborder);
+
+// --------------------- Address ---------------------
 @Schema()
 export class Address {
   @Prop({ required: true })
@@ -81,21 +84,28 @@ export class Address {
   instructions?: string;
 }
 
+export const AddressSchema = SchemaFactory.createForClass(Address);
+
+// --------------------- Order ---------------------
 export type OrderDocument = Order & Document;
 
 @Schema({ timestamps: true })
-export class Order extends Document {
+export class Order {
   @Prop({ type: MongooseSchema.Types.ObjectId, required: true, ref: 'User' })
   @ApiProperty({ description: 'Customer ID' })
   customerId: Types.ObjectId;
 
-  @Prop({ type: [{ type: Object, ref: Suborder }], required: true })
+  @Prop({ type: [SuborderSchema], required: true })
   @ApiProperty({ description: 'Suborders grouped by restaurant', type: [Suborder] })
   suborders: Suborder[];
 
   @Prop({ required: true, default: 0 })
   @ApiProperty({ description: 'Subtotal amount' })
   subtotal: number;
+
+  @Prop({ required: true, default: 'LKR' })
+  @ApiProperty({ description: 'Currency' })
+  currency: string;
 
   @Prop({ required: true, default: 0 })
   @ApiProperty({ description: 'Delivery fee' })
@@ -117,7 +127,7 @@ export class Order extends Document {
   @ApiProperty({ enum: OrderStatus, description: 'Order status' })
   status: OrderStatus;
 
-  @Prop({ type: Object, required: true })
+  @Prop({ type: AddressSchema, required: true })
   @ApiProperty({ description: 'Delivery address', type: Address })
   deliveryAddress: Address;
 
@@ -138,30 +148,28 @@ export class Order extends Document {
   specialInstructions?: string;
 
   @ApiProperty({ description: 'MongoDB ObjectId' })
-  declare _id: Types.ObjectId;
+  _id: Types.ObjectId;
 
   @ApiProperty({ description: 'Created at timestamp' })
-  declare createdAt: Date;
+  createdAt: Date;
 
   @ApiProperty({ description: 'Updated at timestamp' })
-  declare updatedAt: Date;
+  updatedAt: Date;
 }
 
 export const OrderSchema = SchemaFactory.createForClass(Order);
 
+// Pre-save hook to calculate totals
 OrderSchema.pre('save', function (next) {
   if (this.isModified('suborders') || this.isNew) {
-    // Calculate suborder totals
     this.suborders.forEach((suborder) => {
       suborder.subtotal = suborder.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
     });
 
-    // Calculate delivery fee and tax
-    this.deliveryFee = 5.99; // Example fixed delivery fee
-    this.tax = this.subtotal * 0.1; // Example 10% tax
-
-    // Calculate order totals
     this.subtotal = this.suborders.reduce((sum, suborder) => sum + suborder.subtotal, 0);
+    this.deliveryFee = 5.99;
+    this.currency = currencyType; // Default currency
+    this.tax = this.subtotal * 0.1;
     this.total = this.subtotal + this.deliveryFee + this.tax;
   }
 

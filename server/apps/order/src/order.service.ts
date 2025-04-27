@@ -1,168 +1,184 @@
-
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import { Order, OrderDocument } from './schemas/order.schema';
-import { OrderStatus } from './schemas/order.schema';
+import { Address, Order, OrderDocument, OrderItem } from './schemas/order.schema';
 import {
   CreateOrderDto,
-  OrderResponseDto,
+  OrderStatus,
   UpdateOrderDto,
   UpdateSuborderStatusDto,
-} from './dtos/create-order.dto';
+} from '@app/common/dtos/order.dto';
+import { dot } from 'node:test/reporters';
 
 @Injectable()
 export class OrderService {
   constructor(@InjectModel(Order.name) private orderModel: Model<OrderDocument>) {}
+
   getStatus(): string {
     return 'Order service is running';
   }
-  async create(createOrderDto: CreateOrderDto): Promise<OrderResponseDto> {
-    const deliveryFee = 5.99; // Example fixed delivery fee
+
+  async create(req: { dto: CreateOrderDto; userId: string }): Promise<OrderDocument> {
+    console.log('Creating order with DTO:', req);
+    // Convert string IDs to ObjectIds
+    const customerId = new Types.ObjectId(req.userId);
+
+    const suborders = req.dto.suborders.map((suborder) => ({
+      ...suborder,
+      restaurantId: new Types.ObjectId(suborder.restaurantId),
+      items: suborder.items.map((item) => ({
+        ...item,
+        menuItemId: new Types.ObjectId(item.menuItemId),
+      })),
+    }));
 
     // Create the order
-    const createdOrder = new this.orderModel({
-      ...createOrderDto,
-      deliveryFee,
+    const newOrder = new this.orderModel({
+      customerId,
+      suborders,
+      deliveryAddress: req.dto.deliveryAddress,
+      paymentMethod: req.dto.paymentMethod,
+      paymentId: req.dto.paymentId,
+      specialInstructions: req.dto.specialInstructions,
       status: OrderStatus.CREATED,
       isPaid: false,
     });
 
-    const order = await createdOrder.save();
-    return this.mapToResponseDto(order);
+    // Save will trigger the pre-save hook that calculates totals
+    return await newOrder.save();
   }
 
-  async findByCustomer(customerId: string): Promise<OrderResponseDto[]> {
-    if (!Types.ObjectId.isValid(customerId)) {
-      throw new BadRequestException('Invalid customer ID');
-    }
-
-    const orders = await this.orderModel.find({ customerId }).exec();
-    return orders.map((order) => this.mapToResponseDto(order));
+  async findAll(): Promise<OrderDocument[]> {
+    return this.orderModel.find().exec();
   }
 
-  async findOne(id: string): Promise<OrderResponseDto> {
-    if (!Types.ObjectId.isValid(id)) {
-      throw new BadRequestException('Invalid order ID');
-    }
-
-    const order = await this.orderModel.findById(id).exec();
-    if (!order) {
-      throw new NotFoundException('Order not found');
-    }
-    return this.mapToResponseDto(order);
-  }
-
-  async update(id: string, updateOrderDto: UpdateOrderDto): Promise<OrderResponseDto> {
-    if (!Types.ObjectId.isValid(id)) {
-      throw new BadRequestException('Invalid order ID');
-    }
-
-    const order = await this.orderModel
-      .findByIdAndUpdate(id, { $set: updateOrderDto }, { new: true })
-      .exec();
-
-    if (!order) {
-      throw new NotFoundException('Order not found');
-    }
-    return this.mapToResponseDto(order);
-  }
-
-  async updateStatus(
-    id: string,
-    updateStatusDto: UpdateSuborderStatusDto,
-  ): Promise<OrderResponseDto> {
-    if (!Types.ObjectId.isValid(id)) {
-      throw new BadRequestException('Invalid order ID');
-    }
-
-    const validStatusTransitions = {
-      [OrderStatus.CREATED]: [OrderStatus.CONFIRMED, OrderStatus.CANCELLED],
-      [OrderStatus.CONFIRMED]: [OrderStatus.PREPARING, OrderStatus.CANCELLED],
-      [OrderStatus.PREPARING]: [OrderStatus.READY_FOR_PICKUP],
-      [OrderStatus.READY_FOR_PICKUP]: [OrderStatus.OUT_FOR_DELIVERY],
-      [OrderStatus.OUT_FOR_DELIVERY]: [OrderStatus.DELIVERED],
-    };
-
-    const order = await this.orderModel.findById(id).exec();
-    if (!order) {
-      throw new NotFoundException('Order not found');
-    }
-
-    if (updateStatusDto.status === OrderStatus.CANCELLED) {
-      if (order.status !== OrderStatus.CREATED && order.status !== OrderStatus.CONFIRMED) {
-        throw new BadRequestException('Order can only be cancelled in CREATED or CONFIRMED status');
-      }
-    } else if (!validStatusTransitions[order.status]?.includes(updateStatusDto.status)) {
-      throw new BadRequestException(
-        `Invalid status transition from ${order.status} to ${updateStatusDto.status}`,
-      );
-    }
-
-    const updatedOrder = await this.orderModel
-      .findByIdAndUpdate(id, { status: updateStatusDto.status }, { new: true })
-      .exec();
-
-    return this.mapToResponseDto(updatedOrder!);
-  }
-
-  async findByRestaurant(restaurantId: string): Promise<OrderResponseDto[]> {
-    if (!Types.ObjectId.isValid(restaurantId)) {
-      throw new BadRequestException('Invalid restaurant ID');
-    }
-
-    const orders = await this.orderModel
+  async findAllByCustomer(customerId: string): Promise<OrderDocument[]> {
+    return this.orderModel
       .find({
-        'suborders.restaurantId': restaurantId,
+        customerId: new Types.ObjectId(customerId),
       })
       .exec();
-
-    return orders.map((order) => this.mapToResponseDto(order));
   }
 
-  async findAll(filters: {
-    status?: OrderStatus;
-    restaurantId?: string;
-  }): Promise<OrderResponseDto[]> {
-    const query: any = {};
+  async findAllByRestaurant(restaurantId: string): Promise<OrderDocument[]> {
+    return this.orderModel
+      .find({
+        'suborders.restaurantId': new Types.ObjectId(restaurantId),
+      })
+      .exec();
+  }
 
-    if (filters.status) {
-      query.status = filters.status;
+  async findOne(id: string): Promise<OrderDocument> {
+    const order = await this.orderModel.findById(id).exec();
+    if (!order) {
+      throw new Error('Order not found');
+    }
+    return order;
+  }
+
+  async update(id: string, updateOrderDto: UpdateOrderDto): Promise<OrderDocument> {
+    const updatedOrder = await this.orderModel
+      .findByIdAndUpdate(id, { $set: updateOrderDto }, { new: true })
+      .exec();
+    if (!updatedOrder) {
+      throw new Error('Order not found');
+    }
+    return updatedOrder;
+  }
+
+  async updateSuborderStatus(
+    orderId: string,
+    suborderId: string,
+    updateSuborderStatusDto: UpdateSuborderStatusDto,
+  ): Promise<OrderDocument> {
+    const order = await this.orderModel.findById(orderId);
+
+    if (!order) {
+      throw new Error('Order not found');
     }
 
-    if (filters.restaurantId) {
-      if (!Types.ObjectId.isValid(filters.restaurantId)) {
-        throw new BadRequestException('Invalid restaurant ID');
-      }
-      query['suborders.restaurantId'] = filters.restaurantId;
+    const suborderIndex = order.suborders.findIndex(
+      (suborder) => suborder._id.toString() === suborderId,
+    );
+
+    if (suborderIndex === -1) {
+      throw new Error('Suborder not found');
+    }
+
+    // Update the suborder status
+    order.suborders[suborderIndex].status = updateSuborderStatusDto.status;
+
+    // Check if all suborders have the same status
+    const allSameStatus = order.suborders.every(
+      (suborder) => suborder.status === updateSuborderStatusDto.status,
+    );
+
+    // If all suborders have the same status, update the main order status
+    if (allSameStatus) {
+      order.status = updateSuborderStatusDto.status;
+    }
+
+    return order.save();
+  }
+
+  async remove(id: string): Promise<OrderDocument> {
+    const deletedOrder = await this.orderModel.findByIdAndDelete(id).exec();
+    if (!deletedOrder) {
+      throw new Error('Order not found');
+    }
+    return deletedOrder;
+  }
+
+  async getOrdersByStatus(status: OrderStatus): Promise<OrderDocument[]> {
+    return this.orderModel.find({ status }).exec();
+  }
+
+  async getRestaurantSuborders(restaurantId: string, status?: OrderStatus): Promise<any[]> {
+    const query: any = { 'suborders.restaurantId': new Types.ObjectId(restaurantId) };
+
+    if (status) {
+      query['suborders.status'] = status;
     }
 
     const orders = await this.orderModel.find(query).exec();
-    return orders.map((order) => this.mapToResponseDto(order));
-  }
 
-  private mapToResponseDto(order: OrderDocument): OrderResponseDto {
-    return {
-      _id: order._id.toString(),
-      customerId: order.customerId.toString(),
-      suborders: order.suborders.map((suborder) => ({
-        restaurantId: suborder.restaurantId.toString(),
-        items: suborder.items,
-        subtotal: suborder.subtotal,
-        status: suborder.status,
-      })),
-      status: order.status,
-      deliveryAddress: order.deliveryAddress,
-      paymentMethod: order.paymentMethod || '',
-      isPaid: order.isPaid,
-      paymentId: order.paymentId,
-      specialInstructions: order.specialInstructions,
-      createdAt: order.createdAt,
-      updatedAt: order.updatedAt,
-      subtotal: order.subtotal,
-      deliveryFee: order.deliveryFee,
-      tax: order.tax,
-      total: order.total,
-    };
+    // Extract and flatten the relevant suborders
+    const suborders: {
+      orderId: Types.ObjectId;
+      suborderId: Types.ObjectId;
+      customerInfo: {
+        customerId: Types.ObjectId;
+        deliveryAddress: Address;
+      };
+      items: OrderItem[];
+      subtotal: number;
+      status: OrderStatus;
+      createdAt: Date;
+    }[] = [];
+
+    for (const order of orders) {
+      const relevantSuborders = order.suborders.filter(
+        (suborder) =>
+          suborder.restaurantId.toString() === restaurantId &&
+          (!status || suborder.status === status),
+      );
+
+      for (const suborder of relevantSuborders) {
+        suborders.push({
+          orderId: order._id,
+          suborderId: suborder._id,
+          customerInfo: {
+            customerId: order.customerId,
+            deliveryAddress: order.deliveryAddress,
+          },
+          items: suborder.items,
+          subtotal: suborder.subtotal,
+          status: suborder.status,
+          createdAt: order.createdAt,
+        });
+      }
+    }
+
+    return suborders;
   }
 }

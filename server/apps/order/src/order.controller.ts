@@ -1,114 +1,125 @@
-
-import { Controller } from '@nestjs/common';
-import { MessagePattern, Payload } from '@nestjs/microservices';
+import { Controller, Get, Post, Body, Param, Put, Delete, Query } from '@nestjs/common';
 import { OrderService } from './order.service';
 import {
   CreateOrderDto,
   UpdateOrderDto,
   UpdateSuborderStatusDto,
   OrderResponseDto,
-} from './dtos/create-order.dto';
-import { OrderStatus } from './schemas/order.schema';
-import { Types } from 'mongoose';
+  OrderStatus,
+} from '@app/common/dtos/order.dto';
+import { MessagePattern } from '@nestjs/microservices';
 
-@Controller()
+@Controller('orders')
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
 
-  // Create Order
+  // get status of the order service
+  @MessagePattern({ cmd: 'get.status' })
+  getStatus(): string {
+    return this.orderService.getStatus();
+  }
+
   @MessagePattern({ cmd: 'order.create' })
-  async createOrder(
-    @Payload() payload: { dto: CreateOrderDto; userId?: string },
-  ): Promise<OrderResponseDto> {
-    const dto = payload.dto;
-    if (!dto.customerId && payload.userId) {
-      dto.customerId = payload.userId;
-    }
-    return this.orderService.create(dto);
+  async create(@Body() req: { dto: CreateOrderDto; userId: string }) {
+    const order = await this.orderService.create(req);
+    return this.mapToOrderResponseDto(order);
   }
 
-  // Get My Orders
-  @MessagePattern({ cmd: 'order.get.my-orders' })
-  async getMyOrders(@Payload() payload: { userId: string }): Promise<OrderResponseDto[]> {
-    return this.orderService.findByCustomer(payload.userId);
+  @MessagePattern({ cmd: 'order.findAll' })
+  async findAll() {
+    const orders = await this.orderService.findAll();
+    return orders.map((order) => this.mapToOrderResponseDto(order));
   }
 
-  // Get Order by ID
-  @MessagePattern({ cmd: 'order.get.by-id' })
-  async getOrder(@Payload() payload: { id: string }): Promise<OrderResponseDto> {
-    return this.orderService.findOne(payload.id);
+  @MessagePattern({ cmd: 'order.findOne' })
+  async findOne(@Param('id') id: string) {
+    const order = await this.orderService.findOne(id);
+    return this.mapToOrderResponseDto(order);
   }
 
-  // Update Order
   @MessagePattern({ cmd: 'order.update' })
-  async updateOrder(
-    @Payload() payload: { id: string; dto: UpdateOrderDto },
-  ): Promise<OrderResponseDto> {
-    return this.orderService.update(payload.id, payload.dto);
+  async update(@Param('id') id: string, @Body() updateOrderDto: UpdateOrderDto) {
+    const order = await this.orderService.update(id, updateOrderDto);
+    return this.mapToOrderResponseDto(order);
   }
 
-  // Cancel Order
-  @MessagePattern({ cmd: 'order.cancel' })
-  async cancelOrder(@Payload() payload: { id: string }): Promise<OrderResponseDto> {
-    return this.orderService.updateStatus(payload.id, { status: OrderStatus.CANCELLED });
+  @MessagePattern({ cmd: 'order.updateSuborderStatus' })
+  async updateSuborderStatus(
+    @Param('id') orderId: string,
+    @Param('suborderId') suborderId: string,
+    @Body() updateSuborderStatusDto: UpdateSuborderStatusDto,
+  ) {
+    const order = await this.orderService.updateSuborderStatus(
+      orderId,
+      suborderId,
+      updateSuborderStatusDto,
+    );
+    return this.mapToOrderResponseDto(order);
   }
 
-  // Get Restaurant Orders
-  @MessagePattern({ cmd: 'order.get.restaurant-orders' })
-  async getRestaurantOrders(
-    @Payload() payload: { restaurantId: string },
-  ): Promise<OrderResponseDto[]> {
-    return this.orderService.findByRestaurant(payload.restaurantId);
+  @MessagePattern({ cmd: 'order.remove' })
+  async remove(@Param('id') id: string) {
+    const order = await this.orderService.remove(id);
+    return this.mapToOrderResponseDto(order);
   }
 
-  // Update Order Status
-  @MessagePattern({ cmd: 'order.update.status' })
-  async updateOrderStatus(
-    @Payload() payload: { id: string; dto: UpdateSuborderStatusDto },
-  ): Promise<OrderResponseDto> {
-    return this.orderService.updateStatus(payload.id, payload.dto);
+  @MessagePattern({ cmd: 'order.removeSuborder' })
+  async findByCustomer(@Param('customerId') customerId: string) {
+    const orders = await this.orderService.findAllByCustomer(customerId);
+    return orders.map((order) => this.mapToOrderResponseDto(order));
   }
 
-  // Get All Orders (Admin)
-  @MessagePattern({ cmd: 'order.get.all' })
-  async getAllOrders(
-    @Payload() payload: { status?: OrderStatus; restaurantId?: string },
-  ): Promise<OrderResponseDto[]> {
-    const filters: { status?: OrderStatus; restaurantId?: string } = {};
-    if (payload.status) filters.status = payload.status;
-    if (payload.restaurantId) filters.restaurantId = payload.restaurantId;
-    return this.orderService.findAll(filters);
+  @MessagePattern({ cmd: 'order.findByRestaurant' })
+  async findByRestaurant(@Param('restaurantId') restaurantId: string) {
+    const orders = await this.orderService.findAllByRestaurant(restaurantId);
+    return orders.map((order) => this.mapToOrderResponseDto(order));
   }
 
-  // Payment Completed Handler
-  @MessagePattern({ cmd: 'payment.completed' })
-  async handlePaymentCompleted(
-    @Payload() data: { orderId: string; paymentId: string },
-  ): Promise<void> {
-    await this.orderService.update(data.orderId, {
-      isPaid: true,
-      paymentId: data.paymentId,
-      status: OrderStatus.CONFIRMED,
-    });
+  @MessagePattern({ cmd: 'order.getAll' })
+  async getOrdersByStatus(@Query('status') status: OrderStatus) {
+    const orders = await this.orderService.getOrdersByStatus(status);
+    return orders.map((order) => this.mapToOrderResponseDto(order));
   }
 
-  // Delivery Assigned Handler
-  @MessagePattern({ cmd: 'delivery.assigned' })
-  async handleDeliveryAssigned(
-    @Payload() data: { orderId: string; deliveryPersonId: string },
-  ): Promise<void> {
-    if (!data.deliveryPersonId || !Types.ObjectId.isValid(data.deliveryPersonId)) {
-      throw new Error('Invalid delivery person ID');
-    }
+  @MessagePattern({ cmd: 'order.getRestaurantSuborders' })
+  async getRestaurantSuborders(
+    @Param('restaurantId') restaurantId: string,
+    @Query('status') status?: OrderStatus,
+  ) {
+    return await this.orderService.getRestaurantSuborders(restaurantId, status);
+  }
 
-    const order = await this.orderService.findOne(data.orderId);
-    if (!order) {
-      throw new Error('Order not found');
-    }
-
-    await this.orderService.update(data.orderId, {
-      deliveryPersonId: new Types.ObjectId(data.deliveryPersonId).toString(),
-      status: OrderStatus.OUT_FOR_DELIVERY,
-    });
+  // Helper method to map MongoDB document to DTO
+  private mapToOrderResponseDto(order: any): OrderResponseDto {
+    return {
+      _id: order._id.toString(),
+      customerId: order.customerId.toString(),
+      suborders: order.suborders.map((suborder) => ({
+        _id: suborder._id.toString(),
+        restaurantId: suborder.restaurantId.toString(),
+        items: suborder.items.map((item) => ({
+          menuItemId: item.menuItemId.toString(),
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity,
+          customizations: item.customizations,
+        })),
+        subtotal: suborder.subtotal,
+        status: suborder.status,
+      })),
+      currency: order.currency,
+      deliveryAddress: order.deliveryAddress,
+      subtotal: order.subtotal,
+      deliveryFee: order.deliveryFee,
+      tax: order.tax,
+      total: order.total,
+      status: order.status,
+      paymentMethod: order.paymentMethod,
+      paymentId: order.paymentId,
+      isPaid: order.isPaid,
+      specialInstructions: order.specialInstructions,
+      createdAt: order.createdAt,
+      updatedAt: order.updatedAt,
+    };
   }
 }

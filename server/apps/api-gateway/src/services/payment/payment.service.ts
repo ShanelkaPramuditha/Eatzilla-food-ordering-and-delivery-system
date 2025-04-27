@@ -1,5 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
+import { Microservice } from '../../constants/microservice';
 
 export type CheckoutPayload = {
   paymentType: 'card' | 'cashapp';
@@ -19,7 +20,7 @@ export type CheckoutPayload = {
 @Injectable()
 export class PaymentService {
   constructor(
-    @Inject('PAYMENT_SERVICE')
+    @Inject(Microservice.PAYMENT_SERVICE)
     private readonly paymentClient: ClientProxy,
   ) {}
 

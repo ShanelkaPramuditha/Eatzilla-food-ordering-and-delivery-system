@@ -22,6 +22,7 @@ import {
 } from '@/components/ui/form';
 import { checkoutFormSchema, type CheckoutFormValues } from '@/schemas/checkout.schema';
 import { useOrderStore } from '@/store/order.store';
+import OrderService from '@/services/order.service';
 
 export const Route = createFileRoute('/_auth/_customer/checkout/')({
   component: RouteComponent,
@@ -29,7 +30,6 @@ export const Route = createFileRoute('/_auth/_customer/checkout/')({
 
 function RouteComponent() {
   const { cart, cartTotal } = useCartStore();
-  const { setOrder } = useOrderStore();
   const router = useRouter();
 
   const form = useForm<CheckoutFormValues>({
@@ -48,6 +48,7 @@ function RouteComponent() {
     mode: 'onBlur',
   });
 
+
   const onSubmit = async (data: CheckoutFormValues) => {
     if (cart.length === 0) {
       toast.error('Your cart is empty');
@@ -55,9 +56,23 @@ function RouteComponent() {
     }
 
     try {
-      setOrder(data);
+      //  run the order placement logic here
+      const response = await OrderService.createOrder(
+        cart,
+        data.address,
+        data.payment,
+        data.specialInstructions
+      )
+
+      if (!response) {
+        toast.error('Failed to place order. Please try again.');
+        return;
+      }
+      
+      console.log('Order placed successfully:', response);
+
       router.navigate({ to: `/checkout/pay` });
-    } catch (error) {
+    } catch (error) { 
       console.error('Error placing order:', error);
       toast.error('Failed to place order. Please try again.');
     }
