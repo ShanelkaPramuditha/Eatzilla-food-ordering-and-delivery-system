@@ -34,7 +34,7 @@ export function Layout() {
         })}
       >
         <div
-          className={cn('mx-auto flex h-full w-full p-4', {
+          className={cn('mx-auto flex h-full w-full ', {
             'min-h-[calc(100vh-104px)]': showFooter,
             'min-h-[calc(100vh-52px)]': !showFooter,
           })}

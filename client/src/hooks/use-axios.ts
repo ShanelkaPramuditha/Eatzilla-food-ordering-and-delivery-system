@@ -22,7 +22,7 @@ useAxios.interceptors.response.use(
 
       try {
         // Try to refresh the token using cookies
-        await axios.post(`${BASE_URL}/refresh`, {}, { withCredentials: true });
+        await axios.post(`${BASE_URL}refresh`, {}, { withCredentials: true });
 
         // Retry the original request
         return useAxios(originalRequest);

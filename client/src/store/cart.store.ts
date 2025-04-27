@@ -1,14 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { CartItem, MenuItem } from '@/types/cart';
-import {
-  addToCart as addItemToCart,
-  removeFromCart,
-  updateCartItemQuantity,
-  clearCart as emptyCart,
-  calculateCartTotal,
-  getCartItemCount,
-} from '@/lib/cart';
 
 interface CartStore {
   cart: CartItem[];
@@ -26,26 +18,69 @@ interface CartStore {
   setIsCartOpen: (isOpen: boolean) => void;
 }
 
+// Helper functions used internally by the store
+const calculateCartTotal = (cart: CartItem[]): number => {
+  return cart.reduce((total, item) => {
+    return total + item.price * item.quantity;
+  }, 0);
+};
+
+const getCartItemCount = (cart: CartItem[]): number => {
+  return cart.reduce((count, item) => count + item.quantity, 0);
+};
+
 export const useCartStore = create<CartStore>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       cart: [],
       isCartOpen: false,
       cartTotal: 0,
       itemCount: 0,
 
-      addToCart: (item, quantity, customizations) => {
-        const updatedCart = addItemToCart(item, quantity, customizations);
+      addToCart: (item, quantity = 1, customizations) => {
+        const currentCart = [...get().cart];
+
+        // Check if item already exists in cart
+        const existingItemIndex = currentCart.findIndex(
+          (cartItem) =>
+            cartItem.menuItemId === item.id &&
+            JSON.stringify(cartItem.customizations || {}) === JSON.stringify(customizations || {}),
+        );
+
+        if (existingItemIndex >= 0) {
+          // Update quantity if item exists
+          currentCart[existingItemIndex].quantity += quantity;
+        } else {
+          // Add new item
+          currentCart.push({
+            menuItemId: item.id,
+            name: item.name,
+            price: item.price,
+            quantity,
+            customizations,
+            image: item.image,
+            restaurantId: item.restaurantId || 'default-restaurant',
+          });
+        }
+
         set({
-          cart: updatedCart,
-          cartTotal: calculateCartTotal(updatedCart),
-          itemCount: getCartItemCount(updatedCart),
+          cart: currentCart,
+          cartTotal: calculateCartTotal(currentCart),
+          itemCount: getCartItemCount(currentCart),
           isCartOpen: true,
         });
       },
 
       removeItem: (menuItemId, customizations) => {
-        const updatedCart = removeFromCart(menuItemId, customizations);
+        const currentCart = get().cart;
+        const updatedCart = currentCart.filter(
+          (item) =>
+            !(
+              item.menuItemId === menuItemId &&
+              JSON.stringify(item.customizations || {}) === JSON.stringify(customizations || {})
+            ),
+        );
+
         set({
           cart: updatedCart,
           cartTotal: calculateCartTotal(updatedCart),
@@ -54,18 +89,32 @@ export const useCartStore = create<CartStore>()(
       },
 
       updateQuantity: (menuItemId, quantity, customizations) => {
-        const updatedCart = updateCartItemQuantity(menuItemId, quantity, customizations);
+        const currentCart = [...get().cart];
+        const itemIndex = currentCart.findIndex(
+          (item) =>
+            item.menuItemId === menuItemId &&
+            JSON.stringify(item.customizations || {}) === JSON.stringify(customizations || {}),
+        );
+
+        if (itemIndex >= 0) {
+          if (quantity > 0) {
+            currentCart[itemIndex].quantity = quantity;
+          } else {
+            // Remove item if quantity is 0 or negative
+            currentCart.splice(itemIndex, 1);
+          }
+        }
+
         set({
-          cart: updatedCart,
-          cartTotal: calculateCartTotal(updatedCart),
-          itemCount: getCartItemCount(updatedCart),
+          cart: currentCart,
+          cartTotal: calculateCartTotal(currentCart),
+          itemCount: getCartItemCount(currentCart),
         });
       },
 
       clearCart: () => {
-        const emptyCartItems = emptyCart();
         set({
-          cart: emptyCartItems,
+          cart: [],
           cartTotal: 0,
           itemCount: 0,
         });
@@ -74,7 +123,7 @@ export const useCartStore = create<CartStore>()(
       setIsCartOpen: (isOpen: boolean) => set({ isCartOpen: isOpen }),
     }),
     {
-      name: 'cart-storage',
+      name: 'cart-storage', // This is the key used by persist middleware for localStorage
     },
   ),
 );

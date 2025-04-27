@@ -122,7 +122,7 @@ const orders: Order[] = [
 
 function RouteComponent() {
   return (
-    <div className='rounded-2xl border border-gray-200 bg-white p-5 lg:p-6 dark:border-gray-800 dark:bg-white/[0.03]'>
+    <div className='grow rounded-2xl border border-gray-200 bg-white p-5 lg:p-6 dark:border-gray-800 dark:bg-white/[0.03]'>
       <div className='flex flex-col items-start justify-between sm:flex-row'>
         <h3 className='mb-4 text-lg font-semibold text-gray-800 dark:text-white/90'>
           Order Management

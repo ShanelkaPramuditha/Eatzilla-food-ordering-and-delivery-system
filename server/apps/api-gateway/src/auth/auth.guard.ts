@@ -1,19 +1,19 @@
-import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  CanActivate,
+  ExecutionContext,
+  Injectable,
+  UnauthorizedException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { JwtService, TokenExpiredError, JsonWebTokenError } from '@nestjs/jwt';
 import { JwtConfigService } from '../config/jwt.config';
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import { IS_PUBLIC_KEY } from './decorator/public.decorator';
-import { JwtPayload } from '../types/auth';
+import { ROLES_KEY } from './decorator/roles.decorator';
+import { JwtPayload, UserRequest } from '../types/auth';
 import { AuthService } from './auth.service';
-
-interface RequestWithUser extends Request {
-  user: JwtPayload;
-  cookies: {
-    access_token?: string;
-    refresh_token?: string;
-  };
-}
+import { UserRole } from '@app/common/types/user';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -34,7 +34,7 @@ export class AuthGuard implements CanActivate {
       return true;
     }
 
-    const request = context.switchToHttp().getRequest<RequestWithUser>();
+    const request = context.switchToHttp().getRequest<UserRequest>();
     const accessToken = request.cookies['access_token'];
 
     if (!accessToken) {
@@ -48,9 +48,33 @@ export class AuthGuard implements CanActivate {
         issuer: this.jwtConfig.issuer,
         ignoreExpiration: false,
       });
+
+      // Add the user to the request
       request.user = payload;
+
+      // Check for role requirements
+      const requiredRoles = this.reflector.getAllAndOverride<UserRole[]>(ROLES_KEY, [
+        context.getHandler(),
+        context.getClass(),
+      ]);
+
+      // If no roles are specified, allow access
+      if (!requiredRoles || requiredRoles.length === 0) {
+        return true;
+      }
+
+      // Check if the user has any of the required roles
+      const hasRequiredRole = requiredRoles.some((role) => payload.role === (role as string));
+
+      if (!hasRequiredRole) {
+        throw new ForbiddenException('You do not have permission to access this resource');
+      }
+
       return true;
     } catch (error) {
+      if (error instanceof ForbiddenException) {
+        throw error;
+      }
       if (error instanceof TokenExpiredError) {
         const refreshToken = request.cookies['refresh_token'];
         if (refreshToken) {
@@ -79,8 +103,28 @@ export class AuthGuard implements CanActivate {
               ignoreExpiration: false,
             });
             request.user = payload;
+
+            // Check for role requirements after refreshing token
+            const requiredRoles = this.reflector.getAllAndOverride<UserRole[]>(ROLES_KEY, [
+              context.getHandler(),
+              context.getClass(),
+            ]);
+
+            if (!requiredRoles || requiredRoles.length === 0) {
+              return true;
+            }
+
+            const hasRequiredRole = requiredRoles.some((role) => payload.role === (role as string));
+
+            if (!hasRequiredRole) {
+              throw new ForbiddenException('You do not have permission to access this resource');
+            }
+
             return true;
-          } catch {
+          } catch (error) {
+            if (error instanceof ForbiddenException) {
+              throw error;
+            }
             throw new UnauthorizedException('Invalid or expired refresh token');
           }
         }

@@ -1,8 +1,28 @@
 import { NestFactory } from '@nestjs/core';
-import { AlertModule } from './alert.module';
+import { AppModule } from './app.module';
+import { MicroserviceOptions, Transport } from '@nestjs/microservices';
+import { Logger } from '@nestjs/common';
+import { AlertConfigService } from './config/alert-config.service';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AlertModule);
-  await app.listen(process.env.port ?? 3000);
+  const app = await NestFactory.create(AppModule);
+  const configService = app.get(AlertConfigService);
+
+  const microservice = await NestFactory.createMicroservice<MicroserviceOptions>(AppModule, {
+    transport: Transport.RMQ,
+    options: {
+      urls: [configService.rabbitMQUrl],
+      queue: 'alert_queue',
+      queueOptions: {
+        durable: true,
+      },
+    },
+  });
+
+  await microservice.listen();
+  const logger = new Logger('AlertService');
+  logger.log('Alert microservice is listening...');
 }
-bootstrap();
+bootstrap().catch((err) => {
+  console.error('Bootstrap error:', err);
+});

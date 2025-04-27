@@ -8,7 +8,7 @@ export class ApiGatewayController {
 
   @Public()
   @Get('status')
-  checkStatus(): object {
+  async checkStatus(): Promise<object> {
     return this.apiGatewayService.checkStatus();
   }
 }

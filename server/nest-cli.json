@@ -37,6 +37,15 @@
         "tsConfigPath": "libs/common/tsconfig.lib.json"
       }
     },
+    "delivery": {
+      "type": "application",
+      "root": "apps/delivery",
+      "entryFile": "main",
+      "sourceRoot": "apps/delivery/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/delivery/tsconfig.app.json"
+      }
+    },
     "order-service": {
       "type": "application",
       "root": "apps/order",
@@ -53,6 +62,15 @@
       "sourceRoot": "apps/payment/src",
       "compilerOptions": {
         "tsConfigPath": "apps/payment/tsconfig.app.json"
+      }
+    },
+    "restaurant": {
+      "type": "application",
+      "root": "apps/restaurant",
+      "entryFile": "main",
+      "sourceRoot": "apps/restaurant/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/restaurant/tsconfig.app.json"
       }
     }
   }

@@ -1,15 +1,9 @@
 // src/services/OrderService.ts
+import { OrderStatus } from '@/constants/order';
 import { useAxios as axios } from '@/hooks/use-axios';
 import { CartItem } from '@/types/cart';
-import {
-  OrderStatus,
-  OrderItem,
-  Address,
-  Suborder,
-  Order,
-  CreateOrder,
-  UpdateOrder,
-} from '@/types/cart';
+import { OrderItem } from '@/types/cart';
+import { Address, Suborder, Order, CreateOrder, UpdateOrder } from '@/types/order';
 
 const OrderService = {
   createOrder: async (
@@ -38,49 +32,50 @@ const OrderService = {
     const suborders: Suborder[] = Object.entries(restaurantGroups).map(([restaurantId, items]) => ({
       restaurantId,
       items,
+      subtotal: items.reduce((total, item) => total + item.price * item.quantity, 0),
+      status: OrderStatus.CREATED,
     }));
 
     const orderData: CreateOrder = {
-      customerId: 'current-user-id', // You'll need to get this from your auth context
       suborders,
       deliveryAddress,
       paymentMethod,
       specialInstructions,
     };
 
-    const res = await axios.post('/orders', orderData);
+    const res = await axios.post('/order', orderData);
     return res.data;
   },
 
   getOrder: async (orderId: string): Promise<Order> => {
-    const res = await axios.get(`/orders/${orderId}`);
+    const res = await axios.get(`/order/${orderId}`);
     return res.data;
   },
 
-  getCustomerOrders: async (customerId: string): Promise<Order[]> => {
-    const res = await axios.get(`/orders/customer/${customerId}`);
+  getCustomerOrders: async (): Promise<Order[]> => {
+    const res = await axios.get(`/order/my-orders`);
     return res.data;
   },
 
   updateOrder: async (orderId: string, updateData: UpdateOrder): Promise<Order> => {
-    const res = await axios.patch(`/orders/${orderId}`, updateData);
+    const res = await axios.patch(`/order/${orderId}`, updateData);
     return res.data;
   },
 
   cancelOrder: async (orderId: string): Promise<Order> => {
-    const res = await axios.patch(`/orders/${orderId}`, {
+    const res = await axios.patch(`/order/${orderId}`, {
       status: OrderStatus.CANCELLED,
     });
     return res.data;
   },
 
   getRestaurantOrders: async (restaurantId: string): Promise<Order[]> => {
-    const res = await axios.get(`/orders/restaurant/${restaurantId}`);
+    const res = await axios.get(`/order/restaurant/${restaurantId}`);
     return res.data;
   },
 
   updateOrderStatus: async (orderId: string, status: OrderStatus): Promise<Order> => {
-    const res = await axios.patch(`/orders/${orderId}/status`, { status });
+    const res = await axios.patch(`/order/${orderId}/status`, { status });
     return res.data;
   },
 
@@ -88,7 +83,7 @@ const OrderService = {
     status?: OrderStatus;
     restaurantId?: string;
   }): Promise<Order[]> => {
-    const res = await axios.get('/orders', { params: filters });
+    const res = await axios.get('/order', { params: filters });
     return res.data;
   },
 
