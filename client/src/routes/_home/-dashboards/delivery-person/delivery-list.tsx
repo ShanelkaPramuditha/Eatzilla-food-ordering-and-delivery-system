@@ -12,6 +12,7 @@ import {
 import { getPendingDeliveries } from '@/data/delivery-data';
 import { DeliveryOrder, DeliveryStatus } from '@/types/delivery';
 import { OrderStatus } from '@/types/cart';
+import { DollarSign } from 'lucide-react';
 
 // Mock current driver ID - in a real app this would come from authentication
 const CURRENT_DRIVER_ID = 'driver-001';
@@ -73,7 +74,7 @@ export default function DeliveryList() {
       case DeliveryStatus.ACCEPTED:
         return (
           <Badge variant='outline' className='bg-blue-100 text-blue-800'>
-           Delivery Accepted
+            Delivery Accepted
           </Badge>
         );
       case DeliveryStatus.IN_TRANSIT:
@@ -134,10 +135,14 @@ export default function DeliveryList() {
                           .map((item) => `${item.quantity}x ${item.name}`)
                           .join(', ')}
                       </p>
-                      <div className='mt-2'>
+                      <div className='mt-2 flex items-center gap-4'>
                         <p className='text-sm'>
                           <span className='font-medium'>Total:</span>{' '}
                           {formatCurrency(delivery.total)}
+                        </p>
+                        <p className='flex items-center rounded-md border border-green-200 bg-green-50 px-2 py-1 text-sm font-medium text-green-700'>
+                          <DollarSign className='mr-1 h-3.5 w-3.5' />
+                          Delivery Fee: {formatCurrency(delivery.deliveryFee)}
                         </p>
                       </div>
                     </div>
