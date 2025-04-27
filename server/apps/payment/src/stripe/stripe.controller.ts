@@ -1,6 +1,7 @@
 import { Controller, HttpException, HttpStatus, Logger } from '@nestjs/common';
-import { CheckoutPayload, StripeService } from './stripe.service';
+import { StripeService } from './stripe.service';
 import { MessagePattern } from '@nestjs/microservices';
+import { CheckoutPayload } from '@app/common/types/payment';
 
 @Controller()
 export class StripeController {
@@ -9,7 +10,7 @@ export class StripeController {
   constructor(private readonly stripeService: StripeService) {}
 
   @MessagePattern({ cmd: 'post.checkout' })
-  async createCheckoutSession(data: CheckoutPayload[]) {
+  async createCheckoutSession(data: CheckoutPayload) {
     try {
       const session = await this.stripeService.createCheckoutSessionWithPrice(data);
 

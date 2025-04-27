@@ -1,21 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import Stripe from 'stripe';
 import { PaymentConfigService } from '../config/payment-config.service';
+import { CheckoutPayload } from '@app/common/types/payment';
 
-export type CheckoutPayload = {
-  paymentType: 'card' | 'cashapp';
-  currencyType: string;
-  unit_amount: number;
-  quantity: number;
-  orderId: string;
-  customerId: string;
-  customerEmail: string;
-  customerName: string;
-  productId: string;
-  productName: string;
-  productDescription?: string;
-  productImages?: string[];
-};
 @Injectable()
 export class StripeService {
   private readonly stripe: Stripe;
@@ -28,22 +15,15 @@ export class StripeService {
     this.logger.log('StripeService initialized with API version 2025-03-31.basil');
   }
 
-  async createCheckoutSessionWithPrice(data: CheckoutPayload[]) {
+  async createCheckoutSessionWithPrice(data: CheckoutPayload) {
     try {
-      const mappedData = data?.map((item) => ({
+      const mappedData = data?.products?.map((item) => ({
         price_data: {
-          currency: item.currencyType,
+          currency: data.currencyType,
           product_data: {
             name: item.productName,
             description: item.productDescription,
             images: item.productImages?.length ? [item.productImages[0]] : [],
-            metadata: {
-              product_id: item.productId,
-              order_id: item.orderId,
-              customer_id: item.customerId,
-              customer_name: item.customerName,
-              customer_email: item.customerEmail,
-            },
           },
           unit_amount: item.unit_amount,
         },
@@ -53,9 +33,27 @@ export class StripeService {
       const session = await this.stripe.checkout.sessions.create({
         ui_mode: 'embedded',
         payment_method_types: ['card'],
+        shipping_options: [
+          {
+            shipping_rate_data: {
+              type: 'fixed_amount',
+              fixed_amount: {
+                amount: data.shippigFee,
+                currency: data.currencyType,
+              },
+              display_name: 'EatZilla Delivery Service',
+              delivery_estimate: {
+                maximum: {
+                  unit: 'hour',
+                  value: 2,
+                },
+              },
+            },
+          },
+        ],
         line_items: mappedData,
         mode: 'payment',
-        return_url: `http://localhost:5173/checkout/pay/return?session_id={CHECKOUT_SESSION_ID}`,
+        return_url: `${this.paymentConfigService.frontendUrl}/checkout/pay/return?session_id={CHECKOUT_SESSION_ID}`,
       });
 
       return {
