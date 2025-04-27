@@ -24,6 +24,20 @@ export class StripeController {
     }
   }
 
+  @MessagePattern({ cmd: 'get.sessionStatus' })
+  async getSessionStatus(sessionId: string) {
+    try {
+      const session = await this.stripeService.getSessionStatus(sessionId);
+      return session;
+    } catch (error) {
+      this.logger.error(`Error retrieving session status: ${error}`);
+      throw new HttpException(
+        'Failed to retrieve session status',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
   @MessagePattern({ cmd: 'get.receipt' })
   async getReceiptUrl(sessionId: string) {
     try {

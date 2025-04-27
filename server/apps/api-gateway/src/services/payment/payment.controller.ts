@@ -23,6 +23,11 @@ export class PaymentController {
     return this.paymentService.checkout(checkoutDto);
   }
 
+  @Get('session-status/:session_id')
+  getSessionStatus(@Param('session_id') sessionId: string) {
+    return this.paymentService.getSessionStatus(sessionId);
+  }
+
   @Public()
   @Get('receipt/:sessionId')
   getReceiptUrl(@Param('sessionId') sessionId: string) {

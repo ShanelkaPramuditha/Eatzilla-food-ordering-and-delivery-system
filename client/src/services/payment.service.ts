@@ -11,6 +11,11 @@ class PaymentService {
     const res = await axios.get(`/payment/receipt/${sessionId}`);
     return res.data;
   }
+
+  async getSessionStatus(sessionId: string) {
+    const res = await axios.get(`/payment/session-status/${sessionId}`);
+    return res.data;
+  }
 }
 
 export default new PaymentService();

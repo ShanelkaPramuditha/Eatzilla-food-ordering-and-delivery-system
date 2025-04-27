@@ -60,6 +60,9 @@ export class StripeService {
         metadata: {
           orderId: data.orderId,
           customerId: data.customerId,
+          orderDate: new Date().toISOString(),
+          address: 'temp-address',
+          deliveryFee: data.deliveryFee,
         },
       });
 
@@ -69,6 +72,29 @@ export class StripeService {
     } catch (error) {
       this.logger.error(`Error creating checkout session with price: ${error}`);
       throw new Error('Unable to create checkout session with price');
+    }
+  }
+
+  async getSessionStatus(sessionId: string) {
+    console.log('sessionId', sessionId);
+    try {
+      const session = await this.stripe.checkout.sessions.retrieve(sessionId, {
+        expand: ['payment_intent'],
+      });
+
+      if (!session) {
+        throw new Error('No session found');
+      }
+
+      return {
+        status: session.status,
+        paymentStatus: session.payment_status,
+        customerDetails: session.customer_details,
+        metadata: session.metadata,
+      };
+    } catch (error) {
+      this.logger.error(`Error retrieving session status: ${error}`);
+      throw new Error('Unable to retrieve session status');
     }
   }
 

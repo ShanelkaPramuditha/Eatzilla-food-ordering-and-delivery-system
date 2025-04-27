@@ -17,3 +17,13 @@ export const useGetReceiptUrl = (sessionId: string | null) => {
     staleTime: Infinity,
   });
 };
+
+export const useGetSessionStatus = (sessionId: string | null) => {
+  return useQuery({
+    queryKey: ['sessionStatus', sessionId],
+    queryFn: () => PaymentService.getSessionStatus(sessionId as string),
+    enabled: !!sessionId,
+    retry: 3,
+    staleTime: Infinity,
+  });
+};
