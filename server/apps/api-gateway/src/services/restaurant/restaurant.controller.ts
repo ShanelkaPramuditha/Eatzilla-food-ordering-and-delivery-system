@@ -1,4 +1,4 @@
-import { Controller, Param, Body, Get, Post, Put, Delete } from '@nestjs/common';
+import { Controller, Param, Body, Get, Post, Put, Delete, Req, Patch, Query } from '@nestjs/common';
 import { RestaurantService } from './restaurant.service';
 import { Restaurant } from './validations/restaurant.validation';
 import { MenuItem } from './validations/menu-item.validation';
@@ -38,12 +38,8 @@ export class RestaurantController {
   }
 
   @Put(':restaurantId/menu/:id')
-  updateMenuItem(
-    @Param('restaurantId') restaurant: string,
-    @Param('id') id: string,
-    @Body() menuItem: MenuItem,
-  ) {
-    return this.restaurantService.updateMenuItem(id, { ...menuItem, restaurant });
+  updateMenuItem(@Param('id') id: string, @Body() menuItem: MenuItem) {
+    return this.restaurantService.updateMenuItem(id, { menuItem });
   }
 
   @Delete(':restaurantId/menu/:id')
@@ -52,12 +48,12 @@ export class RestaurantController {
   }
 
   @Get(':restaurantId/menu/:id')
-  getMenuItem(@Param('id') id: string) {
+  getMenuItem(@Param('id') id: string, @Param('restaurantId') restaurantId: string) {
     return this.restaurantService.findMenuItemById(id);
   }
 
   @Get(':restaurantId/menu')
-  getMenuItems() {
-    return this.restaurantService.findAllMenuItems();
+  getMenuItems(@Param('restaurantId') restaurantId: string) {
+    return this.restaurantService.findAllMenuItems(restaurantId);
   }
 }

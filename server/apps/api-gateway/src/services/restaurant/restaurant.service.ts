@@ -51,7 +51,7 @@ export class RestaurantService {
   }
 
   // Get a list of all restaurants
-  findAllMenuItems() {
-    return this.restaurantClient.send({ cmd: 'get.menu' }, {});
+  findAllMenuItems(restaurantId: string) {
+    return this.restaurantClient.send({ cmd: 'get.menu' }, restaurantId);
   }
 }

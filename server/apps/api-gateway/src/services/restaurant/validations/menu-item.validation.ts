@@ -1,4 +1,4 @@
-import { IsMongoId, IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsMongoId, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class MenuItem {
   @IsString()
@@ -16,6 +16,9 @@ export class MenuItem {
   @IsString()
   @IsNotEmpty()
   description: string;
+
+  @IsOptional()
+  available: boolean;
 
   @IsString()
   @IsNotEmpty()
