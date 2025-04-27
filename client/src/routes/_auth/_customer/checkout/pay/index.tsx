@@ -25,34 +25,35 @@ function RouteComponent() {
 
   // Prepare checkout data from cart
   // TODO: Need to handle with order data
-  const prepareCheckoutData = (): CheckoutPayload[] => {
+  const prepareCheckoutData = (): CheckoutPayload | null => {
     // Safely check if cart exists and has items
     if (!cart || cart.length === 0) {
       console.log('Cart is empty, will redirect to cart page');
-      return [];
+      return null;
     }
 
-    console.log('Preparing checkout data with cart items:', cart);
-
-    // Map each cart item to a CheckoutPayload
-    return cart.map((item) => ({
-      paymentType: 'card',
-      currencyType: 'lkr',
-      unit_amount: Math.round(item.price * 10000), // Convert to cents for Stripe
-      quantity: item.quantity,
-      orderId: `order_${Date.now()}_${item.menuItemId}`,
-      customerId: 'customer_id', // Should come from auth context
-      customerEmail: 'customer@example.com', // Should come from auth context
-      customerName: 'Customer Name', // Should come from auth context
+    // Map each cart item to a product object for the CheckoutPayload
+    const products = cart.map((item) => ({
       productId: item.menuItemId,
       productName: item.name,
+      unit_amount: Math.round(item.price * 10000),
+      quantity: item.quantity,
       productDescription: `${item.name} x ${item.quantity}${item.customizations ? ' (with customizations)' : ''}`,
       productImages: item.image ? [item.image] : [],
-      metadata: {
-        restaurantId: item.restaurantId,
-        customizations: item.customizations ? JSON.stringify(item.customizations) : undefined,
-      },
     }));
+
+    const data: CheckoutPayload = {
+      customerId: 'customer_id', // Should come from auth context
+      orderId: `order_${Date.now()}_${Math.floor(Math.random() * 10000)}`, // Temporary order ID
+      paymentType: 'card',
+      currencyType: 'lkr',
+      customerEmail: 'customer@example.com', // Should come from auth context
+      customerName: 'Customer Name', // Should come from auth context
+      shippigFee: 10000, // Note: Matches the typo in the type definition
+      products: products, // Now using all products from cart
+    };
+
+    return data;
   };
 
   // Redirect to cart if empty
@@ -72,7 +73,7 @@ function RouteComponent() {
         }
 
         const checkoutData = prepareCheckoutData();
-        if (checkoutData.length === 0) {
+        if (!checkoutData) {
           console.log('No checkout data prepared, skipping API call');
           return;
         }
