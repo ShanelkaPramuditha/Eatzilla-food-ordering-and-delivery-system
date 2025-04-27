@@ -60,12 +60,38 @@ export class OrderService {
       .exec();
   }
 
-  async findAllByRestaurant(restaurantId: string): Promise<OrderDocument[]> {
-    return this.orderModel
+  async findAllByRestaurant(restaurantId: string): Promise<any[]> {
+    const objectId = new Types.ObjectId(restaurantId);
+
+    // Find all orders with suborders for this restaurant
+    const orders = await this.orderModel
       .find({
-        'suborders.restaurantId': new Types.ObjectId(restaurantId),
+        'suborders.restaurantId': objectId,
       })
+      .sort({ createdAt: -1 })
       .exec();
+
+    // Transform orders to include only necessary fields
+    return orders.map((order) => {
+      // Get only the suborders for this restaurant
+      const filteredSuborders = order.suborders.filter(
+        (suborder) => suborder.restaurantId.toString() === objectId.toString(),
+      );
+
+      // Return a simplified order object
+      return {
+        _id: order._id,
+        customerId: order.customerId,
+        suborders: filteredSuborders,
+        currency: order.currency,
+        deliveryAddress: order.deliveryAddress,
+        status: order.status,
+        isPaid: order.isPaid,
+        specialInstructions: order.specialInstructions,
+        createdAt: order.createdAt,
+        updatedAt: order.updatedAt,
+      };
+    });
   }
 
   async findOne(id: string): Promise<OrderDocument> {

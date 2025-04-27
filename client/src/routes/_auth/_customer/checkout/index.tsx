@@ -21,7 +21,6 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { checkoutFormSchema, type CheckoutFormValues } from '@/schemas/checkout.schema';
-import { useOrderStore } from '@/store/order.store';
 import OrderService from '@/services/order.service';
 
 export const Route = createFileRoute('/_auth/_customer/checkout/')({
