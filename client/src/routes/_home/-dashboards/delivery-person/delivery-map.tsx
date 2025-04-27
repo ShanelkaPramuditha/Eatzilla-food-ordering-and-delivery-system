@@ -22,7 +22,7 @@ const mapContainerStyle = {
 };
 
 // Google Maps API key - Use environment variable
-const GOOGLE_MAPS_API_KEY = 'AIzaSyBUTPe2A_fLIr6l51kJJxQ2GZNutWiHe8c';
+const GOOGLE_MAPS_API_KEY = import.meta.env.PUBLIC_GOOGLE_MAPS_API_KEY;
 
 export default function DeliveryMap() {
   const [availableDeliveries, setAvailableDeliveries] = useState<DeliveryOrder[]>([]);

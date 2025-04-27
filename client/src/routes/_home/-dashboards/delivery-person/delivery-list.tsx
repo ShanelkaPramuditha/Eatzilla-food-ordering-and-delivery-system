@@ -67,19 +67,19 @@ export default function DeliveryList() {
       case DeliveryStatus.PENDING:
         return (
           <Badge variant='outline' className='bg-yellow-100 text-yellow-800'>
-            Pending
+            Pending to Deliver
           </Badge>
         );
       case DeliveryStatus.ACCEPTED:
         return (
           <Badge variant='outline' className='bg-blue-100 text-blue-800'>
-            Accepted
+           Delivery Accepted
           </Badge>
         );
       case DeliveryStatus.IN_TRANSIT:
         return (
           <Badge variant='outline' className='bg-purple-100 text-purple-800'>
-            In Transit
+            Delivery In Transit
           </Badge>
         );
       default:
