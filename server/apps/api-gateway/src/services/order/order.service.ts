@@ -2,7 +2,12 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 
 import { Microservice } from '../../constants/microservice';
-import { CreateOrderDto, OrderResponseDto, UpdateOrderDto, UpdateSuborderStatusDto } from '@app/common/dtos/order.dto';
+import {
+  CreateOrderDto,
+  OrderResponseDto,
+  UpdateOrderDto,
+  UpdateSuborderStatusDto,
+} from '@app/common/dtos/order.dto';
 
 @Injectable()
 export class OrderService {
@@ -38,7 +43,7 @@ export class OrderService {
   getRestaurantOrders(restaurantId: string) {
     return this.orderClient.send<OrderResponseDto[]>(
       { cmd: 'order.get.restaurant-orders' },
-      { restaurantId },
+      restaurantId,
     );
   }
 

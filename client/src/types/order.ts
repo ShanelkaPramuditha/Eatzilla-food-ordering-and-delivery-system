@@ -35,6 +35,7 @@ export interface Order extends CalculatedOrderFields {
   deliveryAddress: Address;
   paymentMethod: string;
   isPaid: boolean;
+  deliveryPersonId?: string;
   paymentId?: string;
   specialInstructions?: string;
   createdAt: Date;

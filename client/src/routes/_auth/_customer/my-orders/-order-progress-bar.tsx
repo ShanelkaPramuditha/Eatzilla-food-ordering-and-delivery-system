@@ -1,6 +1,5 @@
 import { OrderStatus } from '@/constants/order';
 import { cn } from '@/lib/utils';
-import { getStatusColor } from './-order-card';
 
 interface OrderProgressBarProps {
   status: OrderStatus;
@@ -18,8 +17,30 @@ export function OrderProgressBar({ status, className }: OrderProgressBarProps) {
     { key: OrderStatus.CANCELLED, label: 'Cancelled' },
   ];
 
+  // Get status color for the progress bar
+  const getStatusColor = (status: OrderStatus) => {
+    switch (status) {
+      case OrderStatus.CREATED:
+        return 'bg-indigo-500 dark:bg-indigo-400';
+      case OrderStatus.CONFIRMED:
+        return 'bg-amber-500 dark:bg-amber-400';
+      case OrderStatus.PREPARING:
+        return 'bg-orange-500 dark:bg-orange-400';
+      case OrderStatus.READY_FOR_PICKUP:
+        return 'bg-teal-500 dark:bg-teal-400';
+      case OrderStatus.OUT_FOR_DELIVERY:
+        return 'bg-sky-500 dark:bg-sky-400';
+      case OrderStatus.DELIVERED:
+        return 'bg-emerald-500 dark:bg-emerald-400';
+      case OrderStatus.CANCELLED:
+        return 'bg-rose-500 dark:bg-rose-400';
+      default:
+        return 'bg-slate-500 dark:bg-slate-400';
+    }
+  };
+
   // If cancelled, show a different UI
-  if (status === OrderStatus.CANCELLED) {
+  if (status === 'cancelled') {
     return (
       <div className={cn('w-full', className)}>
         <div className='mb-1 flex items-center justify-between'>

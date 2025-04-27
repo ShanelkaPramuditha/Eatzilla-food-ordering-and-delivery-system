@@ -17,6 +17,7 @@ import { OrderStatusBadge } from './-order-status-badge';
 import { OrderProgressBar } from './-order-progress-bar';
 import { Clock, CreditCard, MapPin, MessageSquare } from 'lucide-react';
 import { getStatusColor } from './-order-card';
+import { OrderStatus } from '@/constants/order';
 
 interface OrderDetailsDialogProps {
   order: Order | null;
@@ -261,9 +262,35 @@ export function OrderDetailsDialog({ order, open, onOpenChange }: OrderDetailsDi
           >
             Close
           </Button>
-          <Button className='bg-indigo-600 text-white hover:bg-indigo-700 dark:bg-indigo-700 dark:hover:bg-indigo-800'>
-            Track Order
-          </Button>
+          {order.status === 'created' && (
+            <Button
+              variant='destructive'
+              className='bg-red-600 text-white hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800'
+              onClick={() => {
+                // Handle cancel order logic here
+                console.log('Cancel Order');
+              }}
+            >
+              Cancel Order
+            </Button>
+          )}
+
+          {order.status === OrderStatus.CREATED ? (
+            <Button
+              variant='destructive'
+              className='bg-green-600 text-white hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-800'
+              onClick={() => {
+                // Handle cancel order logic here
+                console.log('Cancel Order');
+              }}
+            >
+              Proceed with Payment
+            </Button>
+          ) : (
+            <Button className='bg-indigo-600 text-white hover:bg-indigo-700 dark:bg-indigo-700 dark:hover:bg-indigo-800'>
+              Track Order
+            </Button>
+          )}
         </div>
       </DialogContent>
     </Dialog>

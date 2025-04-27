@@ -52,35 +52,11 @@ export function OrderCard({ order, onViewDetails }: OrderCardProps) {
   // Count number of restaurants
   const restaurantCount = order.suborders.length;
 
-  // Get status color for the left border
-  // Get status color for the left border
-
-  const getStatusBgColor = (status: string) => {
-    switch (status) {
-      case OrderStatus.CREATED:
-        return 'from-indigo-50/50';
-      case OrderStatus.CONFIRMED:
-        return 'from-amber-50/50';
-      case OrderStatus.PREPARING:
-        return 'from-orange-50/50';
-      case OrderStatus.READY_FOR_PICKUP:
-        return 'from-teal-50/50';
-      case OrderStatus.OUT_FOR_DELIVERY:
-        return 'from-sky-50/50';
-      case OrderStatus.DELIVERED:
-        return 'from-emerald-50/50';
-      case OrderStatus.CANCELLED:
-        return 'from-rose-50/50';
-      default:
-        return 'from-slate-50/50';
-    }
-  };
-
   return (
     <Card
       className={`group overflow-hidden border-0 border-l-4 shadow-md transition-all duration-300 hover:shadow-lg ${getStatusColor(
-        order.status, 
-      ) , getStatusBgColor(order.status)} bg-white dark:bg-slate-800`}
+        order.status,
+      )} bg-white dark:bg-slate-800`}
     >
       <div className='relative'>
         <div className='p-5'>

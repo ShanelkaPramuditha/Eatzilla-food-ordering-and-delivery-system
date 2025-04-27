@@ -172,6 +172,11 @@ export class UpdateOrderDto {
   @IsBoolean()
   isPaid?: boolean;
 
+  @ApiProperty({ description: 'Delivery Person ID', required: false })
+  @IsOptional()
+  @IsString()
+  deliveryPersonId? : string;
+
   @ApiProperty({ description: 'Payment ID', required: false })
   @IsOptional()
   @IsString()
@@ -190,6 +195,9 @@ export class OrderResponseDto {
 
   @ApiProperty({ description: 'Customer ID' })
   customerId: string;
+
+  @ApiProperty({ description: 'Delivery Person ID'})
+  deliveryPersonId?: string;
 
   @ApiProperty({ description: 'Suborders grouped by restaurant' })
   suborders: SuborderDto[];

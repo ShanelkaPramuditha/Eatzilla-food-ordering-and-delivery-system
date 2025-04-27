@@ -48,8 +48,8 @@ export class OrderController {
     return this.orderService.cancelOrder(id);
   }
 
+  @Public()
   @Get('restaurant/:restaurantId')
-  @Roles(UserRole.RESTAURANT_OWNER)
   getRestaurantOrders(@Param('restaurantId') restaurantId: string) {
     return this.orderService.getRestaurantOrders(restaurantId);
   }
