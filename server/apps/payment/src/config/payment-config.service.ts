@@ -15,6 +15,10 @@ export class PaymentConfigService {
     return this.configService.get<number>('PAYMENT_SERVICE_PORT')!;
   }
 
+  get frontendUrl(): string {
+    return this.configService.get<string>('FRONTEND_URL')!;
+  }
+
   // Stripe-specific configuration getter
   get stripeSecretKey(): string {
     return this.configService.get<string>('STRIPE_SECRET_KEY')!;

@@ -1,6 +1,7 @@
 import { Body, Controller, Get, Post } from '@nestjs/common';
-import { CheckoutPayload, PaymentService } from './payment.service';
+import { PaymentService } from './payment.service';
 import { Public } from '../../auth/decorator/public.decorator';
+import { CheckoutPayload } from '@app/common/types/payment';
 
 @Controller('payment')
 export class PaymentController {
@@ -18,7 +19,7 @@ export class PaymentController {
 
   @Public()
   @Post('checkout')
-  checkout(@Body() checkoutDto: CheckoutPayload[]) {
+  checkout(@Body() checkoutDto: CheckoutPayload) {
     return this.paymentService.checkout(checkoutDto);
   }
 }
