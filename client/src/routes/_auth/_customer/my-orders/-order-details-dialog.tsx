@@ -16,6 +16,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { OrderStatusBadge } from './-order-status-badge';
 import { OrderProgressBar } from './-order-progress-bar';
 import { Clock, CreditCard, MapPin, MessageSquare } from 'lucide-react';
+import { getStatusColor } from './-order-card';
 
 interface OrderDetailsDialogProps {
   order: Order | null;
@@ -34,28 +35,6 @@ export function OrderDetailsDialog({ order, open, onOpenChange }: OrderDetailsDi
     hour: 'numeric',
     minute: 'numeric',
   }).format(date);
-
-  // Get status color for the left border
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'created':
-        return 'border-l-indigo-500';
-      case 'processing':
-        return 'border-l-amber-500';
-      case 'preparing':
-        return 'border-l-orange-500';
-      case 'ready':
-        return 'border-l-teal-500';
-      case 'out_for_delivery':
-        return 'border-l-sky-500';
-      case 'delivered':
-        return 'border-l-emerald-500';
-      case 'cancelled':
-        return 'border-l-rose-500';
-      default:
-        return 'border-l-slate-300';
-    }
-  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -97,7 +76,7 @@ export function OrderDetailsDialog({ order, open, onOpenChange }: OrderDetailsDi
 
           <TabsContent value='items' className='space-y-6'>
             {order.suborders.map((suborder, index) => (
-              <div key={suborder._id} className='space-y-4'>
+              <div key={suborder.restaurantId} className='space-y-4'>
                 <div className='flex items-center justify-between'>
                   <h3 className='font-medium dark:text-white'>Restaurant #{index + 1}</h3>
                   <Badge variant='outline' className='dark:border-slate-600 dark:text-slate-300'>

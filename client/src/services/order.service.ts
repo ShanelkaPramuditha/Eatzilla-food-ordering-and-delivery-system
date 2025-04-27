@@ -1,15 +1,9 @@
 // src/services/OrderService.ts
+import { OrderStatus } from '@/constants/order';
 import { useAxios as axios } from '@/hooks/use-axios';
 import { CartItem } from '@/types/cart';
-import {
-  OrderStatus,
-  OrderItem,
-  Address,
-  Suborder,
-  Order,
-  CreateOrder,
-  UpdateOrder,
-} from '@/types/cart';
+import { OrderItem } from '@/types/cart';
+import { Address, Suborder, Order, CreateOrder, UpdateOrder } from '@/types/order';
 
 const OrderService = {
   createOrder: async (

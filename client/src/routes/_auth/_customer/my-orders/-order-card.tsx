@@ -8,11 +8,33 @@ import { Card } from '@/components/ui/card';
 import { Clock, ExternalLink, MapPin, Package, ShoppingBag } from 'lucide-react';
 import { OrderStatusBadge } from './-order-status-badge';
 import { OrderProgressBar } from './-order-progress-bar';
+import { OrderStatus } from '@/constants/order';
 
 interface OrderCardProps {
   order: Order;
   onViewDetails: () => void;
 }
+
+export const getStatusColor = (status: string) => {
+  switch (status) {
+    case OrderStatus.CREATED:
+      return 'border-l-indigo-500';
+    case OrderStatus.CONFIRMED:
+      return 'border-l-amber-500';
+    case OrderStatus.PREPARING:
+      return 'border-l-orange-500';
+    case OrderStatus.READY_FOR_PICKUP:
+      return 'border-l-teal-500';
+    case OrderStatus.OUT_FOR_DELIVERY:
+      return 'border-l-sky-500';
+    case OrderStatus.DELIVERED:
+      return 'border-l-emerald-500';
+    case OrderStatus.CANCELLED:
+      return 'border-l-rose-500';
+    default:
+      return 'border-l-slate-300';
+  }
+};
 
 export function OrderCard({ order, onViewDetails }: OrderCardProps) {
   const date = new Date(order.createdAt);
@@ -31,43 +53,23 @@ export function OrderCard({ order, onViewDetails }: OrderCardProps) {
   const restaurantCount = order.suborders.length;
 
   // Get status color for the left border
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'created':
-        return 'border-l-indigo-500';
-      case 'processing':
-        return 'border-l-amber-500';
-      case 'preparing':
-        return 'border-l-orange-500';
-      case 'ready':
-        return 'border-l-teal-500';
-      case 'out_for_delivery':
-        return 'border-l-sky-500';
-      case 'delivered':
-        return 'border-l-emerald-500';
-      case 'cancelled':
-        return 'border-l-rose-500';
-      default:
-        return 'border-l-slate-300';
-    }
-  };
+  // Get status color for the left border
 
-  // Get status background color for subtle styling
   const getStatusBgColor = (status: string) => {
     switch (status) {
-      case 'created':
+      case OrderStatus.CREATED:
         return 'from-indigo-50/50';
-      case 'processing':
+      case OrderStatus.CONFIRMED:
         return 'from-amber-50/50';
-      case 'preparing':
+      case OrderStatus.PREPARING:
         return 'from-orange-50/50';
-      case 'ready':
+      case OrderStatus.READY_FOR_PICKUP:
         return 'from-teal-50/50';
-      case 'out_for_delivery':
+      case OrderStatus.OUT_FOR_DELIVERY:
         return 'from-sky-50/50';
-      case 'delivered':
+      case OrderStatus.DELIVERED:
         return 'from-emerald-50/50';
-      case 'cancelled':
+      case OrderStatus.CANCELLED:
         return 'from-rose-50/50';
       default:
         return 'from-slate-50/50';
@@ -77,8 +79,8 @@ export function OrderCard({ order, onViewDetails }: OrderCardProps) {
   return (
     <Card
       className={`group overflow-hidden border-0 border-l-4 shadow-md transition-all duration-300 hover:shadow-lg ${getStatusColor(
-        order.status,
-      )} bg-white dark:bg-slate-800`}
+        order.status, 
+      ) , getStatusBgColor(order.status)} bg-white dark:bg-slate-800`}
     >
       <div className='relative'>
         <div className='p-5'>

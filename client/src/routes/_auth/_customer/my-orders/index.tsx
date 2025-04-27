@@ -1,7 +1,6 @@
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+
 import { createFileRoute } from '@tanstack/react-router';
-import { Clock, Filter, MapPin, Package, Search, ShoppingBag } from 'lucide-react';
+import { Clock, Package, ShoppingBag } from 'lucide-react';
 import { OrdersList } from './-order-list';
 
 export const Route = createFileRoute('/_auth/_customer/my-orders/')({
@@ -129,7 +128,7 @@ function RouteComponent() {
         </div>
       </div>
 
-      <div className='relative z-20 container mx-auto -mt-16 max-w-6xl px-4 py-8'>
+      <div className='relative z-20 container mx-auto -mt-16  px-4 py-8'>
         <OrdersList />
       </div>
     </div>

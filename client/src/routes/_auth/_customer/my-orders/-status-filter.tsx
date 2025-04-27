@@ -13,7 +13,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import type { Order, OrderStatus } from '@/types/order';
+import { Order } from '@/types/order';
+import { OrderStatus } from '@/constants/order';
 
 interface StatusFilterProps {
   selectedStatus: OrderStatus | 'all';
@@ -39,43 +40,43 @@ export function StatusFilter({ selectedStatus, onStatusChange, orders }: StatusF
           bgClass: 'bg-slate-100 dark:bg-slate-700',
           textClass: 'text-slate-700 dark:text-slate-300',
         };
-      case 'created':
+      case OrderStatus.CREATED:
         return {
           label: 'Created',
           bgClass: 'bg-indigo-100 dark:bg-indigo-900/30',
           textClass: 'text-indigo-700 dark:text-indigo-300',
         };
-      case 'processing':
+      case OrderStatus.CONFIRMED:
         return {
-          label: 'Processing',
-          bgClass: 'bg-amber-100 dark:bg-amber-900/30',
-          textClass: 'text-amber-700 dark:text-amber-300',
+          label: 'Confirmed',
+          bgClass: 'bg-blue-100 dark:bg-blue-900/30',
+          textClass: 'text-blue-700 dark:text-blue-300',
         };
-      case 'preparing':
+      case OrderStatus.PREPARING:
         return {
           label: 'Preparing',
           bgClass: 'bg-orange-100 dark:bg-orange-900/30',
           textClass: 'text-orange-700 dark:text-orange-300',
         };
-      case 'ready':
+      case OrderStatus.READY_FOR_PICKUP:
         return {
-          label: 'Ready',
+          label: 'Ready for Pickup',
           bgClass: 'bg-teal-100 dark:bg-teal-900/30',
           textClass: 'text-teal-700 dark:text-teal-300',
         };
-      case 'out_for_delivery':
+      case OrderStatus.OUT_FOR_DELIVERY:
         return {
           label: 'Out for Delivery',
           bgClass: 'bg-sky-100 dark:bg-sky-900/30',
           textClass: 'text-sky-700 dark:text-sky-300',
         };
-      case 'delivered':
+      case OrderStatus.DELIVERED:
         return {
           label: 'Delivered',
           bgClass: 'bg-emerald-100 dark:bg-emerald-900/30',
           textClass: 'text-emerald-700 dark:text-emerald-300',
         };
-      case 'cancelled':
+      case OrderStatus.CANCELLED:
         return {
           label: 'Cancelled',
           bgClass: 'bg-rose-100 dark:bg-rose-900/30',
@@ -93,7 +94,7 @@ export function StatusFilter({ selectedStatus, onStatusChange, orders }: StatusF
   const { label: selectedLabel, bgClass, textClass } = getStatusConfig(selectedStatus);
 
   return (
-    <div className='flex flex-col max-w-lg justify-center gap-3 sm:flex-row sm:items-center'>
+    <div className='flex max-w-lg flex-col justify-center gap-3 sm:flex-row sm:items-center'>
       <div className='flex items-center gap-2'>
         <span className='text-sm font-medium text-slate-700 dark:text-slate-300'>
           Filter by status:
@@ -154,13 +155,13 @@ export function StatusFilter({ selectedStatus, onStatusChange, orders }: StatusF
 
             {(
               [
-                'created',
-                'processing',
-                'preparing',
-                'ready',
-                'out_for_delivery',
-                'delivered',
-                'cancelled',
+                OrderStatus.CREATED,
+                OrderStatus.CONFIRMED,
+                OrderStatus.PREPARING,
+                OrderStatus.READY_FOR_PICKUP,
+                OrderStatus.OUT_FOR_DELIVERY,
+                OrderStatus.DELIVERED,
+                OrderStatus.CANCELLED,
               ] as const
             ).map((status) => {
               const { label, textClass } = getStatusConfig(status);
