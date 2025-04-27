@@ -17,52 +17,59 @@ export class OrderController {
   }
 
   @Post()
-  @Roles(UserRole.ADMIN, UserRole.CUSTOMER)
+  @Roles(UserRole.CUSTOMER)
   createOrder(@Req() req: UserRequest, @Body() createOrderDto: CreateOrderDto) {
     const userId = req.user?.sub;
     return this.orderService.createOrder(createOrderDto, userId);
   }
 
-  // @Get('my-orders')
-  // getMyOrders(@Query('userId') userId: string) {
-  //   return this.orderService.getMyOrders(userId);
-  // }
+  @Get('my-orders')
+  @Roles(UserRole.CUSTOMER)
+  getMyOrders(@Req() req: UserRequest) {
+    const userId = req.user?.sub;
+    return this.orderService.getMyOrders(userId);
+  }
 
-  // @Get(':id')
-  // getOrder(@Param('id') id: string) {
-  //   return this.orderService.getOrder(id);
-  // }
+  @Get(':id')
+  @Roles(UserRole.CUSTOMER)
+  getOrder(@Param('id') id: string) {
+    return this.orderService.getOrder(id);
+  }
 
-  // @Patch(':id')
-  // updateOrder(@Param('id') id: string, @Body() dto: any) {
-  //   return this.orderService.updateOrder(id, dto);
-  // }
+  @Patch(':id')
+  @Roles(UserRole.CUSTOMER)
+  updateOrder(@Param('id') id: string, @Body() dto: any) {
+    return this.orderService.updateOrder(id, dto);
+  }
 
-  // @Patch(':id/cancel')
-  // cancelOrder(@Param('id') id: string) {
-  //   return this.orderService.cancelOrder(id);
-  // }
+  @Patch(':id/cancel')
+  @Roles(UserRole.CUSTOMER)
+  cancelOrder(@Param('id') id: string) {
+    return this.orderService.cancelOrder(id);
+  }
 
-  // @Get('restaurant/:restaurantId')
-  // getRestaurantOrders(@Param('restaurantId') restaurantId: string) {
-  //   return this.orderService.getRestaurantOrders(restaurantId);
-  // }
+  @Get('restaurant/:restaurantId')
+  @Roles(UserRole.RESTAURANT_OWNER)
+  getRestaurantOrders(@Param('restaurantId') restaurantId: string) {
+    return this.orderService.getRestaurantOrders(restaurantId);
+  }
 
-  // @Patch(':id/status')
-  // updateOrderStatus(@Param('id') id: string, @Body() dto: any) {
-  //   return this.orderService.updateOrderStatus(id, dto);
-  // }
+  @Patch(':id/status')
+  @Roles(UserRole.ADMIN)
+  updateOrderStatus(@Param('id') id: string, @Body() dto: any) {
+    return this.orderService.updateOrderStatus(id, dto);
+  }
 
   // @Get('get-all')
   // getAllOrders(@Query('status') status?: string, @Query('restaurantId') restaurantId?: string) {
   //   return this.orderService.getAllOrders({ status, restaurantId });
   // }
 
-  // // These are optional external system triggers
-  // @Post('payment-completed')
-  // handlePaymentCompleted(@Body() body: { orderId: string; paymentId: string }) {
-  //   return this.orderService.handlePaymentCompleted(body.orderId, body.paymentId);
-  // }
+  // These are optional external system triggers
+  @Post('payment-completed')
+  handlePaymentCompleted(@Body() body: { orderId: string; paymentId: string }) {
+    return this.orderService.handlePaymentCompleted(body.orderId, body.paymentId);
+  }
 
   // @Post('delivery-assigned')
   // handleDeliveryAssigned(@Body() body: { orderId: string; deliveryPersonId: string }) {

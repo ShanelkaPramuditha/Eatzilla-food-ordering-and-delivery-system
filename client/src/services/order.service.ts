@@ -58,8 +58,8 @@ const OrderService = {
     return res.data;
   },
 
-  getCustomerOrders: async (customerId: string): Promise<Order[]> => {
-    const res = await axios.get(`/order/customer/${customerId}`);
+  getCustomerOrders: async (): Promise<Order[]> => {
+    const res = await axios.get(`/order/my-orders`);
     return res.data;
   },
 
