@@ -21,4 +21,20 @@ export class PaymentService {
   checkout(payload: CheckoutPayload) {
     return this.paymentClient.send({ cmd: 'post.checkout' }, payload);
   }
+
+  getSessionStatus(sessionId: string) {
+    return this.paymentClient.send({ cmd: 'get.sessionStatus' }, sessionId);
+  }
+
+  getReceiptUrl(sessionId: string) {
+    return this.paymentClient.send({ cmd: 'get.receipt' }, sessionId);
+  }
+
+  getTransactionByOrderId(orderId: string) {
+    return this.paymentClient.send({ cmd: 'payment.getTransactionByOrderId' }, orderId);
+  }
+
+  getTransactionBySessionId(sessionId: string) {
+    return this.paymentClient.send({ cmd: 'payment.getTransactionBySessionId' }, sessionId);
+  }
 }

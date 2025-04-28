@@ -1,4 +1,4 @@
-import { OrderStatus } from '@/types/cart';
+import { OrderStatus } from '@/constants/order';
 
 // Delivery-specific status options - keeping for backward compatibility but should use OrderStatus
 export enum DeliveryStatus {

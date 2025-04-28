@@ -1,14 +1,13 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Address, Order, OrderDocument, OrderItem } from './schemas/order.schema';
-import {
-  CreateOrderDto,
-  OrderStatus,
-  UpdateOrderDto,
-  UpdateSuborderStatusDto,
-} from '@app/common/dtos/order.dto';
-import { dot } from 'node:test/reporters';
+import { CreateOrderDto, OrderStatus, UpdateOrderDto } from '@app/common/dtos/order.dto';
 
 @Injectable()
 export class OrderService {
@@ -115,36 +114,50 @@ export class OrderService {
   async updateSuborderStatus(
     orderId: string,
     suborderId: string,
-    updateSuborderStatusDto: UpdateSuborderStatusDto,
+    status: OrderStatus,
   ): Promise<OrderDocument> {
-    const order = await this.orderModel.findById(orderId);
+    console.log('Updating suborder status:', { orderId, suborderId, status });
+    try {
+      // Convert string IDs to ObjectId
+      const orderObjectId = new Types.ObjectId(orderId);
 
-    if (!order) {
-      throw new Error('Order not found');
+      // Find the order by ID
+      const order = await this.orderModel.findById(orderObjectId);
+
+      if (!order) {
+        throw new NotFoundException(`Order with ID ${orderId} not found`);
+      }
+
+      // Find the suborder by ID
+      const suborder = order.suborders.find((sub) => sub._id.toString() === suborderId);
+
+      if (!suborder) {
+        throw new NotFoundException(`Suborder with ID ${suborderId} not found in order ${orderId}`);
+      }
+
+      // Update the suborder status
+      suborder.status = status;
+
+      // Check if all suborders have the same status
+      const allSameStatus = order.suborders.every((sub) => sub.status === status);
+
+      // Update the main order status if all suborders match
+      if (allSameStatus) {
+        order.status = status;
+      }
+
+      // Save and return the updated order
+      await order.save();
+      return order;
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      if (error instanceof Error && error.name === 'CastError') {
+        throw new BadRequestException('Invalid ID format');
+      }
+      throw new InternalServerErrorException('Failed to update suborder status');
     }
-
-    const suborderIndex = order.suborders.findIndex(
-      (suborder) => suborder._id.toString() === suborderId,
-    );
-
-    if (suborderIndex === -1) {
-      throw new Error('Suborder not found');
-    }
-
-    // Update the suborder status
-    order.suborders[suborderIndex].status = updateSuborderStatusDto.status;
-
-    // Check if all suborders have the same status
-    const allSameStatus = order.suborders.every(
-      (suborder) => suborder.status === updateSuborderStatusDto.status,
-    );
-
-    // If all suborders have the same status, update the main order status
-    if (allSameStatus) {
-      order.status = updateSuborderStatusDto.status;
-    }
-
-    return order.save();
   }
 
   async remove(id: string): Promise<OrderDocument> {
@@ -206,5 +219,54 @@ export class OrderService {
     }
 
     return suborders;
+  }
+
+  async updatePaymentStatus(orderId: string, isPaid: boolean): Promise<OrderDocument> {
+    try {
+      // Convert string ID to ObjectId if necessary
+      const orderObjectId = Types.ObjectId.isValid(orderId) ? new Types.ObjectId(orderId) : orderId;
+
+      // First, find the order to check its current status
+      const currentOrder = await this.orderModel.findById(orderObjectId).exec();
+
+      if (!currentOrder) {
+        throw new NotFoundException(`Order with ID ${orderId} not found`);
+      }
+
+      // Determine if we should update the status based on current status and payment
+      const shouldUpdateStatus =
+        isPaid && [OrderStatus.CREATED, 'pending_payment'].includes(currentOrder.status);
+
+      // Now update the order
+      const updatedOrder = await this.orderModel
+        .findByIdAndUpdate(
+          orderObjectId,
+          {
+            $set: {
+              isPaid,
+              // Update status to CONFIRMED if needed
+              ...(shouldUpdateStatus ? { status: OrderStatus.CONFIRMED } : {}),
+            },
+          },
+          { new: true },
+        )
+        .exec();
+
+      if (!updatedOrder) {
+        throw new NotFoundException(`Order with ID ${orderId} not found`);
+      }
+
+      return updatedOrder;
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      if (error instanceof Error && error.name === 'CastError') {
+        throw new BadRequestException('Invalid ID format');
+      }
+      throw new InternalServerErrorException(
+        `Failed to update payment status: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
   }
 }

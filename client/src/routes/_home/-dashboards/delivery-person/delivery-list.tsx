@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/dialog';
 import { getPendingDeliveries } from '@/data/delivery-data';
 import { DeliveryOrder, DeliveryStatus } from '@/types/delivery';
-import { OrderStatus } from '@/types/cart';
+import { OrderStatus } from '@/constants/order';
 import { DollarSign } from 'lucide-react';
 
 // Mock current driver ID - in a real app this would come from authentication
