@@ -88,7 +88,7 @@ export class OrderController {
     return await this.orderService.getRestaurantSuborders(restaurantId, status);
   }
 
-  @MessagePattern({ cmd: 'order.updatePaymentStatus' })
+  @MessagePattern({ cmd: 'order.updatePaidStatus' })
   async updatePaymentStatus(payload: { orderId: string; isPaid: boolean }) {
     const { orderId, isPaid } = payload;
     const order = await this.orderService.updatePaymentStatus(orderId, isPaid);

@@ -9,6 +9,7 @@ import {
   UpdateOrderDto,
   UpdateSuborderStatusDto,
 } from '@app/common/dtos/order.dto';
+import { catchRpcError } from '../../filters/rpc-exception.filter';
 
 @Injectable()
 export class OrderService {
@@ -53,6 +54,12 @@ export class OrderService {
       { cmd: 'order.updateSuborderStatus' },
       { id, suborderId, status },
     );
+  }
+
+  updatePaidStatus(orderId: string, isPaid: boolean) {
+    return this.orderClient
+      .send<OrderResponseDto>({ cmd: 'order.updatePaidStatus' }, { orderId, isPaid })
+      .pipe(catchRpcError('Failed to update order paid status'));
   }
 
   // getAllOrders(filters: { status?: string; restaurantId?: string }) {

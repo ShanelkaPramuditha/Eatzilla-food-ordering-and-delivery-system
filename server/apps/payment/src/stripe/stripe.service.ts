@@ -76,7 +76,6 @@ export class StripeService {
   }
 
   async getSessionStatus(sessionId: string) {
-    console.log('sessionId', sessionId);
     try {
       const session = await this.stripe.checkout.sessions.retrieve(sessionId, {
         expand: ['payment_intent'],
