@@ -75,12 +75,6 @@ export class OrderController {
   //   return orders.map((order) => this.mapToOrderResponseDto(order));
   // }
 
-  @MessagePattern({cmd: 'payment.completed'})
-  async handlePaymentCompleted(req: {orderId : string, paymentId : string}){
-    const response = await this.orderService.setPaymentCompleted(req.orderId , req.paymentId)
-    return response;
-  }
-
   // Helper method to map MongoDB document to DTO
   private mapToOrderResponseDto(order: any): OrderResponseDto {
     return {

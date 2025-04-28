@@ -7,13 +7,7 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Address, Order, OrderDocument, OrderItem } from './schemas/order.schema';
-import {
-  CreateOrderDto,
-  OrderStatus,
-  UpdateOrderDto,
-  UpdateSuborderStatusDto,
-} from '@app/common/dtos/order.dto';
-import { dot } from 'node:test/reporters';
+import { CreateOrderDto, OrderStatus, UpdateOrderDto } from '@app/common/dtos/order.dto';
 
 @Injectable()
 export class OrderService {
@@ -160,7 +154,7 @@ export class OrderService {
       if (error instanceof NotFoundException) {
         throw error;
       }
-      if (error.name === 'CastError') {
+      if (error instanceof Error && error.name === 'CastError') {
         throw new BadRequestException('Invalid ID format');
       }
       throw new InternalServerErrorException('Failed to update suborder status');
@@ -254,6 +248,57 @@ export class OrderService {
   //     }
   //   }
 
+    return suborders;
+  }
+
+  async updatePaymentStatus(orderId: string, isPaid: boolean): Promise<OrderDocument> {
+    try {
+      // Convert string ID to ObjectId if necessary
+      const orderObjectId = Types.ObjectId.isValid(orderId) ? new Types.ObjectId(orderId) : orderId;
+
+      // First, find the order to check its current status
+      const currentOrder = await this.orderModel.findById(orderObjectId).exec();
+
+      if (!currentOrder) {
+        throw new NotFoundException(`Order with ID ${orderId} not found`);
+      }
+
+      // Determine if we should update the status based on current status and payment
+      const shouldUpdateStatus =
+        isPaid && [OrderStatus.CREATED, 'pending_payment'].includes(currentOrder.status);
+
+      // Now update the order
+      const updatedOrder = await this.orderModel
+        .findByIdAndUpdate(
+          orderObjectId,
+          {
+            $set: {
+              isPaid,
+              // Update status to CONFIRMED if needed
+              ...(shouldUpdateStatus ? { status: OrderStatus.CONFIRMED } : {}),
+            },
+          },
+          { new: true },
+        )
+        .exec();
+
+      if (!updatedOrder) {
+        throw new NotFoundException(`Order with ID ${orderId} not found`);
+      }
+
+      return updatedOrder;
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      if (error instanceof Error && error.name === 'CastError') {
+        throw new BadRequestException('Invalid ID format');
+      }
+      throw new InternalServerErrorException(
+        `Failed to update payment status: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
+  }
   //   return suborders;
   // }
 }

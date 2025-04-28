@@ -5,7 +5,7 @@ export type CheckoutPayload = {
   currencyType: string;
   customerEmail: string;
   customerName: string;
-  shippigFee: number;
+  deliveryFee: number;
   products: {
     productId: string;
     productName: string;
@@ -15,3 +15,17 @@ export type CheckoutPayload = {
     productImages?: string[];
   }[];
 };
+
+export interface IPaymentSession {
+  orderId?: string;
+  customerId?: string;
+  paymentIntentId?: string;
+  chargeId?: string;
+  sessionId: string;
+  amount?: number;
+  currency?: string;
+  paymentStatus?: string;
+  paymentMethod: string;
+  receiptUrl?: string;
+  metadata?: Record<string, string | number | boolean | null | undefined>;
+}

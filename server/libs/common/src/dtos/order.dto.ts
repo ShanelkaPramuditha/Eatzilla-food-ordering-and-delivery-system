@@ -175,7 +175,7 @@ export class UpdateOrderDto {
   @ApiProperty({ description: 'Delivery Person ID', required: false })
   @IsOptional()
   @IsString()
-  deliveryPersonId? : string;
+  deliveryPersonId?: string;
 
   @ApiProperty({ description: 'Payment ID', required: false })
   @IsOptional()
@@ -196,7 +196,7 @@ export class OrderResponseDto {
   @ApiProperty({ description: 'Customer ID' })
   customerId: string;
 
-  @ApiProperty({ description: 'Delivery Person ID'})
+  @ApiProperty({ description: 'Delivery Person ID' })
   deliveryPersonId?: string;
 
   @ApiProperty({ description: 'Suborders grouped by restaurant' })
@@ -211,7 +211,7 @@ export class OrderResponseDto {
   @ApiProperty({ description: 'Subtotal amount' })
   subtotal: number;
 
-  @ApiProperty({description: 'Default currency'})
+  @ApiProperty({ description: 'Default currency' })
   currency: string;
 
   @ApiProperty({ description: 'Delivery fee' })
