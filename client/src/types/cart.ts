@@ -1,4 +1,3 @@
-
 // Core types for the food ordering application
 export interface MenuItem {
   id: string;
@@ -26,6 +25,7 @@ export interface CustomizationOption {
 
 // Matches OrderItemDto from the backend
 export interface OrderItem {
+  _id?: string;
   menuItemId: string;
   name: string;
   price: number;

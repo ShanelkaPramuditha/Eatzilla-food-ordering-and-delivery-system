@@ -1,5 +1,4 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { Switch } from '@/components/ui/switch';
 import {
   Dialog,
   DialogContent,
@@ -26,9 +25,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-
 import { IoMdAdd } from 'react-icons/io';
 import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
 import {
   Form,
   FormControl,
@@ -39,7 +38,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { useForm } from 'react-hook-form';
-import { use, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Textarea } from '@/components/ui/textarea';
 import RestaurantService from '@/services/restaurnat.service';
 import { useAuth } from '@/contexts/auth-context';
@@ -59,8 +58,8 @@ function RouteComponent() {
 
   const fetchMenuItems = async () => {
     try {
-      const response = await RestaurantService.getMenuItems(user?.id);
-      setMenuItems(response);
+      const menu = await RestaurantService.getMenuItems(user?.id);
+      setMenuItems(menu);
     } catch (error) {
       console.log(error);
     }
@@ -182,8 +181,13 @@ const MenuItemCard = ({ item, refetch }: MenuItemCardProps) => {
 
   const handleUpdate = async () => {
     try {
-      await RestaurantService.putMenuItem({ ...item, available: !availablity }, user?.id, item._id);
+      const res = await RestaurantService.putMenuItem(
+        { ...item, restaurantName: 'Pizza Palace', available: !availablity },
+        user?.id,
+        item._id,
+      );
       setAvailability(!availablity);
+      console.log(res);
     } catch (error) {
       console.log(error);
     }
@@ -216,7 +220,7 @@ const MenuItemCard = ({ item, refetch }: MenuItemCardProps) => {
         </div>
         <p className='text-sm font-medium text-gray-500'>{item.description}</p>
         <div className='mb-2 flex items-center justify-between'>
-          <p className='text-lg font-semibold'>${item.price.toFixed(2)}</p>
+          <p className='text-lg font-semibold'>Rs {item.price.toFixed(2)}</p>
           <div className='text-xs font-semibold'>{item.category}</div>
         </div>
         <div className='flex justify-between border-t border-gray-100 pt-4 text-xs font-medium'>
@@ -293,7 +297,9 @@ const MenuItemCard = ({ item, refetch }: MenuItemCardProps) => {
                   </div>
                   <div className='mt-2'>
                     <h4 className='font-semibold'>Price</h4>
-                    <p className='text-lg font-semibold text-indigo-500'>${item.price}</p>
+                    <p className='text-lg font-semibold text-indigo-500'>
+                      Rs {item.price.toFixed(2)}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -391,10 +397,15 @@ const MenuItemForm = ({ trigger, item, isEdit = false, refetch }: MenuItemFormPr
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       if (isEdit) {
-        await RestaurantService.putMenuItem(values, user?.id, item?._id);
+        await RestaurantService.putMenuItem(
+          { ...values, restaurantName: user?.id },
+          user?.id,
+          item?._id,
+        );
       } else {
-        await RestaurantService.postMenuItem(values, user?.id);
+        await RestaurantService.postMenuItem({ ...values, restaurantName: user?.id }, user?.id);
       }
+      console.log({ ...values, restaurantName: user?.id });
       setIsOpen(false);
       form.reset();
       refetch();
