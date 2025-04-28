@@ -71,6 +71,51 @@ export class AlertService {
     }
   }
 
+  createHTTPAlert(userId: string, email: string, mobile: string, data: CreateAlertDto) {
+    try {
+      // Transform gateway DTO to microservice DTO format
+      const alertPayload = {
+        userId: new Types.ObjectId(userId),
+        type: data.types,
+        level: data.level,
+        category: data.category,
+        data: data.data,
+        email: email,
+        mobile: mobile,
+        subject: data.subject,
+        message: data.message,
+        isRead: false,
+      };
+
+      // this.notificationGateway.sendAlertToAll('TEST');
+      const alertResponse = this.alertClient
+        .send({ cmd: 'create.alert' }, alertPayload)
+        .pipe(catchRpcError('Failed to create alert'));
+
+      alertResponse.subscribe({
+        next: (response: AlertResponseDto) => {
+          if (response && response.id) {
+            this.notificationGateway.sendAlertToUser(userId, {
+              type: 'alert',
+              response,
+            });
+          }
+        },
+        error: (error) => {
+          this.logger.error('Error creating alert:', error);
+        },
+      });
+
+      return alertResponse;
+    } catch (error) {
+      this.logger.error(
+        `Error creating alert: ${(error as Error).message}`,
+        (error as Error).stack,
+      );
+      throw error;
+    }
+  }
+
   getUserAlerts(userId: string) {
     this.notificationGateway.sendAlertToAll({ test: 'TEST' });
     // return firstValueFrom(this.alertClient.send({ cmd: 'get.user.alerts' }, userId));

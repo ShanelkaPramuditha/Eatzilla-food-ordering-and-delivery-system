@@ -19,10 +19,10 @@ export class AlertController {
 
   // Create a new alert
   @Post()
-  createAlert(@Req() req: UserRequest, @Body() createAlertDto: CreateAlertDto) {
+  createHTTPAlert(@Req() req: UserRequest, @Body() createAlertDto: CreateAlertDto) {
     const { sub: userId, email } = req.user;
     const mobile = '0771234567';
-    return this.alertService.createAlert(userId, email, mobile, createAlertDto);
+    return this.alertService.createHTTPAlert(userId, email, mobile, createAlertDto);
   }
 
   // Get all alerts for admin

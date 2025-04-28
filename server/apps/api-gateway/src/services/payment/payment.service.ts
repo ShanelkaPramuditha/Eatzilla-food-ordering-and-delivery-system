@@ -5,6 +5,7 @@ import { CheckoutPayload, TransactionResponse } from '@app/common/types/payment'
 import { PaymentSessionDto } from '@app/common/dtos/transaction.dto';
 import { catchRpcError } from '../../filters/rpc-exception.filter';
 import { OrderService } from '../order/order.service';
+import { AlertService } from '../alert/alert.service';
 
 @Injectable()
 export class PaymentService {
@@ -12,6 +13,7 @@ export class PaymentService {
     @Inject(Microservice.PAYMENT_SERVICE)
     private readonly paymentClient: ClientProxy,
     private readonly orderService: OrderService,
+    private readonly alertService: AlertService,
   ) {}
 
   getStatus() {
@@ -31,7 +33,30 @@ export class PaymentService {
       next: (response: TransactionResponse) => {
         if (response && response.transaction?.paymentStatus === 'paid') {
           if (payload.orderId) {
-            this.orderService.updatePaidStatus(payload.orderId, true).subscribe({});
+            this.orderService.updatePaidStatus(payload.orderId, true).subscribe({
+              next: (orderResponse) => {
+                // if (orderResponse) {
+                //   this.alertService.createAlert({
+                //     types: ['notification', 'email', 'sms'],
+                //     category: 'order',
+                //     message: `Order ${payload.orderId} has been paid successfully.`,
+                //     orderId: payload.orderId,
+                //     userId: payload.userId,
+                //     status: 'success',
+                //   }).subscribe({
+                //     next: (alertResponse) => {
+                //       console.log('Alert created successfully:', alertResponse);
+                //     }
+                //     error: (error) => {
+                //       console.error('Error creating alert:', error);
+                //     },
+                //   });
+                // }
+              },
+              error: (error) => {
+                console.error('Error updating order payment status:', error);
+              },
+            });
           } else {
             console.error('Cannot update order payment status: orderId is undefined');
           }
