@@ -23,4 +23,8 @@ export class MenuItem {
   @IsString()
   @IsNotEmpty()
   image: string;
+
+  @IsString()
+  @IsNotEmpty()
+  restaurantName: string;
 }
