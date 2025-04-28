@@ -2,6 +2,7 @@ import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { PaymentService } from './payment.service';
 import { Public } from '../../auth/decorator/public.decorator';
 import { CheckoutPayload } from '@app/common/types/payment';
+import { PaymentSessionDto } from '@app/common/dtos/transaction.dto';
 
 @Controller('payment')
 export class PaymentController {
@@ -12,9 +13,9 @@ export class PaymentController {
     return this.paymentService.getStatus();
   }
 
-  @Get('products')
-  getProducts() {
-    return this.paymentService.getProducts();
+  @Post()
+  createTransaction(@Body() payload: PaymentSessionDto) {
+    return this.paymentService.createTransaction(payload);
   }
 
   @Public()
