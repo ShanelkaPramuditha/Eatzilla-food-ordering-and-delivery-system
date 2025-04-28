@@ -23,7 +23,11 @@ export class MenuItemService {
     return this.menuItemModel.findById(id);
   }
 
-  async findAll(id: string) {
-    return this.menuItemModel.find({ restaurant: id });
+  async findAllByRestaurant(restaurant: string) {
+    return this.menuItemModel.find({ restaurant });
+  }
+
+  async findAll() {
+    return this.menuItemModel.find();
   }
 }

@@ -22,6 +22,11 @@ export class RestaurantController {
     return this.restaurantService.delete(id);
   }
 
+  @Get('/menu')
+  getAllMenuItems() {
+    return this.restaurantService.findAllMenuItems();
+  }
+
   @Get(':id')
   getRestaurant(@Param('id') id: string) {
     return this.restaurantService.findById(id);
@@ -54,6 +59,6 @@ export class RestaurantController {
 
   @Get(':restaurantId/menu')
   getMenuItems(@Param('restaurantId') restaurantId: string) {
-    return this.restaurantService.findAllMenuItems(restaurantId);
+    return this.restaurantService.findMenuItems(restaurantId);
   }
 }
