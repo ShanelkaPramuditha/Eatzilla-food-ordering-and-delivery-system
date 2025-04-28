@@ -10,12 +10,15 @@ import {
   UpdateSuborderStatusDto,
 } from '@app/common/dtos/order.dto';
 import { catchRpcError } from '../../filters/rpc-exception.filter';
+import { AuthService } from '../../auth/auth.service';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable()
 export class OrderService {
   constructor(
     @Inject(Microservice.ORDER_SERVICE)
     private readonly orderClient: ClientProxy,
+    private readonly authService: AuthService,
   ) {}
 
   getStatus() {
@@ -42,11 +45,31 @@ export class OrderService {
     return this.orderClient.send<OrderResponseDto>({ cmd: 'order.cancel' }, id);
   }
 
-  getRestaurantOrders(restaurantId: string) {
-    return this.orderClient.send<OrderResponseDto[]>(
+  async getRestaurantOrders(restaurantId: string) {
+    // Get all orders for the restaurant as an Observable
+    const ordersObservable = this.orderClient.send<OrderResponseDto[]>(
       { cmd: 'order.get.restaurant-orders' },
       restaurantId,
     );
+
+    // Convert the Observable to a Promise to get the orders array
+    const orders = await firstValueFrom(ordersObservable);
+
+    // Enhance each order with customer name
+    const ordersWithCustomerNames = await Promise.all(
+      orders.map(async (order) => {
+        // Get customer name using the existing getUserName method
+        const customerName = await this.getUserName(order.customerId);
+
+        // Return a new object with the customer name included
+        return {
+          ...order,
+          customerName,
+        };
+      }),
+    );
+
+    return ordersWithCustomerNames;
   }
 
   updateOrderStatus(id: string, suborderId: string, status: OrderStatus) {
@@ -73,4 +96,8 @@ export class OrderService {
   // handleDeliveryAssigned(orderId: string, deliveryPersonId: string) {
   //   return this.orderClient.send<void>({ cmd: 'delivery.assigned' }, { orderId, deliveryPersonId });
   // }
+  async getUserName(userId: string): Promise<string> {
+    const profile = await this.authService.getProfile(userId);
+    return profile.name;
+  }
 }

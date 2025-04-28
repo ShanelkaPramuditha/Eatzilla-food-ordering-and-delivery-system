@@ -77,6 +77,16 @@ export class AddressDto {
   @IsString()
   @IsOptional()
   instructions?: string;
+
+  @ApiProperty({ description: 'Latitude for geolocation', required: false })
+  @IsNumber()
+  @IsOptional()
+  latitude?: number;
+
+  @ApiProperty({ description: 'Longitude for geolocation', required: false })
+  @IsNumber()
+  @IsOptional()
+  longitude?: number;
 }
 
 // ============ SUBORDER ============
@@ -115,6 +125,11 @@ export class CreateOrderDto {
   @ValidateNested({ each: true })
   @Type(() => SuborderDto)
   suborders: SuborderDto[];
+
+  @ApiProperty({ description: 'Customer Phone Number' })
+  @IsNotEmpty()
+  @IsString()
+  customerPhoneNumber: string;
 
   @ApiProperty({ description: 'Delivery address', type: AddressDto })
   @ValidateNested()

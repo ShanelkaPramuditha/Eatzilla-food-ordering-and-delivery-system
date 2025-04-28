@@ -82,6 +82,14 @@ export class Address {
   @Prop()
   @ApiProperty({ description: 'Delivery instructions', required: false })
   instructions?: string;
+
+  @Prop()
+  @ApiProperty({ description: 'Latitude for geolocation', required: false })
+  latitude?: number;
+
+  @Prop()
+  @ApiProperty({ description: 'Longitude for geolocation', required: false })
+  longitude?: number;
 }
 
 export const AddressSchema = SchemaFactory.createForClass(Address);
