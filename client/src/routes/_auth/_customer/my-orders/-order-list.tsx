@@ -10,8 +10,14 @@ import { StatusFilter } from './-status-filter';
 import { Input } from '@/components/ui/input';
 import { OrderStatus } from '@/constants/order';
 import { useQuery } from '@tanstack/react-query';
+import React from 'react';
 
-export function OrdersList() {
+type OrdersListProps = {
+  setTotal: React.Dispatch<React.SetStateAction<number>>;
+  setInProgress: React.Dispatch<React.SetStateAction<number>>;
+};
+
+export function OrdersList({ setTotal, setInProgress }: OrdersListProps) {
   const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
@@ -22,13 +28,29 @@ export function OrdersList() {
     setIsDetailsOpen(true);
   };
   const {
-    data: ordersData ,
+    data: ordersData,
     isLoading,
     isError,
   } = useQuery<Order[]>({
     queryKey: ['orders'],
     queryFn: () => OrderService.getCustomerOrders(),
   });
+
+  // Set total orders and in-progress orders
+  useEffect(() => {
+    if (ordersData) {
+      setTotal(ordersData.length);
+      setInProgress(
+        ordersData.filter(
+          (order) =>
+            order.status === OrderStatus.CONFIRMED ||
+            order.status === OrderStatus.PREPARING ||
+            order.status === OrderStatus.OUT_FOR_DELIVERY ||
+            order.status === OrderStatus.READY_FOR_PICKUP,
+        ).length,
+      );
+    }
+  }, [ordersData, setTotal, setInProgress]);
 
   // Apply filters when statusFilter changes
   useEffect(() => {

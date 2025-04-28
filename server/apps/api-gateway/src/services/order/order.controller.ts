@@ -31,7 +31,6 @@ export class OrderController {
     return this.orderService.getMyOrders(userId);
   }
 
-  @Public()
   @Get(':id')
   getOrder(@Param('id') id: string) {
     return this.orderService.getOrder(id);
@@ -43,26 +42,26 @@ export class OrderController {
     return this.orderService.updateOrder(id, dto);
   }
 
+  @Roles(UserRole.CUSTOMER, UserRole.RESTAURANT_OWNER)
   @Patch(':id/cancel')
-  @Roles(UserRole.CUSTOMER)
   cancelOrder(@Param('id') id: string) {
     return this.orderService.cancelOrder(id);
   }
 
-  @Public()
+  @Roles(UserRole.RESTAURANT_OWNER)
   @Get('restaurant/:restaurantId')
   getRestaurantOrders(@Param('restaurantId') restaurantId: string) {
     return this.orderService.getRestaurantOrders(restaurantId);
   }
 
-  @Public()
+  @Roles(UserRole.RESTAURANT_OWNER, UserRole.DELIVERY_PERSON)
   @Patch(':id/suborder/:suborderId/status')
   updateOrderStatus(
     @Param('id') id: string,
     @Param('suborderId') suborderId: string,
-    @Body() status: OrderStatus,
+    @Body() status: { status: OrderStatus },
   ) {
-    return this.orderService.updateOrderStatus(id, suborderId, status);
+    return this.orderService.updateOrderStatus(id, suborderId, status.status);
   }
 
   // @Get('get-all')

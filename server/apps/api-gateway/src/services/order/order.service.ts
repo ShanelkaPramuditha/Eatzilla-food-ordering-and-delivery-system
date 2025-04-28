@@ -27,7 +27,7 @@ export class OrderService {
   }
 
   getMyOrders(userId: string) {
-    return this.orderClient.send<OrderResponseDto[]>({ cmd: 'order.get.my-orders' }, { userId });
+    return this.orderClient.send<OrderResponseDto[]>({ cmd: 'order.get.my-orders' }, userId);
   }
 
   getOrder(id: string) {
@@ -39,7 +39,7 @@ export class OrderService {
   }
 
   cancelOrder(id: string) {
-    return this.orderClient.send<OrderResponseDto>({ cmd: 'order.cancel' }, { id });
+    return this.orderClient.send<OrderResponseDto>({ cmd: 'order.cancel' }, id);
   }
 
   getRestaurantOrders(restaurantId: string) {
@@ -50,7 +50,7 @@ export class OrderService {
   }
 
   updateOrderStatus(id: string, suborderId: string, status: OrderStatus) {
-    return this.orderClient.send<OrderResponseDto>(
+    return this.orderClient.send<{ message: string }>(
       { cmd: 'order.updateSuborderStatus' },
       { id, suborderId, status },
     );

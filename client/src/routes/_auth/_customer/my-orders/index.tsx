@@ -1,13 +1,15 @@
-
 import { createFileRoute } from '@tanstack/react-router';
 import { Clock, Package, ShoppingBag } from 'lucide-react';
 import { OrdersList } from './-order-list';
+import { useState } from 'react';
 
 export const Route = createFileRoute('/_auth/_customer/my-orders/')({
   component: RouteComponent,
 });
 
 function RouteComponent() {
+  const [totalOrders, setTotalOrders] = useState(0);
+  const [inProgress, setInProgress] = useState(0);
   return (
     <div className='min-h-screen w-full bg-slate-50 dark:bg-slate-900'>
       <div className='relative overflow-hidden pt-16 pb-20'>
@@ -107,12 +109,12 @@ function RouteComponent() {
               </div>
             </div>
 
-            <div className='z-10 flex gap-4 flex flex-row items-center justify-center md:justify-end'>
+            <div className='z-10 flex flex-row items-center justify-center gap-4 md:justify-end'>
               <div className='min-w-[150px] rounded-2xl border border-white/20 bg-white/10 p-5 text-center text-white shadow-xl backdrop-blur-md dark:border-white/10 dark:bg-white/5'>
                 <div className='mb-3 rounded-xl bg-gradient-to-br from-indigo-500/20 to-violet-500/20 p-3 dark:from-indigo-500/10 dark:to-violet-500/10'>
                   <ShoppingBag className='mx-auto h-8 w-8' />
                 </div>
-                <div className='text-2xl font-bold'>12</div>
+                <div className='text-2xl font-bold'>{totalOrders}</div>
                 <div className='mt-1 text-xs text-indigo-100 dark:text-slate-300'>Total Orders</div>
               </div>
 
@@ -120,7 +122,7 @@ function RouteComponent() {
                 <div className='mb-3 rounded-xl bg-gradient-to-br from-amber-500/20 to-orange-500/20 p-3 dark:from-amber-500/10 dark:to-orange-500/10'>
                   <Package className='mx-auto h-8 w-8' />
                 </div>
-                <div className='text-2xl font-bold'>3</div>
+                <div className='text-2xl font-bold'>{inProgress}</div>
                 <div className='mt-1 text-xs text-indigo-100 dark:text-slate-300'>In Progress</div>
               </div>
             </div>
@@ -128,8 +130,8 @@ function RouteComponent() {
         </div>
       </div>
 
-      <div className='relative z-20 container mx-auto -mt-16  px-4 py-8'>
-        <OrdersList />
+      <div className='relative z-20 container mx-auto -mt-16 px-4 py-8'>
+        <OrdersList setTotal={setTotalOrders} setInProgress={setInProgress} />
       </div>
     </div>
   );

@@ -12,7 +12,6 @@ const OrderService = {
     paymentMethod: string,
     specialInstructions?: string,
   ): Promise<Order> => {
-    // Group items by restaurant
     const restaurantGroups: Record<string, OrderItem[]> = {};
 
     cartItems.forEach((item) => {
@@ -28,7 +27,6 @@ const OrderService = {
       });
     });
 
-    // Convert to suborders
     const suborders: Suborder[] = Object.entries(restaurantGroups).map(([restaurantId, items]) => ({
       restaurantId,
       items,
@@ -44,6 +42,11 @@ const OrderService = {
     };
 
     const res = await axios.post('/order', orderData);
+    return res.data;
+  },
+
+  getStatus: async (): Promise<any> => {
+    const res = await axios.get('/order');
     return res.data;
   },
 
@@ -63,9 +66,7 @@ const OrderService = {
   },
 
   cancelOrder: async (orderId: string): Promise<Order> => {
-    const res = await axios.patch(`/order/${orderId}`, {
-      status: OrderStatus.CANCELLED,
-    });
+    const res = await axios.patch(`/order/${orderId}/cancel`);
     return res.data;
   },
 
@@ -74,20 +75,34 @@ const OrderService = {
     return res.data;
   },
 
-  updateOrderStatus: async (orderId: string, status: OrderStatus): Promise<Order> => {
+   updateOrderStatus: async (orderId: string, status: OrderStatus): Promise<Order> => {
     const res = await axios.patch(`/order/${orderId}/status`, { status });
     return res.data;
   },
 
-  getAllOrders: async (filters?: {
-    status?: OrderStatus;
-    restaurantId?: string;
-  }): Promise<Order[]> => {
-    const res = await axios.get('/order', { params: filters });
+  updateSuborderStatus: async (
+    orderId: string,
+    suborderId: string,
+    status: OrderStatus,
+  ): Promise<Order> => {
+    const res = await axios.patch(`/order/${orderId}/suborder/${suborderId}/status`, { status });
     return res.data;
   },
 
-  // Utility method to check if order can be modified
+  handlePaymentCompleted: async (orderId: string, paymentId: string): Promise<any> => {
+    const res = await axios.post('/order/payment-completed', { orderId, paymentId });
+    return res.data;
+  },
+
+  // If needed in future
+  // handleDeliveryAssigned: async (
+  //   orderId: string,
+  //   deliveryPersonId: string,
+  // ): Promise<any> => {
+  //   const res = await axios.post('/order/delivery-assigned', { orderId, deliveryPersonId });
+  //   return res.data;
+  // },
+
   isOrderModifiable: (order: Order): boolean => {
     return [OrderStatus.CREATED, OrderStatus.CONFIRMED].includes(order.status);
   },
