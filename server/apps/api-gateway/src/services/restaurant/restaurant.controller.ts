@@ -44,7 +44,7 @@ export class RestaurantController {
 
   @Put(':restaurantId/menu/:id')
   updateMenuItem(@Param('id') id: string, @Body() menuItem: MenuItem) {
-    return this.restaurantService.updateMenuItem(id, { menuItem });
+    return this.restaurantService.updateMenuItem(id, menuItem);
   }
 
   @Delete(':restaurantId/menu/:id')
