@@ -27,7 +27,7 @@ export class MenuItem {
   restaurantName: string;
 
   @Prop({ type: Types.ObjectId, ref: 'Restaurant', required: true })
-  restaurantId: Types.ObjectId;
+  restaurant: Types.ObjectId;
 }
 
 export const MenuItemSchema = SchemaFactory.createForClass(MenuItem);
