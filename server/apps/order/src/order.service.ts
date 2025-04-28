@@ -201,56 +201,6 @@ export class OrderService {
 
     return { message: 'success' };
   }
-
-  // async getRestaurantSuborders(restaurantId: string, status?: OrderStatus): Promise<any[]> {
-  //   const query: any = { 'suborders.restaurantId': new Types.ObjectId(restaurantId) };
-
-  //   if (status) {
-  //     query['suborders.status'] = status;
-  //   }
-
-  //   const orders = await this.orderModel.find(query).exec();
-
-  //   // Extract and flatten the relevant suborders
-  //   const suborders: {
-  //     orderId: Types.ObjectId;
-  //     suborderId: Types.ObjectId;
-  //     customerInfo: {
-  //       customerId: Types.ObjectId;
-  //       deliveryAddress: Address;
-  //     };
-  //     items: OrderItem[];
-  //     subtotal: number;
-  //     status: OrderStatus;
-  //     createdAt: Date;
-  //   }[] = [];
-
-  //   for (const order of orders) {
-  //     const relevantSuborders = order.suborders.filter(
-  //       (suborder) =>
-  //         suborder.restaurantId.toString() === restaurantId &&
-  //         (!status || suborder.status === status),
-  //     );
-
-  //     for (const suborder of relevantSuborders) {
-  //       suborders.push({
-  //         orderId: order._id,
-  //         suborderId: suborder._id,
-  //         customerInfo: {
-  //           customerId: order.customerId,
-  //           deliveryAddress: order.deliveryAddress,
-  //         },
-  //         items: suborder.items,
-  //         subtotal: suborder.subtotal,
-  //         status: suborder.status,
-  //         createdAt: order.createdAt,
-  //       });
-  //     }
-  //   }
-
-    return suborders;
-  }
-
   async updatePaymentStatus(orderId: string, isPaid: boolean): Promise<OrderDocument> {
     try {
       // Convert string ID to ObjectId if necessary
@@ -299,6 +249,4 @@ export class OrderService {
       );
     }
   }
-  //   return suborders;
-  // }
 }
