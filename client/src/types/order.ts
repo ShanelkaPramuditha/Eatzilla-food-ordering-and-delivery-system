@@ -8,6 +8,8 @@ export interface Address {
   state: string;
   postalCode: string;
   instructions?: string;
+  longitude?: string;
+  latitude?: string;
 }
 
 // Matches SuborderDto from the backend
@@ -38,6 +40,7 @@ export interface Order extends CalculatedOrderFields {
   deliveryPersonId?: string;
   paymentId?: string;
   specialInstructions?: string;
+  phoneNumber?: string;
   createdAt: Date;
   updatedAt: Date;
   estimatedDeliveryTime?: Date;
@@ -48,6 +51,7 @@ export interface Order extends CalculatedOrderFields {
 export interface CreateOrder {
   suborders: Suborder[];
   deliveryAddress: Address;
+  phoneNumber?: string;
   paymentMethod: string;
   specialInstructions?: string;
 }
