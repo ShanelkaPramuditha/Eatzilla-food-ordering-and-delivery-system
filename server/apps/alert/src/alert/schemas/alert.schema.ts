@@ -1,10 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Types } from 'mongoose';
-import { AlertLevel, AlertStatus, AlertType } from '@app/common/types/alert';
+import { Document, Types, Schema as MongooseSchema } from 'mongoose';
+import { AlertCategory, AlertLevel, AlertStatus, AlertType } from '@app/common/types/alert';
 
 @Schema({ timestamps: true })
 export class Alert extends Document {
-  @Prop({ required: true, type: Types.ObjectId, ref: 'User' })
+  @Prop({ required: true, type: MongooseSchema.Types.ObjectId, ref: 'User' })
   userId: Types.ObjectId;
 
   @Prop({
@@ -17,12 +17,25 @@ export class Alert extends Document {
   @Prop({
     required: true,
     type: String,
+    enum: Object.values(AlertCategory),
+  })
+  category: AlertCategory;
+
+  @Prop({ required: false, type: Object })
+  data: object;
+
+  @Prop({
+    required: true,
+    type: String,
     enum: Object.values(AlertLevel),
   })
   level: AlertLevel;
 
-  @Prop({ required: true })
-  recipient: string;
+  @Prop({ required: false })
+  email: string;
+
+  @Prop({ required: false })
+  mobile: string;
 
   @Prop({ required: true })
   subject: string;
@@ -36,6 +49,9 @@ export class Alert extends Document {
     enum: Object.values(AlertStatus),
   })
   status: AlertStatus;
+
+  @Prop({ default: false })
+  isRead: boolean;
 }
 
 export const AlertSchema = SchemaFactory.createForClass(Alert);
