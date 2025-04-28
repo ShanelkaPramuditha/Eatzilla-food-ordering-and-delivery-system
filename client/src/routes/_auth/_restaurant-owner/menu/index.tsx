@@ -181,13 +181,12 @@ const MenuItemCard = ({ item, refetch }: MenuItemCardProps) => {
 
   const handleUpdate = async () => {
     try {
-      const res = await RestaurantService.putMenuItem(
+      await RestaurantService.putMenuItem(
         { ...item, restaurantName: 'Pizza Palace', available: !availablity },
         user?.id,
         item._id,
       );
       setAvailability(!availablity);
-      console.log(res);
     } catch (error) {
       console.log(error);
     }
