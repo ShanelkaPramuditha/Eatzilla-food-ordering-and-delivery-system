@@ -1,10 +1,16 @@
 import PaymentService from '@/services/payment.service';
-import { CheckoutPayload } from '@/types/payment';
+import { CheckoutPayload, IPaymentSession } from '@/types/payment';
 import { useMutation, useQuery } from '@tanstack/react-query';
 
 export const useGetStripeClientSecret = () => {
   return useMutation<unknown, Error, CheckoutPayload>({
     mutationFn: (data) => PaymentService.getStripeClientSecret(data),
+  });
+};
+
+export const useCreateTransaction = () => {
+  return useMutation<unknown, Error, IPaymentSession>({
+    mutationFn: (transaction) => PaymentService.createTransaction(transaction),
   });
 };
 

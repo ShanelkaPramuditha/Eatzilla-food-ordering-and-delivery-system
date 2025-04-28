@@ -3,7 +3,11 @@ import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { CheckCircle, AlertCircle, ArrowRight, Home, Clock, FileText } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
-import { useGetReceiptUrl, useGetSessionStatus } from '@/services/tanstack-hooks/payment';
+import {
+  useCreateTransaction,
+  useGetReceiptUrl,
+  useGetSessionStatus,
+} from '@/services/tanstack-hooks/payment';
 import { toast } from 'sonner';
 
 export const Route = createFileRoute('/_auth/_customer/checkout/pay/return')({
@@ -29,10 +33,30 @@ function RouteComponent() {
   // Fetch receipt URL
   const { data: receiptData, isPending: isReceiptLoading } = useGetReceiptUrl(sessionId);
   const { data: sessionStatusData, isPending: isSessionLoading } = useGetSessionStatus(sessionId);
+  const { mutateAsync: createTransaction } = useCreateTransaction();
 
   useEffect(() => {
     setStatus(sessionStatusData?.status);
   }, [sessionStatusData]);
+
+  useEffect(() => {
+    if (status === 'complete' && receiptData && sessionStatusData && sessionId) {
+      // Create transaction after payment is confirmed
+      createTransaction({
+        orderId: sessionStatusData?.metadata?.orderId,
+        customerId: sessionStatusData?.metadata.customerId,
+        paymentIntentId: receiptData?.paymentIntent,
+        chargeId: receiptData?.charge,
+        sessionId: sessionId,
+        amount: receiptData?.amount / 100 || 0,
+        currency: receiptData?.currency,
+        paymentStatus: sessionStatusData?.paymentStatus,
+        paymentMethod: 'card',
+        receiptUrl: receiptData?.receiptUrl,
+        metadata: sessionStatusData?.metadata,
+      });
+    }
+  }, [status, sessionId, sessionStatusData, receiptData, createTransaction]);
 
   const handleDownloadReceipt = () => {
     if (receiptData?.receiptUrl) {

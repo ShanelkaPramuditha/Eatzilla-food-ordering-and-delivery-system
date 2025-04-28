@@ -50,9 +50,6 @@ export class Transaction {
   @Prop({ type: Object })
   metadata: Record<string, any>;
 
-  @ApiProperty({ description: 'MongoDB ObjectId' })
-  _id: Types.ObjectId;
-
   @ApiProperty({ description: 'Created at timestamp' })
   createdAt: Date;
 
