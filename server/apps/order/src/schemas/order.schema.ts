@@ -85,11 +85,11 @@ export class Address {
 
   @Prop()
   @ApiProperty({ description: 'Latitude for geolocation', required: false })
-  latitude?: number;
+  latitude?: string;
 
   @Prop()
   @ApiProperty({ description: 'Longitude for geolocation', required: false })
-  longitude?: number;
+  longitude?: string;
 }
 
 export const AddressSchema = SchemaFactory.createForClass(Address);
@@ -154,6 +154,10 @@ export class Order {
   @Prop()
   @ApiProperty({ description: 'Special Instructions' })
   specialInstructions?: string;
+
+  @Prop()
+  @ApiProperty({ description: 'Customer phone number' })
+  customerPhoneNumber?: string;
 
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User' })
   @ApiProperty({ description: 'Delivery person ID', required: false })

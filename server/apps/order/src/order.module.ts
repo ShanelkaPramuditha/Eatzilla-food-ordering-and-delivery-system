@@ -14,7 +14,7 @@ import { Order, OrderSchema } from './schemas/order.schema';
       expandVariables: true,
       validate: (config) => validateEnv(config, orderServiceEnvSchema),
     }),
-    DatabaseModule, // ✅ You now have access to Mongoose
+    DatabaseModule,
     MongooseModule.forFeature([{ name: Order.name, schema: OrderSchema }]),
   ],
   controllers: [OrderController],

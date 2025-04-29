@@ -52,16 +52,12 @@ export class OrderService {
       restaurantId,
     );
 
-    // Convert the Observable to a Promise to get the orders array
     const orders = await firstValueFrom(ordersObservable);
 
-    // Enhance each order with customer name
     const ordersWithCustomerNames = await Promise.all(
       orders.map(async (order) => {
-        // Get customer name using the existing getUserName method
         const customerName = await this.getUserName(order.customerId);
 
-        // Return a new object with the customer name included
         return {
           ...order,
           customerName,

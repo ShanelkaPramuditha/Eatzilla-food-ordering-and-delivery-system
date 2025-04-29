@@ -14,7 +14,7 @@ export interface Address {
 
 // Matches SuborderDto from the backend
 export interface Suborder {
-  _id: string;
+  _id?: string;
   restaurantId: string;
   items: OrderItem[];
   subtotal: number;
@@ -43,7 +43,7 @@ export interface Order extends CalculatedOrderFields {
   deliveryPersonId?: string;
   paymentId?: string;
   specialInstructions?: string;
-  phoneNumber?: string;
+  customerPhoneNumber?: string;
   createdAt: Date;
   updatedAt: Date;
   estimatedDeliveryTime?: Date;
@@ -54,7 +54,7 @@ export interface Order extends CalculatedOrderFields {
 export interface CreateOrder {
   suborders: Suborder[];
   deliveryAddress: Address;
-  phoneNumber?: string;
+  customerPhoneNumber?: string;
   paymentMethod: string;
   specialInstructions?: string;
 }

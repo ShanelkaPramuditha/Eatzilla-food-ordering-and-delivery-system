@@ -79,14 +79,14 @@ export class AddressDto {
   instructions?: string;
 
   @ApiProperty({ description: 'Latitude for geolocation', required: false })
-  @IsNumber()
+  @IsString()
   @IsOptional()
-  latitude?: number;
+  latitude?: string;
 
   @ApiProperty({ description: 'Longitude for geolocation', required: false })
-  @IsNumber()
+  @IsString()
   @IsOptional()
-  longitude?: number;
+  longitude?: string;
 }
 
 // ============ SUBORDER ============
@@ -219,6 +219,9 @@ export class OrderResponseDto {
 
   @ApiProperty({ enum: OrderStatus, description: 'Order status' })
   status: OrderStatus;
+
+  @ApiProperty({ description: 'Customer Phone Number' })
+  customerPhoneNumber: string;
 
   @ApiProperty({ description: 'Delivery address' })
   deliveryAddress: AddressDto;
