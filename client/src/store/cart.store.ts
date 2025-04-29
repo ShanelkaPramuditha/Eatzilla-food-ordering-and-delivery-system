@@ -8,7 +8,7 @@ interface CartStore {
   cartTotal: number;
   itemCount: number;
   deliveryFee: number;
-  addToCart: (item: MenuItem, quantity: number, customizations?: Record<string, unknown>) => void;
+  addToCart: (item: any, quantity: number, customizations?: Record<string, unknown>) => void;
   removeItem: (menuItemId: string, customizations?: Record<string, unknown>) => void;
   updateQuantity: (
     menuItemId: string,
@@ -45,7 +45,7 @@ export const useCartStore = create<CartStore>()(
         // Check if item already exists in cart
         const existingItemIndex = currentCart.findIndex(
           (cartItem) =>
-            cartItem.menuItemId === item.id &&
+            cartItem.menuItemId === item._id &&
             JSON.stringify(cartItem.customizations || {}) === JSON.stringify(customizations || {}),
         );
 
@@ -55,13 +55,13 @@ export const useCartStore = create<CartStore>()(
         } else {
           // Add new item
           currentCart.push({
-            menuItemId: item.id,
+            menuItemId: item._id,
             name: item.name,
             price: item.price,
             quantity,
             customizations,
             image: item.image,
-            restaurantId: item.restaurantId || 'default-restaurant',
+            restaurantId: item.restaurant || 'default-restaurant',
           });
         }
 

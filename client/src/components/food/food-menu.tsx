@@ -1,90 +1,185 @@
+'use client';
+
 import { useState, useEffect } from 'react';
 import { FoodCard } from '@/components/food/food-card';
-import { menuItems, categories } from '@/data/menu-items';
-import { MenuItem } from '../../types/cart';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { SearchIcon } from 'lucide-react';
+import { categories } from '@/data/menu-items';
+import { ChevronRightIcon, Loader, SearchIcon } from 'lucide-react';
+import restaurnatService from '@/services/restaurnat.service';
+import { useQuery } from '@tanstack/react-query';
+import HeroSection from '@/routes/_home/-hero';
 
 export default function FoodMenu() {
-  const [filteredItems, setFilteredItems] = useState<MenuItem[]>(menuItems);
+  const [filteredItems, setFilteredItems] = useState<any[]>([]);
   const [activeCategory, setActiveCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Apply filters when category or search query changes
+  const {
+    data: foodItems = [],
+    isLoading,
+    isError,
+    refetch: refetchFoods,
+  } = useQuery<any[]>({
+    queryKey: ['orders'],
+    queryFn: () => restaurnatService.getAllMenuItems(),
+  });
+
   useEffect(() => {
-    let items = menuItems;
-    
-    // Filter by category
-    if (activeCategory !== 'all') {
-      items = items.filter(item => item.category === activeCategory);
+    if (foodItems && foodItems.length > 0) {
+      setFilteredItems(foodItems);
     }
-    
-    // Apply search query
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      items = items.filter(
-        (item: MenuItem) => 
-          item.name.toLowerCase().includes(query) || 
-          item.description.toLowerCase().includes(query) ||
-          item.tags.some((tag: string) => tag.toLowerCase().includes(query))
-      );
-    }
-    
-    setFilteredItems(items);
-  }, [activeCategory, searchQuery]);
+  }, [foodItems]);
+
+  useEffect(() => {
+    if (!foodItems) return;
+
+    const filtered = foodItems.filter((item) => {
+      const matchesCategory = activeCategory === 'all' || item.category === activeCategory;
+      const matchesSearch =
+        item.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        false;
+      return matchesCategory && matchesSearch;
+    });
+    setFilteredItems(filtered);
+  }, [activeCategory, searchQuery, foodItems]);
+
+  if (isLoading) {
+    return (
+      <div className='flex h-screen items-center justify-center'>
+        <Loader className='h-8 w-8 animate-spin' />
+      </div>
+    );
+  }
+
+    const handleCategoryChange = (categoryId:string) => {
+      setActiveCategory(categoryId);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    // Clear filters
+    const clearFilters = () => {
+      setSearchQuery('');
+      setActiveCategory('all');
+    };
 
   return (
-    <div className="container mx-auto py-8">
-      <div className="mb-8">
-        <div className="mb-4 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <h2 className="text-3xl font-bold">Our Menu</h2>
-          <div className="relative flex w-full max-w-sm items-center">
-            <SearchIcon className="absolute left-3 h-5 w-5 text-muted-foreground" />
-            <Input 
-              placeholder="Search for food..." 
+    <div className='min-h-screen'>
+      {/* Hero Section */}
+      <HeroSection />
+
+      {/* Main Content */}
+      <div className='relative container z-10 w-full mx-auto -mt-16  py-8'>
+        {/* Search Bar */}
+        <div className='mx-auto mb-8 max-w-3xl'>
+          <div className='relative overflow-hidden rounded-full border border-gray-200 bg-white shadow-lg backdrop-blur-lg dark:border-gray-700 dark:bg-gray-800'>
+            <SearchIcon className='absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2 transform text-gray-400' />
+            <input
+              type='text'
+              placeholder='Search for your favorite food...'
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
+              className='w-full bg-transparent py-4 pr-4 pl-12 text-gray-800 focus:outline-none dark:text-gray-200'
             />
           </div>
         </div>
-        
-        <div className="no-scrollbar mb-6 flex w-full gap-2 overflow-x-auto pb-2">
-          {categories.map((category) => (
-            <Button
-              key={category.id}
-              variant={activeCategory === category.id ? "default" : "outline"}
-              className="whitespace-nowrap"
-              onClick={() => setActiveCategory(category.id)}
-            >
-              {category.name}
-            </Button>
-          ))}
+
+        {/* Categories */}
+        <div className='mb-10'>
+          <h2 className='mb-4 flex items-center text-xl font-semibold text-gray-800 dark:text-white'>
+            <span className='mr-2 h-6 w-1 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600'></span>
+            Categories
+          </h2>
+          <div className='no-scrollbar flex gap-3 overflow-x-auto pb-2'>
+            {[{ id: 'all', name: 'All Menu' }, ...categories].map((category) => (
+              <button
+                key={category.id}
+                className={`rounded-full px-4 py-2 whitespace-nowrap transition-all duration-300 ${
+                  activeCategory === category.id
+                    ? 'bg-blue-500 font-medium text-white shadow-md'
+                    : 'border border-gray-200 bg-white text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300'
+                }`}
+                onClick={() => handleCategoryChange(category.id)}
+              >
+                {category.name}
+              </button>
+            ))}
+          </div>
         </div>
-        
-        {filteredItems.length === 0 ? (
-          <div className="my-12 rounded-lg bg-muted p-8 text-center">
-            <h3 className="text-xl font-medium">No items found</h3>
-            <p className="mt-2 text-muted-foreground">
-              Try a different search term or category
+
+        {/* Food Items */}
+        {isLoading ? (
+          <div className='flex flex-col items-center justify-center py-20'>
+            <Loader className='mb-4 h-10 w-10 text-indigo-600' />
+            <p className='text-gray-600 dark:text-gray-400'>Loading menu items...</p>
+          </div>
+        ) : filteredItems.length === 0 ? (
+          <div className='mx-auto max-w-md rounded-xl bg-white p-8 text-center shadow-lg dark:bg-gray-800'>
+            <div className='mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700'>
+              <SearchIcon className='h-8 w-8 text-gray-400' />
+            </div>
+            <h3 className='mb-2 text-xl font-medium text-gray-800 dark:text-white'>
+              No items found
+            </h3>
+            <p className='mb-6 text-gray-600 dark:text-gray-400'>
+              We couldn't find any menu items matching your current filters.
             </p>
-            <Button 
-              variant="outline" 
-              className="mt-4"
-              onClick={() => {
-                setSearchQuery('');
-                setActiveCategory('all');
-              }}
+            <button
+              onClick={clearFilters}
+              className='rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 px-6 py-2 font-medium text-white'
             >
               Clear filters
-            </Button>
+            </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {filteredItems.map((item) => (
-              <FoodCard key={item.id} item={item} />
-            ))}
+          <div>
+            {/* Popular Items Section */}
+            {activeCategory === 'all' &&
+              !searchQuery &&
+              filteredItems.some((item) => item.popular) && (
+                <div className='mb-12'>
+                  <div className='mb-6 flex items-center justify-between'>
+                    <h2 className='flex items-center text-2xl font-bold text-gray-800 dark:text-white'>
+                      <span className='mr-2 h-6 w-1 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600'></span>
+                      Popular Choices
+                    </h2>
+                    <button className='flex items-center text-sm font-medium text-indigo-600 dark:text-indigo-400'>
+                      View all <ChevronRightIcon className='ml-1 h-4 w-4' />
+                    </button>
+                  </div>
+                  <div className='grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'>
+                    {filteredItems
+                      .filter((item) => item.popular)
+                      .slice(0, 4)
+                      .map((item) => (
+                        <div key={item.id}>
+                          <FoodCard item={item} />
+                        </div>
+                      ))}
+                  </div>
+                </div>
+              )}
+
+            {/* All Menu Items */}
+            <div>
+              <div className='mb-6 flex items-center justify-between'>
+                <h2 className='flex items-center text-2xl font-bold text-gray-800 dark:text-white'>
+                  <span className='mr-2 h-6 w-1 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600'></span>
+                  {activeCategory === 'all'
+                    ? 'All Menu'
+                    : categories.find((c) => c.id === activeCategory)?.name || 'Menu'}
+                </h2>
+                <p className='text-sm text-gray-600 dark:text-gray-400'>
+                  {filteredItems.length} items
+                </p>
+              </div>
+              <div className='grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'>
+                {filteredItems.map((item) => (
+                  <div key={item.id}>
+                    <FoodCard item={item} />
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         )}
       </div>
