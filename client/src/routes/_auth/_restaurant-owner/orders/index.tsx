@@ -33,7 +33,7 @@ function RouteComponent() {
   const fetchOrders = async () => {
     try {
       if (user?.id) {
-        const orders = await OrderService.getRestaurantOrders('662b8afcc6d3f2f5938b1d01');
+        const orders = await OrderService.getRestaurantOrders('680dd9827a144815f18a3c0f');
         setOrders(orders);
         console.log(orders[0].suborders[0].status);
       }
@@ -56,7 +56,7 @@ function RouteComponent() {
             <TabsTrigger className='px-5' value='pending'>
               Confirmed (
               {
-                orders.filter((order: Order) => order.suborders[0].status === OrderStatus.CONFIRMED)
+                orders.filter((order: Order) => order.suborders[0].status === OrderStatus.CREATED)
                   .length
               }
               )
@@ -103,7 +103,7 @@ function RouteComponent() {
             <div className='mt-2 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4'>
               {orders.map(
                 (order) =>
-                  order.suborders[0].status === OrderStatus.CONFIRMED && (
+                  order.suborders[0].status === OrderStatus.CREATED && (
                     <OrderCard key={order._id} order={order} refetch={fetchOrders} />
                   ),
               )}
@@ -170,7 +170,7 @@ interface OrderCardProps {
 const OrderCard = ({ order, refetch }: OrderCardProps) => {
   const getStatusClasses = (status: OrderStatus) => {
     switch (status) {
-      case OrderStatus.CONFIRMED:
+      case OrderStatus.CREATED:
         return 'bg-yellow-100 text-yellow-800';
       case OrderStatus.PREPARING:
         return 'bg-blue-100 text-blue-800';
@@ -187,7 +187,7 @@ const OrderCard = ({ order, refetch }: OrderCardProps) => {
 
   const getStatusInfo = (status: OrderStatus) => {
     switch (status) {
-      case OrderStatus.CONFIRMED:
+      case OrderStatus.CREATED:
         return {
           label: 'Confirmed',
           color: 'bg-yellow-100 text-yellow-800',
@@ -285,7 +285,7 @@ const OrderCard = ({ order, refetch }: OrderCardProps) => {
             <div className='mt-3 border-t border-gray-200 pt-3'>
               <div className='flex justify-between text-sm'>
                 <span className='font-semibold text-gray-900'>{order.suborders.length} items</span>
-                <span className='font-medium text-gray-900'>${order.suborders[0].subtotal}</span>
+                <span className='font-medium text-gray-900'>Rs {order.suborders[0].subtotal}</span>
               </div>
 
               <div className='mt-2'>
@@ -348,7 +348,7 @@ const OrderCard = ({ order, refetch }: OrderCardProps) => {
                       <span className='text-sm text-gray-700'>{item.name}</span>
                     </div>
                     <span className='text-sm text-gray-700'>
-                      ${(item.price * item.quantity).toFixed(2)}
+                      Rs {(item.price * item.quantity).toFixed(2)}
                     </span>
                   </li>
                 ))}
@@ -357,7 +357,7 @@ const OrderCard = ({ order, refetch }: OrderCardProps) => {
               <div className='mt-3 border-t border-gray-200 pt-3'>
                 <div className='flex justify-between font-medium'>
                   <span className='text-sm text-gray-900'>Total</span>
-                  <span className='text-sm text-gray-900'>${order.suborders[0].subtotal}</span>
+                  <span className='text-sm text-gray-900'>Rs {order.suborders[0].subtotal}</span>
                 </div>
               </div>
             </div>
