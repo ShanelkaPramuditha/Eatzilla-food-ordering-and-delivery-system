@@ -1,0 +1,77 @@
+version: '3.8'
+services:
+  api-gateway:
+    build:
+      context: .
+      dockerfile: ./apps/api-gateway/Dockerfile
+      target: development
+    ports:
+      - '3000:3000'
+    volumes:
+      - .:/usr/src/app
+    restart: unless-stopped
+    depends_on:
+      - alert-service
+      - payment-service
+      - order-service
+      - restaurant-service
+      - delivery-service
+
+  alert-service:
+    build:
+      context: .
+      dockerfile: ./apps/alert/Dockerfile
+      target: development
+    volumes:
+      - .:/usr/src/app
+    networks:
+      - default
+    restart: unless-stopped
+
+  payment-service:
+    build:
+      context: .
+      dockerfile: ./apps/payment/Dockerfile
+      target: development
+    volumes:
+      - .:/usr/src/app
+    networks:
+      - default
+    restart: unless-stopped
+
+  order-service:
+    build:
+      context: .
+      dockerfile: ./apps/order/Dockerfile
+      target: development
+    volumes:
+      - .:/usr/src/app
+    networks:
+      - default
+    restart: unless-stopped
+
+  restaurant-service:
+    build:
+      context: .
+      dockerfile: ./apps/restaurant/Dockerfile
+      target: development
+    volumes:
+      - .:/usr/src/app
+    networks:
+      - default
+    restart: unless-stopped
+
+  delivery-service:
+    build:
+      context: .
+      dockerfile: ./apps/delivery/Dockerfile
+      target: development
+    volumes:
+      - .:/usr/src/app
+    environment:
+      - NODE_ENV=development
+    restart: unless-stopped
+
+networks:
+  default:
+    driver: bridge

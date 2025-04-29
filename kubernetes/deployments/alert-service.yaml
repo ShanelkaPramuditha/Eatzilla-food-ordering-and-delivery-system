@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alert-service
+  namespace: eatzilla
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: alert-service
+  template:
+    metadata:
+      labels:
+        app: alert-service
+    spec:
+      containers:
+        - name: alert-service
+          image: ${YOUR_REGISTRY}/eatzilla-alert-service:latest
+          imagePullPolicy: Always
+          envFrom:
+            - configMapRef:
+                name: eatzilla-config
+          resources:
+            limits:
+              cpu: "200m"
+              memory: "256Mi"
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: alert-service
+  namespace: eatzilla
+spec:
+  selector:
+    app: alert-service
+  ports:
+    - port: 3006
+      targetPort: 3006
+  type: ClusterIP
