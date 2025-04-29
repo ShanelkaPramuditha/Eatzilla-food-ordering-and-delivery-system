@@ -117,11 +117,34 @@ export class AlertService {
   }
 
   getUserAlerts(userId: string) {
-    this.notificationGateway.sendAlertToAll({ test: 'TEST' });
-    // return firstValueFrom(this.alertClient.send({ cmd: 'get.user.alerts' }, userId));
+    try {
+      return this.alertClient
+        .send({ cmd: 'get.user.alerts' }, userId)
+        .pipe(catchRpcError('Failed to get user alerts'));
+    } catch (error) {
+      this.logger.error(
+        `Error getting user alerts: ${(error as Error).message}`,
+        (error as Error).stack,
+      );
+      throw error;
+    }
   }
 
   getAllAlerts() {
     return firstValueFrom(this.alertClient.send({ cmd: 'get.all.alerts' }, {}));
+  }
+
+  markAlertAsRead(userId: string, alertId: string) {
+    try {
+      return this.alertClient
+        .send({ cmd: 'mark.alert.read' }, { userId, alertId })
+        .pipe(catchRpcError('Failed to mark alert as read'));
+    } catch (error) {
+      this.logger.error(
+        `Error marking alert as read: ${(error as Error).message}`,
+        (error as Error).stack,
+      );
+      throw error;
+    }
   }
 }

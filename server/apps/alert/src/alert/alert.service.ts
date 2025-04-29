@@ -104,4 +104,27 @@ export class AlertService {
       updatedAt: alert.updatedAt,
     };
   }
+
+  async markAlertAsRead(userId: string, alertId: string): Promise<AlertResponseDto> {
+    try {
+      const alert = await this.alertModel.findOneAndUpdate(
+        { _id: new Types.ObjectId(alertId), userId: new Types.ObjectId(userId) },
+        { $set: { isRead: true } },
+        { new: true },
+      );
+
+      if (!alert) {
+        throw new Error(`Alert not found or not authorized`);
+      }
+
+      return this.mapToResponseDto(alert);
+    } catch (error: unknown) {
+      const err = error as Error;
+      this.logger.error(
+        `Failed to mark alert as read: ${err.message || 'Unknown error'}`,
+        err.stack || 'No stack trace',
+      );
+      throw error;
+    }
+  }
 }

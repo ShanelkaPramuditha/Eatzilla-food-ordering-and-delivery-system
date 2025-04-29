@@ -15,3 +15,11 @@ export interface AlertObject {
     userId: string;
   };
 }
+
+export interface OrderStatusNotification {
+  orderId: string;
+  status: string;
+  timestamp: string;
+  restaurantName?: string;
+  estimatedDeliveryTime?: string;
+}

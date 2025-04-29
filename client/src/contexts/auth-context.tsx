@@ -45,7 +45,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
       } else {
         setUser(null);
         setRole(UserRole.GUEST);
-        setIsAuthenticated(true);
+        setIsAuthenticated(false);
       }
       setIsLoading(false);
     }

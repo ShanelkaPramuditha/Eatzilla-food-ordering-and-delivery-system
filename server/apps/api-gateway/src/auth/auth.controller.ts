@@ -66,6 +66,7 @@ export class AuthController {
     this.setTokenCookies(response, tokens);
   }
 
+  @Public()
   @Post('logout')
   @HttpCode(HttpStatus.OK)
   logout(@Res({ passthrough: true }) response: Response): void {

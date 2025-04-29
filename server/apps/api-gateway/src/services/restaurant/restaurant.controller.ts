@@ -2,6 +2,7 @@ import { Controller, Param, Body, Get, Post, Put, Delete, Req, Patch, Query } fr
 import { RestaurantService } from './restaurant.service';
 import { Restaurant } from './validations/restaurant.validation';
 import { MenuItem } from './validations/menu-item.validation';
+import { Public } from '../../auth/decorator/public.decorator';
 
 @Controller('restaurants')
 export class RestaurantController {
@@ -22,6 +23,7 @@ export class RestaurantController {
     return this.restaurantService.delete(id);
   }
 
+  @Public()
   @Get('/menu')
   getAllMenuItems() {
     return this.restaurantService.findAllMenuItems();

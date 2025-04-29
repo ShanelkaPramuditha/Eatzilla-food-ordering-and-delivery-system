@@ -40,10 +40,14 @@ interface OrderDetailsDialogProps {
   refetchOrders: () => void;
 }
 
-export function OrderDetailsDialog({ order, open, onOpenChange, refetchOrders }: OrderDetailsDialogProps) {
+export function OrderDetailsDialog({
+  order,
+  open,
+  onOpenChange,
+  refetchOrders,
+}: OrderDetailsDialogProps) {
   const navigate = useNavigate();
-    const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
-
+  const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
 
   if (!order) return null;
 
@@ -73,7 +77,7 @@ export function OrderDetailsDialog({ order, open, onOpenChange, refetchOrders }:
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent
-          className={`max-h-[90vh] md:max-w-3xl overflow-auto border-l-4 ${getStatusColor(order.status)} dark:bg-slate-800`}
+          className={`max-h-[90vh] overflow-auto border-l-4 md:max-w-3xl ${getStatusColor(order.status)} dark:bg-slate-800`}
         >
           <DialogHeader className='-mx-6 -mt-6 border-b bg-gradient-to-r from-slate-50 to-white px-6 pt-6 pb-4 dark:border-slate-700 dark:from-slate-800 dark:to-slate-800'>
             <div className='flex flex-col justify-between gap-2 sm:flex-row sm:items-center'>
@@ -184,12 +188,12 @@ export function OrderDetailsDialog({ order, open, onOpenChange, refetchOrders }:
                     {formatCurrency(order.deliveryFee, order.currency)}
                   </span>
                 </div>
-                <div className='flex justify-between'>
+                {/* <div className='flex justify-between'>
                   <span className='text-sm'>Delivery Fee</span>
                   <span className='text-sm font-medium'>
                     {formatCurrency(order.deliveryFee, order.currency)}
                   </span>
-                </div>
+                </div> */}
                 <div className='flex justify-between'>
                   <span className='text-sm'>Tax</span>
                   <span className='text-sm font-medium'>
@@ -315,11 +319,11 @@ export function OrderDetailsDialog({ order, open, onOpenChange, refetchOrders }:
               >
                 Proceed with Payment
               </Button>
-            ) :order.status !== OrderStatus.CANCELLED ? (
+            ) : order.status !== OrderStatus.CANCELLED ? (
               <Button className='bg-indigo-600 text-white hover:bg-indigo-700 dark:bg-indigo-700 dark:hover:bg-indigo-800'>
                 Track Order
               </Button>
-            ): null}
+            ) : null}
           </div>
         </DialogContent>
       </Dialog>

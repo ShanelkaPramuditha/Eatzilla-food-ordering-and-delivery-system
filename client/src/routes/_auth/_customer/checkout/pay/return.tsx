@@ -9,6 +9,9 @@ import {
   useGetSessionStatus,
 } from '@/services/tanstack-hooks/payment';
 import { toast } from 'sonner';
+import { useNotifyStore } from '@/store/notify.store';
+import { OrderNotificationService } from '@/services/order-notification.service';
+import { OrderStatus } from '@/constants/order';
 
 export const Route = createFileRoute('/_auth/_customer/checkout/pay/return')({
   component: RouteComponent,
@@ -23,6 +26,7 @@ function RouteComponent() {
   const { session_id: sessionId } = Route.useSearch();
   const [status, setStatus] = useState<string | null>(null);
   const navigate = useNavigate();
+  const { addNotification } = useNotifyStore();
 
   useEffect(() => {
     if (!sessionId) {
@@ -55,6 +59,11 @@ function RouteComponent() {
         receiptUrl: receiptData?.receiptUrl,
         metadata: sessionStatusData?.metadata,
       });
+
+      // Send order confirmation notification
+      if (sessionStatusData?.metadata?.orderId) {
+        OrderNotificationService.notifyOrderConfirmed(sessionStatusData.metadata.orderId);
+      }
     }
   }, [status, sessionId, sessionStatusData, receiptData, createTransaction]);
 
@@ -176,6 +185,16 @@ function RouteComponent() {
   }
 
   // Error or unknown status
+  if (status === 'expired' || status === 'cancelled') {
+    // Send order cancellation notification if orderId exists
+    if (sessionStatusData?.metadata?.orderId) {
+      OrderNotificationService.notifyOrderCancelled(
+        sessionStatusData.metadata.orderId,
+        'Payment session expired or was cancelled',
+      );
+    }
+  }
+
   return (
     <div className='mx-auto flex w-full max-w-2xl items-center justify-center p-4'>
       <Card className='overflow-hidden shadow-md'>

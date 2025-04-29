@@ -26,4 +26,9 @@ export class AlertController {
   getAllAlerts() {
     return this.alertService.getAllAlerts();
   }
+
+  @MessagePattern({ cmd: 'mark.alert.read' })
+  markAlertAsRead(@Payload() data: { userId: string; alertId: string }) {
+    return this.alertService.markAlertAsRead(data.userId, data.alertId);
+  }
 }

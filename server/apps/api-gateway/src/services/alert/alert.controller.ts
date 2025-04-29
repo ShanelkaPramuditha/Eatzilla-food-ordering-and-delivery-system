@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Req, Patch, Param } from '@nestjs/common';
 import { AlertService } from './alert.service';
 import { CreateAlertDto } from './dto/alert.dto';
 import { UserRequest } from '../../types/auth';
@@ -37,5 +37,12 @@ export class AlertController {
   getCustomerAlerts(@Req() req: UserRequest) {
     const userId = req.user.sub;
     return this.alertService.getUserAlerts(userId);
+  }
+
+  // Mark an alert as read
+  @Patch(':id/read')
+  markAlertAsRead(@Req() req: UserRequest, @Param('id') alertId: string) {
+    const userId = req.user.sub;
+    return this.alertService.markAlertAsRead(userId, alertId);
   }
 }

@@ -25,14 +25,13 @@ export interface CustomizationOption {
 
 // Order status tracking enum
 export enum OrderStatus {
-  PLACED = 'placed',
+  CREATED = 'created',
   CONFIRMED = 'confirmed',
   PREPARING = 'preparing',
   READY_FOR_PICKUP = 'ready_for_pickup',
   OUT_FOR_DELIVERY = 'out_for_delivery',
   DELIVERED = 'delivered',
   CANCELLED = 'cancelled',
-  REJECTED = 'rejected',
 }
 
 // Matches OrderItemDto from the backend

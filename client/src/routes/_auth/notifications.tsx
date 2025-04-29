@@ -12,20 +12,48 @@ import { useNotifyStore } from '@/store/notify.store';
 import { formatDistanceToNow } from 'date-fns';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { useGetAlerts, useMarkAlertAsRead } from '@/services/tanstack-hooks/alert.hook';
+
+// Helper function to safely check notification properties
+const isValidNotification = (notification: any) => {
+  return (
+    notification &&
+    notification.response &&
+    typeof notification.response === 'object' &&
+    'level' in notification.response &&
+    'message' in notification.response
+  );
+};
 
 function NotificationsView() {
-  const { notifications, markAllAsRead, removeNotification } = useNotifyStore();
+  const { notifications, markAllAsRead, removeNotification, readNotification } = useNotifyStore();
   const [filter, setFilter] = useState<'all' | 'info' | 'error' | 'warning'>('all');
+  const { data: alerts, isLoading, isError } = useGetAlerts();
+  const markAlertAsReadMutation = useMarkAlertAsRead();
+
+  // Filter out invalid notifications
+  const validNotifications = notifications.filter(isValidNotification);
 
   const filteredNotifications =
     filter === 'all'
-      ? notifications
-      : notifications.filter((notification) => notification.response.level === filter);
+      ? validNotifications
+      : validNotifications.filter((notification) => notification.response.level === filter);
 
   const handleMarkAllAsRead = () => {
     markAllAsRead();
   };
 
+  const handleMarkAsRead = (id: number) => {
+    // Call the API to mark the notification as read
+    markAlertAsReadMutation.mutate(id.toString(), {
+      onSuccess: () => {
+        // Update local state after successful API call
+        readNotification(id);
+      },
+    });
+  };
+
+  // Rest of component remains the same
   return (
     <div className='container mx-auto max-w-2xl py-8'>
       <div className='mb-6 flex items-center justify-between'>
@@ -62,7 +90,15 @@ function NotificationsView() {
         </Button>
       </div>
 
-      {filteredNotifications.length === 0 ? (
+      {isLoading ? (
+        <div className='rounded-lg bg-gray-50 py-12 text-center'>
+          <p className='text-gray-500'>Loading notifications...</p>
+        </div>
+      ) : isError ? (
+        <div className='rounded-lg bg-gray-50 py-12 text-center'>
+          <p className='text-gray-500'>Error loading notifications. Please try again.</p>
+        </div>
+      ) : filteredNotifications.length === 0 ? (
         <div className='rounded-lg bg-gray-50 py-12 text-center'>
           <p className='text-gray-500'>No notifications found</p>
         </div>
@@ -74,6 +110,7 @@ function NotificationsView() {
               className={`flex items-start gap-4 rounded-lg border p-4 hover:bg-gray-50 ${
                 notification.read ? 'bg-gray-50 opacity-75' : 'bg-white'
               }`}
+              onClick={() => !notification.read && handleMarkAsRead(notification.id)}
             >
               <div className='flex-shrink-0'>
                 <div
@@ -110,7 +147,10 @@ function NotificationsView() {
               <Button
                 variant='ghost'
                 size='icon'
-                onClick={() => removeNotification(notification.id)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  removeNotification(notification.id);
+                }}
               >
                 <XIcon className='h-4 w-4' />
                 <span className='sr-only'>Dismiss</span>

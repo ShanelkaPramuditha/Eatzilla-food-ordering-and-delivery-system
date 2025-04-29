@@ -6,13 +6,25 @@ import { useNotifyStore } from '@/store/notify.store';
 import { formatDistanceToNow } from 'date-fns';
 import { Link } from '@tanstack/react-router';
 
+// Helper function to safely check notification properties
+const isValidNotification = (notification: any) => {
+  return (
+    notification &&
+    notification.response &&
+    typeof notification.response === 'object' &&
+    'level' in notification.response &&
+    'message' in notification.response
+  );
+};
+
 export default function NotificationPopover() {
   const [count, setCount] = useState(0);
   const { alert } = useAlerts();
   const { notifications, markAllAsRead, removeNotification } = useNotifyStore();
 
-  // Count unread notifications
-  const unreadCount = notifications.filter((notification) => !notification.read).length;
+  // Filter out invalid notifications and count unread ones
+  const validNotifications = notifications.filter(isValidNotification);
+  const unreadCount = validNotifications.filter((notification) => !notification.read).length;
 
   useEffect(() => {
     if (alert) {
@@ -34,8 +46,8 @@ export default function NotificationPopover() {
     setCount((prevCount) => Math.max(0, prevCount - 1));
   };
 
-  // Show only the latest 5 notifications in the popover
-  const recentNotifications = notifications.slice(0, 5);
+  // Show only the latest 5 valid notifications in the popover
+  const recentNotifications = validNotifications.slice(0, 5);
 
   return (
     <Popover>
@@ -58,59 +70,71 @@ export default function NotificationPopover() {
           </Button>
         </div>
         <div className='space-y-4'>
-          {recentNotifications?.length === 0 ? (
+          {recentNotifications.length === 0 ? (
             <p className='text-muted-foreground text-center text-sm'>No notifications</p>
           ) : (
-            recentNotifications?.map((notification) => (
-              <div
-                key={notification.id}
-                className={`flex items-start gap-3 rounded-md p-2 ${notification?.read ? 'bg-gray-50 opacity-70' : 'bg-white'}`}
-              >
-                <div className='flex-shrink-0'>
-                  <div
-                    className={`flex h-8 w-8 items-center justify-center rounded-full ${
-                      notification?.response?.level === 'info'
-                        ? 'bg-blue-500'
-                        : notification?.response?.level === 'warning'
-                          ? 'bg-yellow-500'
-                          : 'bg-red-500'
-                    } ${notification.read ? 'opacity-50' : ''} text-white`}
-                  >
-                    {notification.response.level === 'info' ? (
-                      <BellIcon className='h-4 w-4' />
-                    ) : notification.response.level === 'warning' ? (
-                      <BellIcon className='h-4 w-4' />
-                    ) : (
-                      <XIcon className='h-4 w-4' />
-                    )}
-                  </div>
-                </div>
-                <div className='flex-1'>
-                  <p className={`text-sm font-medium ${notification.read ? 'text-gray-500' : ''}`}>
-                    {notification.response.message}
-                  </p>
-                  <p className='text-muted-foreground text-sm'>
-                    {formatDistanceToNow(notification.timestamp || Date.now(), { addSuffix: true })}
-                  </p>
-                </div>
-                <Button
-                  variant='ghost'
-                  size='icon'
-                  className='h-6 w-6'
-                  onClick={() => handleRemoveNotification(notification.id)}
+            recentNotifications.map((notification) => {
+              // Add an additional safety check before rendering
+              if (!isValidNotification(notification)) {
+                return null;
+              }
+
+              return (
+                <div
+                  key={notification.id}
+                  className={`flex items-start gap-3 rounded-md p-2 ${notification.read ? 'bg-gray-50 opacity-70' : 'bg-white'}`}
                 >
-                  <XIcon className='h-3 w-3' />
-                  <span className='sr-only'>Dismiss</span>
-                </Button>
-              </div>
-            ))
+                  <div className='flex-shrink-0'>
+                    <div
+                      className={`flex h-8 w-8 items-center justify-center rounded-full ${
+                        notification.response.level === 'info'
+                          ? 'bg-blue-500'
+                          : notification.response.level === 'warning'
+                            ? 'bg-yellow-500'
+                            : 'bg-red-500'
+                      } ${notification.read ? 'opacity-50' : ''} text-white`}
+                    >
+                      {notification.response.level === 'info' ? (
+                        <BellIcon className='h-4 w-4' />
+                      ) : notification.response.level === 'warning' ? (
+                        <BellIcon className='h-4 w-4' />
+                      ) : (
+                        <XIcon className='h-4 w-4' />
+                      )}
+                    </div>
+                  </div>
+                  <div className='flex-1'>
+                    <p
+                      className={`text-sm font-medium ${notification.read ? 'text-gray-500' : ''}`}
+                    >
+                      {notification.response.message}
+                    </p>
+                    <p className='text-muted-foreground text-sm'>
+                      {formatDistanceToNow(notification.timestamp || Date.now(), {
+                        addSuffix: true,
+                      })}
+                    </p>
+                  </div>
+                  <Button
+                    variant='ghost'
+                    size='icon'
+                    className='h-6 w-6'
+                    onClick={() => handleRemoveNotification(notification.id)}
+                  >
+                    <XIcon className='h-3 w-3' />
+                    <span className='sr-only'>Dismiss</span>
+                  </Button>
+                </div>
+              );
+            })
           )}
         </div>
 
-        {notifications.length > 5 && (
+        {validNotifications.length > 5 && (
           <div className='mt-4 border-t pt-4 text-center'>
             <p className='text-muted-foreground mb-2 text-sm'>
-              {notifications.length - 5} more notification{notifications.length - 5 > 1 ? 's' : ''}
+              {validNotifications.length - 5} more notification
+              {validNotifications.length - 5 > 1 ? 's' : ''}
             </p>
           </div>
         )}

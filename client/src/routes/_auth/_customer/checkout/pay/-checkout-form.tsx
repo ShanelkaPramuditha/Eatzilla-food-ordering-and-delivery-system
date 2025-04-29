@@ -90,7 +90,9 @@ const CheckoutForm = () => {
           >
             <span id='button-text'>
               {isLoading ? (
-                <div className='spinner' id='spinner'></div>
+                <div className='spinner' id='spinner'>
+                  Processing...
+                </div>
               ) : (
                 `Pay ${checkout.total?.total?.amount || '0.00'} now`
               )}
