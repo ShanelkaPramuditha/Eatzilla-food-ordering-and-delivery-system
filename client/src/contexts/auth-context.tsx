@@ -3,6 +3,7 @@ import { USER } from '@/constants';
 import { User } from '@/types/user';
 import { useGetUser, useLogin, useLogout } from '@/services/tanstack-hooks/auth.hook';
 import { toast } from 'sonner';
+import { useNotifyStore } from '@/store/notify.store';
 
 const { UserRole } = USER;
 
@@ -29,6 +30,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [role, setRole] = useState<USER.UserRole>(UserRole.GUEST);
+  const { clearNotifications } = useNotifyStore();
 
   const { data: userData, isLoading: isUserLoading } = useGetUser();
   const loginMutation = useLogin();
@@ -65,6 +67,8 @@ export function AuthProvider({ children }: PropsWithChildren) {
       setUser(null);
       setRole(UserRole.GUEST);
       setIsAuthenticated(false);
+      clearNotifications();
+
       toast.success('Logged out successfully');
     } catch (error) {
       toast.error('Failed to logout');
