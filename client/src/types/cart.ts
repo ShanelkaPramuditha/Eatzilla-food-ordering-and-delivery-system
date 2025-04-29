@@ -1,4 +1,3 @@
-
 // Core types for the food ordering application
 export interface MenuItem {
   id: string;
@@ -22,6 +21,18 @@ export interface CustomizationOption {
     price: number;
   }[];
   required: boolean;
+}
+
+// Order status tracking enum
+export enum OrderStatus {
+  PLACED = 'placed',
+  CONFIRMED = 'confirmed',
+  PREPARING = 'preparing',
+  READY_FOR_PICKUP = 'ready_for_pickup',
+  OUT_FOR_DELIVERY = 'out_for_delivery',
+  DELIVERED = 'delivered',
+  CANCELLED = 'cancelled',
+  REJECTED = 'rejected',
 }
 
 // Matches OrderItemDto from the backend
