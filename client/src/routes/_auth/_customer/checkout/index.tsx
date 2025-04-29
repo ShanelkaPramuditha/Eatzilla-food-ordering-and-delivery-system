@@ -525,18 +525,6 @@ function RouteComponent() {
                       <>Place Order</>
                     )}
                   </Button>
-
-                  <div className='flex items-start gap-2 rounded-md border border-blue-100 bg-white p-3 text-sm dark:border-blue-900/50 dark:bg-slate-800'>
-                    <Truck className='h-5 w-5 flex-shrink-0 text-blue-600 dark:text-blue-400' />
-                    <div>
-                      <p className='font-medium text-slate-800 dark:text-slate-200'>
-                        Free delivery on orders over $50
-                      </p>
-                      <p className='mt-1 text-xs text-slate-600 dark:text-slate-400'>
-                        By placing your order, you agree to our terms and conditions.
-                      </p>
-                    </div>
-                  </div>
                 </CardFooter>
               </Card>
             </div>
