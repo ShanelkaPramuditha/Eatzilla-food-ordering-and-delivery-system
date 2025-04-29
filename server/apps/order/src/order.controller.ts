@@ -112,6 +112,7 @@ export class OrderController {
       deliveryPersonId: order.deliveryPersonId?.toString(),
       subtotal: order.subtotal,
       deliveryFee: order.deliveryFee,
+      customerPhoneNumber: order.customerPhoneNumber,
       tax: order.tax,
       total: order.total,
       status: order.status,

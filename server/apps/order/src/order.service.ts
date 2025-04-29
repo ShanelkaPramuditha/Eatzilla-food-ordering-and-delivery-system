@@ -19,7 +19,6 @@ export class OrderService {
 
   async create(req: { dto: CreateOrderDto; userId: string }): Promise<OrderDocument> {
     console.log('Creating order with DTO:', req);
-    // Convert string IDs to ObjectIds
     const customerId = new Types.ObjectId(req.userId);
 
     const suborders = req.dto.suborders.map((suborder) => ({
@@ -38,12 +37,12 @@ export class OrderService {
       deliveryAddress: req.dto.deliveryAddress,
       paymentMethod: req.dto.paymentMethod,
       paymentId: req.dto.paymentId,
+      customerPhoneNumber: req.dto.customerPhoneNumber,
       specialInstructions: req.dto.specialInstructions,
       status: OrderStatus.CREATED,
       isPaid: false,
     });
 
-    // Save will trigger the pre-save hook that calculates totals
     return await newOrder.save();
   }
 
@@ -62,7 +61,6 @@ export class OrderService {
   async findAllByRestaurant(restaurantId: string): Promise<any[]> {
     const objectId = new Types.ObjectId(restaurantId);
 
-    // Find all orders with suborders for this restaurant
     const orders = await this.orderModel
       .find({
         'suborders.restaurantId': objectId,
@@ -70,14 +68,11 @@ export class OrderService {
       .sort({ createdAt: -1 })
       .exec();
 
-    // Transform orders to include only necessary fields
     return orders.map((order) => {
-      // Get only the suborders for this restaurant
       const filteredSuborders = order.suborders.filter(
         (suborder) => suborder.restaurantId.toString() === objectId.toString(),
       );
 
-      // Return a simplified order object
       return {
         _id: order._id,
         customerId: order.customerId,
@@ -117,40 +112,50 @@ export class OrderService {
     status: OrderStatus,
   ): Promise<{ message: string }> {
     try {
-      // Convert string IDs to ObjectId
       const orderObjectId = new Types.ObjectId(orderId);
 
-      // Find the order by ID
       const order = await this.orderModel.findById(orderObjectId);
 
       if (!order) {
         throw new NotFoundException(`Order with ID ${orderId} not found`);
       }
 
-      // Find the suborder by ID
       const suborder = order.suborders.find((sub) => sub._id.toString() === suborderId);
 
       if (!suborder) {
         throw new NotFoundException(`Suborder with ID ${suborderId} not found in order ${orderId}`);
       }
 
-      // Update the suborder status
       suborder.status = status;
 
-      // Check if all suborders have the same status
-      const allSameStatus = order.suborders.every((sub) => sub.status === status);
+      const statusHierarchy = [
+        OrderStatus.CREATED,
+        OrderStatus.CONFIRMED,
+        OrderStatus.PREPARING,
+        OrderStatus.READY_FOR_PICKUP,
+        OrderStatus.OUT_FOR_DELIVERY,
+        OrderStatus.DELIVERED,
+      ];
 
-      // Update the main order status if all suborders match
-      if (allSameStatus) {
-        order.status = status;
+      if (status === OrderStatus.CANCELLED) {
+        const allCancelled = order.suborders.every((sub) => sub.status === OrderStatus.CANCELLED);
+        if (allCancelled) {
+          order.status = OrderStatus.CANCELLED;
+        }
+      } else {
+        const minStatusIndex = Math.min(
+          ...order.suborders.map((sub) => statusHierarchy.indexOf(sub.status)),
+        );
+
+        order.status = statusHierarchy[minStatusIndex];
       }
 
-      // Save and return the updated order
       await order.save();
       return {
         message: 'Suborder status updated successfully',
       };
     } catch (error) {
+      console.log('Error updating suborder status:', error);
       if (error instanceof NotFoundException) {
         throw error;
       }
@@ -169,15 +174,12 @@ export class OrderService {
       throw new NotFoundException(`Order with ID ${id} not found`);
     }
 
-    // Set the order status to 'cancelled'
-    order.status = OrderStatus.CANCELLED; // assuming you have an enum OrderStatus
+    order.status = OrderStatus.CANCELLED;
 
-    // Optionally, if you also want to cancel all suborders
     order.suborders.forEach((suborder) => {
       suborder.status = OrderStatus.CANCELLED;
     });
 
-    // Save the updated order
     await order.save();
 
     return order;
@@ -194,7 +196,7 @@ export class OrderService {
     if (!order) {
       throw new NotFoundException(`Order with ID ${orderId} not found`);
     }
-    order.isPaid = true; // assuming you have an enum OrderStatus
+    order.isPaid = true;
     order.paymentId = paymentId;
 
     await order.save();
@@ -203,28 +205,23 @@ export class OrderService {
   }
   async updatePaymentStatus(orderId: string, isPaid: boolean): Promise<OrderDocument> {
     try {
-      // Convert string ID to ObjectId if necessary
       const orderObjectId = Types.ObjectId.isValid(orderId) ? new Types.ObjectId(orderId) : orderId;
 
-      // First, find the order to check its current status
       const currentOrder = await this.orderModel.findById(orderObjectId).exec();
 
       if (!currentOrder) {
         throw new NotFoundException(`Order with ID ${orderId} not found`);
       }
 
-      // Determine if we should update the status based on current status and payment
       const shouldUpdateStatus =
         isPaid && [OrderStatus.CREATED, 'pending_payment'].includes(currentOrder.status);
 
-      // Now update the order
       const updatedOrder = await this.orderModel
         .findByIdAndUpdate(
           orderObjectId,
           {
             $set: {
               isPaid,
-              // Update status to CONFIRMED if needed
               ...(shouldUpdateStatus ? { status: OrderStatus.CONFIRMED } : {}),
             },
           },

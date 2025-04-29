@@ -21,7 +21,7 @@ export function OrdersList({ setTotal, setInProgress }: OrdersListProps) {
   const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
-  const [statusFilter, setStatusFilter] = useState<OrderStatus | 'all'>('all');
+  const [statusFilter, setStatusFilter] = useState<OrderStatus | 'all'>(OrderStatus.CREATED);
 
   const handleViewDetails = (order: Order) => {
     setSelectedOrder(order);
@@ -31,6 +31,7 @@ export function OrdersList({ setTotal, setInProgress }: OrdersListProps) {
     data: ordersData,
     isLoading,
     isError,
+    refetch: refetchOrders,
   } = useQuery<Order[]>({
     queryKey: ['orders'],
     queryFn: () => OrderService.getCustomerOrders(),
@@ -116,6 +117,7 @@ export function OrdersList({ setTotal, setInProgress }: OrdersListProps) {
       )}
 
       <OrderDetailsDialog
+        refetchOrders={refetchOrders}
         order={selectedOrder}
         open={isDetailsOpen}
         onOpenChange={setIsDetailsOpen}
