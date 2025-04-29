@@ -18,6 +18,7 @@ import { Route as AuthProtectedImport } from './routes/_auth/protected'
 import { Route as AuthNotificationsImport } from './routes/_auth/notifications'
 import { Route as PublicRegisterIndexImport } from './routes/_public/register/index'
 import { Route as PublicLoginIndexImport } from './routes/_public/login/index'
+import { Route as AuthRestaurantOwnerTransactionsIndexImport } from './routes/_auth/_restaurant-owner/transactions/index'
 import { Route as AuthRestaurantOwnerSettingsIndexImport } from './routes/_auth/_restaurant-owner/settings/index'
 import { Route as AuthRestaurantOwnerReviewsIndexImport } from './routes/_auth/_restaurant-owner/reviews/index'
 import { Route as AuthRestaurantOwnerOrdersIndexImport } from './routes/_auth/_restaurant-owner/orders/index'
@@ -69,6 +70,13 @@ const PublicLoginIndexRoute = PublicLoginIndexImport.update({
   path: '/login/',
   getParentRoute: () => rootRoute,
 } as any)
+
+const AuthRestaurantOwnerTransactionsIndexRoute =
+  AuthRestaurantOwnerTransactionsIndexImport.update({
+    id: '/_restaurant-owner/transactions/',
+    path: '/transactions/',
+    getParentRoute: () => AuthRoute,
+  } as any)
 
 const AuthRestaurantOwnerSettingsIndexRoute =
   AuthRestaurantOwnerSettingsIndexImport.update({
@@ -219,6 +227,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRestaurantOwnerSettingsIndexImport
       parentRoute: typeof AuthImport
     }
+    '/_auth/_restaurant-owner/transactions/': {
+      id: '/_auth/_restaurant-owner/transactions/'
+      path: '/transactions'
+      fullPath: '/transactions'
+      preLoaderRoute: typeof AuthRestaurantOwnerTransactionsIndexImport
+      parentRoute: typeof AuthImport
+    }
     '/_auth/_customer/checkout/pay/return': {
       id: '/_auth/_customer/checkout/pay/return'
       path: '/checkout/pay/return'
@@ -247,6 +262,7 @@ interface AuthRouteChildren {
   AuthRestaurantOwnerOrdersIndexRoute: typeof AuthRestaurantOwnerOrdersIndexRoute
   AuthRestaurantOwnerReviewsIndexRoute: typeof AuthRestaurantOwnerReviewsIndexRoute
   AuthRestaurantOwnerSettingsIndexRoute: typeof AuthRestaurantOwnerSettingsIndexRoute
+  AuthRestaurantOwnerTransactionsIndexRoute: typeof AuthRestaurantOwnerTransactionsIndexRoute
   AuthCustomerCheckoutPayReturnRoute: typeof AuthCustomerCheckoutPayReturnRoute
   AuthCustomerCheckoutPayIndexRoute: typeof AuthCustomerCheckoutPayIndexRoute
 }
@@ -260,6 +276,8 @@ const AuthRouteChildren: AuthRouteChildren = {
   AuthRestaurantOwnerOrdersIndexRoute: AuthRestaurantOwnerOrdersIndexRoute,
   AuthRestaurantOwnerReviewsIndexRoute: AuthRestaurantOwnerReviewsIndexRoute,
   AuthRestaurantOwnerSettingsIndexRoute: AuthRestaurantOwnerSettingsIndexRoute,
+  AuthRestaurantOwnerTransactionsIndexRoute:
+    AuthRestaurantOwnerTransactionsIndexRoute,
   AuthCustomerCheckoutPayReturnRoute: AuthCustomerCheckoutPayReturnRoute,
   AuthCustomerCheckoutPayIndexRoute: AuthCustomerCheckoutPayIndexRoute,
 }
@@ -280,6 +298,7 @@ export interface FileRoutesByFullPath {
   '/orders': typeof AuthRestaurantOwnerOrdersIndexRoute
   '/reviews': typeof AuthRestaurantOwnerReviewsIndexRoute
   '/settings': typeof AuthRestaurantOwnerSettingsIndexRoute
+  '/transactions': typeof AuthRestaurantOwnerTransactionsIndexRoute
   '/checkout/pay/return': typeof AuthCustomerCheckoutPayReturnRoute
   '/checkout/pay': typeof AuthCustomerCheckoutPayIndexRoute
 }
@@ -298,6 +317,7 @@ export interface FileRoutesByTo {
   '/orders': typeof AuthRestaurantOwnerOrdersIndexRoute
   '/reviews': typeof AuthRestaurantOwnerReviewsIndexRoute
   '/settings': typeof AuthRestaurantOwnerSettingsIndexRoute
+  '/transactions': typeof AuthRestaurantOwnerTransactionsIndexRoute
   '/checkout/pay/return': typeof AuthCustomerCheckoutPayReturnRoute
   '/checkout/pay': typeof AuthCustomerCheckoutPayIndexRoute
 }
@@ -317,6 +337,7 @@ export interface FileRoutesById {
   '/_auth/_restaurant-owner/orders/': typeof AuthRestaurantOwnerOrdersIndexRoute
   '/_auth/_restaurant-owner/reviews/': typeof AuthRestaurantOwnerReviewsIndexRoute
   '/_auth/_restaurant-owner/settings/': typeof AuthRestaurantOwnerSettingsIndexRoute
+  '/_auth/_restaurant-owner/transactions/': typeof AuthRestaurantOwnerTransactionsIndexRoute
   '/_auth/_customer/checkout/pay/return': typeof AuthCustomerCheckoutPayReturnRoute
   '/_auth/_customer/checkout/pay/': typeof AuthCustomerCheckoutPayIndexRoute
 }
@@ -337,6 +358,7 @@ export interface FileRouteTypes {
     | '/orders'
     | '/reviews'
     | '/settings'
+    | '/transactions'
     | '/checkout/pay/return'
     | '/checkout/pay'
   fileRoutesByTo: FileRoutesByTo
@@ -354,6 +376,7 @@ export interface FileRouteTypes {
     | '/orders'
     | '/reviews'
     | '/settings'
+    | '/transactions'
     | '/checkout/pay/return'
     | '/checkout/pay'
   id:
@@ -371,6 +394,7 @@ export interface FileRouteTypes {
     | '/_auth/_restaurant-owner/orders/'
     | '/_auth/_restaurant-owner/reviews/'
     | '/_auth/_restaurant-owner/settings/'
+    | '/_auth/_restaurant-owner/transactions/'
     | '/_auth/_customer/checkout/pay/return'
     | '/_auth/_customer/checkout/pay/'
   fileRoutesById: FileRoutesById
@@ -420,6 +444,7 @@ export const routeTree = rootRoute
         "/_auth/_restaurant-owner/orders/",
         "/_auth/_restaurant-owner/reviews/",
         "/_auth/_restaurant-owner/settings/",
+        "/_auth/_restaurant-owner/transactions/",
         "/_auth/_customer/checkout/pay/return",
         "/_auth/_customer/checkout/pay/"
       ]
@@ -466,6 +491,10 @@ export const routeTree = rootRoute
     },
     "/_auth/_restaurant-owner/settings/": {
       "filePath": "_auth/_restaurant-owner/settings/index.tsx",
+      "parent": "/_auth"
+    },
+    "/_auth/_restaurant-owner/transactions/": {
+      "filePath": "_auth/_restaurant-owner/transactions/index.tsx",
       "parent": "/_auth"
     },
     "/_auth/_customer/checkout/pay/return": {

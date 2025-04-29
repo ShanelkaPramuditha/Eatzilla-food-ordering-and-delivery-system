@@ -27,10 +27,14 @@ export const RestaurantOwnerSidebarItems = [
     url: '/reviews',
     icon: IconMessageDots,
   },
-
   {
     title: 'Settings',
     url: '/settings',
+    icon: IconSettings,
+  },
+  {
+    title: 'Transactions',
+    url: '/transactions',
     icon: IconSettings,
   },
 ];
@@ -50,5 +54,5 @@ export const DeliveryPersonSidebarItems = [
     title: 'Delivery',
     url: '/delivery',
     icon: IconTruckDelivery,
-  }
+  },
 ];

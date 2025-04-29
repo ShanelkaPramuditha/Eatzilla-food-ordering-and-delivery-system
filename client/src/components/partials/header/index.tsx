@@ -31,7 +31,7 @@ export const Header = ({ className }: { className?: string }) => {
           </div>
 
           <div className='flex h-full items-center gap-4'>
-            <CartDrawer />
+            {role !== UserRole.RESTAURANT_OWNER && <CartDrawer />}
             {isAuthenticated && <>{icons.showNotifications && <NotificationPopover />}</>}
             <UserAvatar />
           </div>
