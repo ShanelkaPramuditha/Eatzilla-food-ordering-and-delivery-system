@@ -5,6 +5,8 @@ import { Microservice } from '../../constants/microservice';
 import { firstValueFrom } from 'rxjs';
 import { Types } from 'mongoose';
 import { AlertResponseDto } from 'apps/alert/src/alert/dto/alert.dto';
+import { NotificationGateway } from '../../websocket/websocket.gateway';
+import { catchRpcError } from '../../filters/rpc-exception.filter';
 
 @Injectable()
 export class AlertService {
@@ -13,29 +15,98 @@ export class AlertService {
   constructor(
     @Inject(Microservice.ALERT_SERVICE)
     private readonly alertClient: ClientProxy,
+    private readonly notificationGateway: NotificationGateway,
   ) {}
 
   // Get the status of the alert service
   getStatus() {
-    return this.alertClient.send({ cmd: 'get.status' }, {});
+    return this.alertClient
+      .send({ cmd: 'get.status' }, {})
+      .pipe(catchRpcError('Failed to get alert service status'));
   }
 
   // Create a new alert
-  async createAlert(userId: string, data: CreateAlertDto): Promise<AlertResponseDto> {
+  createAlert(userId: string, email: string, mobile: string, data: CreateAlertDto) {
     try {
-      this.logger.log(`Creating alert of types: ${data.types.join(', ')} for user: ${userId}`);
-
       // Transform gateway DTO to microservice DTO format
       const alertPayload = {
         userId: new Types.ObjectId(userId),
         type: data.types,
         level: data.level,
-        recipient: data.recipient,
+        category: data.category,
+        data: data.data,
+        email: email,
+        mobile: mobile,
         subject: data.subject,
         message: data.message,
+        isRead: false,
       };
 
-      return await firstValueFrom(this.alertClient.send({ cmd: 'create.alert' }, alertPayload));
+      // this.notificationGateway.sendAlertToAll('TEST');
+      const alertResponse = this.alertClient
+        .send({ cmd: 'create.alert' }, alertPayload)
+        .pipe(catchRpcError('Failed to create alert'));
+
+      alertResponse.subscribe({
+        next: (response: AlertResponseDto) => {
+          if (response && response.id) {
+            this.notificationGateway.sendAlertToUser(userId, {
+              type: 'alert',
+              response,
+            });
+          }
+        },
+        error: (error) => {
+          this.logger.error('Error creating alert:', error);
+        },
+      });
+
+      return alertResponse;
+    } catch (error) {
+      this.logger.error(
+        `Error creating alert: ${(error as Error).message}`,
+        (error as Error).stack,
+      );
+      throw error;
+    }
+  }
+
+  createHTTPAlert(userId: string, email: string, mobile: string, data: CreateAlertDto) {
+    try {
+      // Transform gateway DTO to microservice DTO format
+      const alertPayload = {
+        userId: new Types.ObjectId(userId),
+        type: data.types,
+        level: data.level,
+        category: data.category,
+        data: data.data,
+        email: email,
+        mobile: mobile,
+        subject: data.subject,
+        message: data.message,
+        isRead: false,
+      };
+
+      // this.notificationGateway.sendAlertToAll('TEST');
+      const alertResponse = this.alertClient
+        .send({ cmd: 'create.alert' }, alertPayload)
+        .pipe(catchRpcError('Failed to create alert'));
+
+      alertResponse.subscribe({
+        next: (response: AlertResponseDto) => {
+          if (response && response.id) {
+            this.notificationGateway.sendAlertToUser(userId, {
+              type: 'alert',
+              response,
+            });
+          }
+        },
+        error: (error) => {
+          this.logger.error('Error creating alert:', error);
+        },
+      });
+
+      return alertResponse;
     } catch (error) {
       this.logger.error(
         `Error creating alert: ${(error as Error).message}`,
@@ -46,7 +117,8 @@ export class AlertService {
   }
 
   getUserAlerts(userId: string) {
-    return firstValueFrom(this.alertClient.send({ cmd: 'get.user.alerts' }, userId));
+    this.notificationGateway.sendAlertToAll({ test: 'TEST' });
+    // return firstValueFrom(this.alertClient.send({ cmd: 'get.user.alerts' }, userId));
   }
 
   getAllAlerts() {

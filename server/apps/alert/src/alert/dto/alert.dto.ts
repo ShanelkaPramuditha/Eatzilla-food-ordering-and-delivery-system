@@ -1,5 +1,13 @@
-import { IsEnum, IsNotEmpty, IsString, IsArray, ArrayNotEmpty, IsMongoId } from 'class-validator';
-import { AlertLevel, AlertStatus, AlertType } from '@app/common/types/alert';
+import {
+  IsEnum,
+  IsNotEmpty,
+  IsString,
+  IsArray,
+  ArrayNotEmpty,
+  IsMongoId,
+  IsObject,
+} from 'class-validator';
+import { AlertCategory, AlertLevel, AlertStatus, AlertType } from '@app/common/types/alert';
 import { Types } from 'mongoose';
 
 export class CreateAlertDto {
@@ -11,12 +19,15 @@ export class CreateAlertDto {
   @IsEnum(AlertType, { each: true })
   type: AlertType[];
 
+  @IsString()
+  @IsEnum(AlertCategory)
+  category: AlertCategory = AlertCategory.DEFAULT;
+
+  @IsObject()
+  data: object;
+
   @IsEnum(AlertLevel)
   level: AlertLevel;
-
-  @IsString()
-  @IsNotEmpty()
-  recipient: string;
 
   @IsString()
   @IsNotEmpty()
@@ -28,14 +39,19 @@ export class CreateAlertDto {
 }
 
 export class AlertResponseDto {
-  id: string;
+  id: Types.ObjectId;
   userId: Types.ObjectId;
   type: AlertType[];
   level: AlertLevel;
-  recipient: string;
+  category: AlertCategory;
+  data: object;
+  email: string;
+  mobile: string;
   subject: string;
   message: string;
   status: AlertStatus;
+  isRead: boolean;
   createdAt: Date;
   updatedAt: Date;
+  [key: string]: any;
 }

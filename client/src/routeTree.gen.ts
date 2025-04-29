@@ -15,6 +15,7 @@ import { Route as AuthImport } from './routes/_auth'
 import { Route as AboutIndexImport } from './routes/about/index'
 import { Route as HomeIndexImport } from './routes/_home/index'
 import { Route as AuthProtectedImport } from './routes/_auth/protected'
+import { Route as AuthNotificationsImport } from './routes/_auth/notifications'
 import { Route as PublicRegisterIndexImport } from './routes/_public/register/index'
 import { Route as PublicLoginIndexImport } from './routes/_public/login/index'
 import { Route as AuthRestaurantOwnerSettingsIndexImport } from './routes/_auth/_restaurant-owner/settings/index'
@@ -48,6 +49,12 @@ const HomeIndexRoute = HomeIndexImport.update({
 const AuthProtectedRoute = AuthProtectedImport.update({
   id: '/protected',
   path: '/protected',
+  getParentRoute: () => AuthRoute,
+} as any)
+
+const AuthNotificationsRoute = AuthNotificationsImport.update({
+  id: '/notifications',
+  path: '/notifications',
   getParentRoute: () => AuthRoute,
 } as any)
 
@@ -127,6 +134,13 @@ declare module '@tanstack/react-router' {
       fullPath: ''
       preLoaderRoute: typeof AuthImport
       parentRoute: typeof rootRoute
+    }
+    '/_auth/notifications': {
+      id: '/_auth/notifications'
+      path: '/notifications'
+      fullPath: '/notifications'
+      preLoaderRoute: typeof AuthNotificationsImport
+      parentRoute: typeof AuthImport
     }
     '/_auth/protected': {
       id: '/_auth/protected'
@@ -225,6 +239,7 @@ declare module '@tanstack/react-router' {
 // Create and export the route tree
 
 interface AuthRouteChildren {
+  AuthNotificationsRoute: typeof AuthNotificationsRoute
   AuthProtectedRoute: typeof AuthProtectedRoute
   AuthCustomerCheckoutIndexRoute: typeof AuthCustomerCheckoutIndexRoute
   AuthCustomerMyOrdersIndexRoute: typeof AuthCustomerMyOrdersIndexRoute
@@ -237,6 +252,7 @@ interface AuthRouteChildren {
 }
 
 const AuthRouteChildren: AuthRouteChildren = {
+  AuthNotificationsRoute: AuthNotificationsRoute,
   AuthProtectedRoute: AuthProtectedRoute,
   AuthCustomerCheckoutIndexRoute: AuthCustomerCheckoutIndexRoute,
   AuthCustomerMyOrdersIndexRoute: AuthCustomerMyOrdersIndexRoute,
@@ -252,6 +268,7 @@ const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
 
 export interface FileRoutesByFullPath {
   '': typeof AuthRouteWithChildren
+  '/notifications': typeof AuthNotificationsRoute
   '/protected': typeof AuthProtectedRoute
   '/': typeof HomeIndexRoute
   '/about': typeof AboutIndexRoute
@@ -269,6 +286,7 @@ export interface FileRoutesByFullPath {
 
 export interface FileRoutesByTo {
   '': typeof AuthRouteWithChildren
+  '/notifications': typeof AuthNotificationsRoute
   '/protected': typeof AuthProtectedRoute
   '/': typeof HomeIndexRoute
   '/about': typeof AboutIndexRoute
@@ -287,6 +305,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/_auth': typeof AuthRouteWithChildren
+  '/_auth/notifications': typeof AuthNotificationsRoute
   '/_auth/protected': typeof AuthProtectedRoute
   '/_home/': typeof HomeIndexRoute
   '/about/': typeof AboutIndexRoute
@@ -306,6 +325,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | ''
+    | '/notifications'
     | '/protected'
     | '/'
     | '/about'
@@ -322,6 +342,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | ''
+    | '/notifications'
     | '/protected'
     | '/'
     | '/about'
@@ -338,6 +359,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/_auth'
+    | '/_auth/notifications'
     | '/_auth/protected'
     | '/_home/'
     | '/about/'
@@ -390,6 +412,7 @@ export const routeTree = rootRoute
     "/_auth": {
       "filePath": "_auth.tsx",
       "children": [
+        "/_auth/notifications",
         "/_auth/protected",
         "/_auth/_customer/checkout/",
         "/_auth/_customer/my-orders/",
@@ -400,6 +423,10 @@ export const routeTree = rootRoute
         "/_auth/_customer/checkout/pay/return",
         "/_auth/_customer/checkout/pay/"
       ]
+    },
+    "/_auth/notifications": {
+      "filePath": "_auth/notifications.tsx",
+      "parent": "/_auth"
     },
     "/_auth/protected": {
       "filePath": "_auth/protected.tsx",
