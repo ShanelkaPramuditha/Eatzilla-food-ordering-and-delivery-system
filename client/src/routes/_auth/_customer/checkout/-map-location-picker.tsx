@@ -1,11 +1,14 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { MapPin, Search, Loader2 } from 'lucide-react';
+import { MapPin, Search, Loader2, Check } from 'lucide-react';
 import { useTheme } from 'next-themes';
+import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 
 // Update the interface to match the Address interface
 interface MapLocationPickerProps {
@@ -13,332 +16,190 @@ interface MapLocationPickerProps {
   defaultLocation?: { lat: number; lng: number };
 }
 
+// Type for Leaflet icon prototype
+interface ExtendedIconDefaultPrototype extends L.Icon.Default {
+  _getIconUrl?: string;
+}
+
 // Update the DEFAULT_LOCATION constant
 const DEFAULT_LOCATION = { lat: 40.7128, lng: -74.006 };
 
-// Declare google as a global variable
-declare global {
-  interface Window {
-    google: any;
-  }
+// MarkerComponent to handle marker position
+function MarkerComponent({
+  position,
+  setPosition,
+}: {
+  position: [number, number];
+  setPosition: (pos: [number, number]) => void;
+}) {
+  useMapEvents({
+    click(e) {
+      setPosition([e.latlng.lat, e.latlng.lng]);
+    },
+  });
+
+  return (
+    <Marker
+      position={position}
+      draggable={true}
+      eventHandlers={{
+        dragend: (e) => {
+          const marker = e.target;
+          const position = marker.getLatLng();
+          setPosition([position.lat, position.lng]);
+        },
+      }}
+    />
+  );
+}
+
+// Component to search for locations
+function SearchControl({
+  onSearch,
+  isLoading,
+}: {
+  onSearch: (query: string) => void;
+  isLoading: boolean;
+}) {
+  const [searchQuery, setSearchQuery] = useState('');
+
+  return (
+    <div className='flex space-x-2'>
+      <Input
+        placeholder='Search for a location...'
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        onKeyDown={(e) => e.key === 'Enter' && onSearch(searchQuery)}
+        className='flex-1 border-blue-200 focus:border-blue-400 dark:border-blue-800/50 dark:bg-slate-800 dark:text-slate-100 dark:focus:border-blue-600'
+      />
+      <Button
+        onClick={() => onSearch(searchQuery)}
+        variant='outline'
+        disabled={isLoading}
+        className='border-blue-200 text-blue-700 hover:bg-blue-50 dark:border-blue-800/50 dark:text-blue-400 dark:hover:bg-blue-900/20'
+      >
+        {isLoading ? <Loader2 className='h-4 w-4 animate-spin' /> : <Search className='h-4 w-4' />}
+      </Button>
+    </div>
+  );
+}
+
+// Component to update map view when position changes
+function ChangeView({ center }: { center: [number, number] }) {
+  const map = useMap();
+  map.setView(center, map.getZoom());
+  return null;
 }
 
 export function MapLocationPicker({
   onLocationSelect,
   defaultLocation = DEFAULT_LOCATION,
 }: MapLocationPickerProps) {
-  const [map, setMap] = useState<google.maps.Map | null>(null);
-  const [marker, setMarker] = useState<google.maps.Marker | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [position, setPosition] = useState<[number, number]>([
+    defaultLocation.lat,
+    defaultLocation.lng,
+  ]);
+  const [address, setAddress] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedLocation, setSelectedLocation] = useState<{
+  const [locationData, setLocationData] = useState<{
     lat: number;
     lng: number;
     address: string;
-  }>({
-    lat: defaultLocation.lat,
-    lng: defaultLocation.lng,
-    address: '',
-  });
-  const mapRef = useRef<HTMLDivElement>(null);
+  } | null>(null);
   const { theme } = useTheme();
 
-  // Initialize the map
+  // Fix Leaflet default icon issue
   useEffect(() => {
-    // Check if the Google Maps API is loaded
-    if (!window.google || !window.google.maps) {
-      const script = document.createElement('script');
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${import.meta.env.PUBLIC_GOOGLE_MAPS_API_KEY}&libraries=places`;
-      script.async = true;
-      script.defer = true;
-      script.onload = initializeMap;
-      document.head.appendChild(script);
-      return () => {
-        document.head.removeChild(script);
-      };
-    } else {
-      initializeMap();
+    // Fix Leaflet marker icon paths
+    delete (L.Icon.Default.prototype as ExtendedIconDefaultPrototype)._getIconUrl;
+    L.Icon.Default.mergeOptions({
+      iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+      iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+      shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+    });
+  }, []);
+
+  // Update position and get address
+  const updatePositionAndAddress = useCallback(async (newPos: [number, number]) => {
+    setPosition(newPos);
+
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${newPos[0]}&lon=${newPos[1]}&zoom=18&addressdetails=1`,
+        {
+          headers: {
+            'Accept-Language': 'en-US,en;q=0.9',
+            'User-Agent': 'Eatzilla Food Delivery App',
+          },
+        },
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        const formattedAddress = data.display_name || '';
+        setAddress(formattedAddress);
+
+        // Store location data instead of immediately selecting it
+        setLocationData({
+          lat: newPos[0],
+          lng: newPos[1],
+          address: formattedAddress,
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching address:', error);
     }
   }, []);
 
-  // Initialize the map
-  const initializeMap = useCallback(() => {
-    if (!mapRef.current || !window.google) return;
+  // Handle position changes
+  const handlePositionChange = useCallback(
+    (newPos: [number, number]) => {
+      updatePositionAndAddress(newPos);
+    },
+    [updatePositionAndAddress],
+  );
 
-    // Map styles for dark mode
-    const darkMapStyle = [
-      { elementType: 'geometry', stylers: [{ color: '#242f3e' }] },
-      { elementType: 'labels.text.stroke', stylers: [{ color: '#242f3e' }] },
-      { elementType: 'labels.text.fill', stylers: [{ color: '#746855' }] },
-      {
-        featureType: 'administrative.locality',
-        elementType: 'labels.text.fill',
-        stylers: [{ color: '#d59563' }],
-      },
-      {
-        featureType: 'poi',
-        elementType: 'labels.text.fill',
-        stylers: [{ color: '#d59563' }],
-      },
-      {
-        featureType: 'poi.park',
-        elementType: 'geometry',
-        stylers: [{ color: '#263c3f' }],
-      },
-      {
-        featureType: 'poi.park',
-        elementType: 'labels.text.fill',
-        stylers: [{ color: '#6b9a76' }],
-      },
-      {
-        featureType: 'road',
-        elementType: 'geometry',
-        stylers: [{ color: '#38414e' }],
-      },
-      {
-        featureType: 'road',
-        elementType: 'geometry.stroke',
-        stylers: [{ color: '#212a37' }],
-      },
-      {
-        featureType: 'road',
-        elementType: 'labels.text.fill',
-        stylers: [{ color: '#9ca5b3' }],
-      },
-      {
-        featureType: 'road.highway',
-        elementType: 'geometry',
-        stylers: [{ color: '#746855' }],
-      },
-      {
-        featureType: 'road.highway',
-        elementType: 'geometry.stroke',
-        stylers: [{ color: '#1f2835' }],
-      },
-      {
-        featureType: 'road.highway',
-        elementType: 'labels.text.fill',
-        stylers: [{ color: '#f3d19c' }],
-      },
-      {
-        featureType: 'transit',
-        elementType: 'geometry',
-        stylers: [{ color: '#2f3948' }],
-      },
-      {
-        featureType: 'transit.station',
-        elementType: 'labels.text.fill',
-        stylers: [{ color: '#d59563' }],
-      },
-      {
-        featureType: 'water',
-        elementType: 'geometry',
-        stylers: [{ color: '#17263c' }],
-      },
-      {
-        featureType: 'water',
-        elementType: 'labels.text.fill',
-        stylers: [{ color: '#515c6d' }],
-      },
-      {
-        featureType: 'water',
-        elementType: 'labels.text.stroke',
-        stylers: [{ color: '#17263c' }],
-      },
-    ];
-
-    const mapOptions: google.maps.MapOptions = {
-      center: defaultLocation,
-      zoom: 15,
-      mapTypeControl: false,
-      streetViewControl: false,
-      fullscreenControl: false,
-      styles: theme === 'dark' ? darkMapStyle : [],
-    };
-
-    const newMap = new window.google.maps.Map(mapRef.current, mapOptions);
-    setMap(newMap);
-
-    // Create a marker at the default location
-    const newMarker = new window.google.maps.Marker({
-      position: defaultLocation,
-      map: newMap,
-      draggable: true,
-      animation: window.google.maps.Animation.DROP,
-    });
-    setMarker(newMarker);
-
-    // Get address from coordinates
-    reverseGeocode(defaultLocation.lat, defaultLocation.lng);
-
-    // Add event listener for marker drag end
-    newMarker.addListener('dragend', () => {
-      const position = newMarker.getPosition();
-      if (position) {
-        const lat = position.lat();
-        const lng = position.lng();
-        reverseGeocode(lat, lng);
-      }
-    });
-
-    // Add click event listener to the map
-    newMap.addListener('click', (event: google.maps.MapMouseEvent) => {
-      if (event.latLng) {
-        newMarker.setPosition(event.latLng);
-        const lat = event.latLng.lat();
-        const lng = event.latLng.lng();
-        reverseGeocode(lat, lng);
-      }
-    });
-  }, [defaultLocation, theme]);
-
-  // Update map styles when theme changes
-  useEffect(() => {
-    if (map && theme) {
-      const darkMapStyle = [
-        { elementType: 'geometry', stylers: [{ color: '#242f3e' }] },
-        { elementType: 'labels.text.stroke', stylers: [{ color: '#242f3e' }] },
-        { elementType: 'labels.text.fill', stylers: [{ color: '#746855' }] },
-        {
-          featureType: 'administrative.locality',
-          elementType: 'labels.text.fill',
-          stylers: [{ color: '#d59563' }],
-        },
-        {
-          featureType: 'poi',
-          elementType: 'labels.text.fill',
-          stylers: [{ color: '#d59563' }],
-        },
-        {
-          featureType: 'poi.park',
-          elementType: 'geometry',
-          stylers: [{ color: '#263c3f' }],
-        },
-        {
-          featureType: 'poi.park',
-          elementType: 'labels.text.fill',
-          stylers: [{ color: '#6b9a76' }],
-        },
-        {
-          featureType: 'road',
-          elementType: 'geometry',
-          stylers: [{ color: '#38414e' }],
-        },
-        {
-          featureType: 'road',
-          elementType: 'geometry.stroke',
-          stylers: [{ color: '#212a37' }],
-        },
-        {
-          featureType: 'road',
-          elementType: 'labels.text.fill',
-          stylers: [{ color: '#9ca5b3' }],
-        },
-        {
-          featureType: 'road.highway',
-          elementType: 'geometry',
-          stylers: [{ color: '#746855' }],
-        },
-        {
-          featureType: 'road.highway',
-          elementType: 'geometry.stroke',
-          stylers: [{ color: '#1f2835' }],
-        },
-        {
-          featureType: 'road.highway',
-          elementType: 'labels.text.fill',
-          stylers: [{ color: '#f3d19c' }],
-        },
-        {
-          featureType: 'transit',
-          elementType: 'geometry',
-          stylers: [{ color: '#2f3948' }],
-        },
-        {
-          featureType: 'transit.station',
-          elementType: 'labels.text.fill',
-          stylers: [{ color: '#d59563' }],
-        },
-        {
-          featureType: 'water',
-          elementType: 'geometry',
-          stylers: [{ color: '#17263c' }],
-        },
-        {
-          featureType: 'water',
-          elementType: 'labels.text.fill',
-          stylers: [{ color: '#515c6d' }],
-        },
-        {
-          featureType: 'water',
-          elementType: 'labels.text.stroke',
-          stylers: [{ color: '#17263c' }],
-        },
-      ];
-
-      map.setOptions({
-        styles: theme === 'dark' ? darkMapStyle : [],
-      });
+  // Handle confirming the selection
+  const handleConfirmLocation = () => {
+    if (locationData) {
+      onLocationSelect(locationData);
     }
-  }, [map, theme]);
-
-  // Reverse geocode to get address from coordinates
-  const reverseGeocode = (lat: number, lng: number) => {
-    if (!window.google) return;
-
-    const geocoder = new window.google.maps.Geocoder();
-    geocoder.geocode(
-      { location: { lat, lng } },
-      (
-        results: google.maps.GeocoderResult[] | null,
-        status: google.maps.GeocoderStatus
-      ) => {
-        if (status === 'OK' && results && results[0]) {
-          const address = results[0].formatted_address;
-          setSelectedLocation({ lat, lng, address });
-          onLocationSelect({ lat, lng, address });
-        }
-      }
-    );
   };
 
+  // Effect to get initial address
+  useEffect(() => {
+    updatePositionAndAddress(position);
+  }, [position, updatePositionAndAddress]);
+
   // Search for a location
-  const searchLocation = () => {
-    if (!searchQuery || !window.google || !map || !marker) return;
+  const searchLocation = async (query: string) => {
+    if (!query) return;
 
     setIsLoading(true);
-    const geocoder = new window.google.maps.Geocoder();
-    geocoder.geocode(
-      { address: searchQuery },
-      (
-        results: google.maps.GeocoderResult[] | null,
-        status: google.maps.GeocoderStatus
-      ) => {
-        setIsLoading(false);
-        if (
-          status === 'OK' &&
-          results &&
-          results[0] &&
-          results[0].geometry &&
-          results[0].geometry.location
-        ) {
-          const location = results[0].geometry.location;
-          const lat = location.lat();
-          const lng = location.lng();
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`,
+        {
+          headers: {
+            'Accept-Language': 'en-US,en;q=0.9',
+            'User-Agent': 'Eatzilla Food Delivery App',
+          },
+        },
+      );
 
-          // Update marker position
-          marker.setPosition(location);
-
-          // Center map on the new location
-          map.setCenter(location);
-
-          // Update selected location
-          const address = results[0].formatted_address;
-          setSelectedLocation({ lat, lng, address });
-          onLocationSelect({ lat, lng, address });
+      if (response.ok) {
+        const data = await response.json();
+        if (data && data.length > 0) {
+          const { lat, lon } = data[0];
+          const newPosition: [number, number] = [parseFloat(lat), parseFloat(lon)];
+          handlePositionChange(newPosition);
         }
       }
-    );
+    } catch (error) {
+      console.error('Error searching for location:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -350,37 +211,40 @@ export function MapLocationPicker({
         </CardTitle>
       </CardHeader>
       <CardContent className='space-y-4 pt-4'>
-        <div className='flex space-x-2'>
-          <Input
-            placeholder='Search for a location...'
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && searchLocation()}
-            className='flex-1 border-blue-200 focus:border-blue-400 dark:border-blue-800/50 dark:bg-slate-800 dark:text-slate-100 dark:focus:border-blue-600'
-          />
-          <Button
-            onClick={searchLocation}
-            variant='outline'
-            disabled={isLoading}
-            className='border-blue-200 text-blue-700 hover:bg-blue-50 dark:border-blue-800/50 dark:text-blue-400 dark:hover:bg-blue-900/20'
-          >
-            {isLoading ? (
-              <Loader2 className='h-4 w-4 animate-spin' />
-            ) : (
-              <Search className='h-4 w-4' />
-            )}
-          </Button>
-        </div>
+        <SearchControl onSearch={searchLocation} isLoading={isLoading} />
 
-        <div
-          ref={mapRef}
-          className='h-[300px] w-full rounded-md border-2 border-blue-200 dark:border-blue-800/50'
-        />
+        <div className='h-[300px] w-full overflow-hidden rounded-md border-2 border-blue-200 dark:border-blue-800/50'>
+          <MapContainer
+            center={position}
+            zoom={15}
+            style={{ height: '100%', width: '100%' }}
+            scrollWheelZoom={true}
+          >
+            <TileLayer
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              url={
+                theme === 'dark'
+                  ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
+                  : 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+              }
+            />
+            <ChangeView center={position} />
+            <MarkerComponent position={position} setPosition={handlePositionChange} />
+          </MapContainer>
+        </div>
 
         <div className='rounded-md bg-blue-50 p-3 text-sm text-slate-600 dark:bg-blue-900/20 dark:text-slate-300'>
           <p className='font-medium text-blue-700 dark:text-blue-400'>Selected Address:</p>
-          <p className='mt-1'>{selectedLocation.address || 'No address selected'}</p>
+          <p className='mt-1'>{address || 'No address selected'}</p>
         </div>
+
+        <Button
+          onClick={handleConfirmLocation}
+          className='w-full bg-blue-600 text-white hover:bg-blue-700'
+          disabled={!locationData}
+        >
+          <Check className='mr-2 h-4 w-4' /> Confirm Location
+        </Button>
       </CardContent>
       <CardFooter className='border-t border-blue-200 bg-gradient-to-r from-blue-50 to-blue-100 text-xs text-slate-500 dark:border-blue-800/50 dark:from-blue-900/20 dark:to-blue-800/20 dark:text-slate-400'>
         Drag the marker or click on the map to select your exact location
