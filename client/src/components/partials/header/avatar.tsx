@@ -32,8 +32,16 @@ export function UserAvatar() {
     <DropdownMenu>
       {/* Dropdown menu trigger */}
       <DropdownMenuTrigger asChild>
-        <Avatar className='cursor-pointer'>
-          <AvatarImage src={isAuthenticated && user ? user?.picture : ''} alt='@shadcn' />
+        <Avatar className='border-radius-full bg-background h-9 w-9 cursor-pointer rounded-full border'>
+          <AvatarImage
+            src={
+              isAuthenticated && user
+                ? user?.picture ||
+                  `https://api.dicebear.com/9.x/avataaars/svg?seed=${encodeURIComponent(user?.name || 'user')}`
+                : 'https://api.dicebear.com/9.x/avataaars/svg'
+            }
+            alt={(isAuthenticated && user?.name) || '@user'}
+          />
           <AvatarFallback>
             {isAuthenticated && user ? (
               user?.name?.charAt(0) || 'CN'
