@@ -59,12 +59,7 @@ export const headerConfig: HeaderConfig = {
     },
   },
   [UserRole.RESTAURANT_OWNER]: {
-    navItems: [
-      {
-        label: 'Dashboard',
-        path: '/',
-      },
-    ],
+    navItems: [],
     icons: {
       showCart: false,
       showNotifications: true,
