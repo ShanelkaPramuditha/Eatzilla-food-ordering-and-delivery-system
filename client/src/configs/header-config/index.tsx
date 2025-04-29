@@ -40,10 +40,10 @@ export const headerConfig: HeaderConfig = {
         label: 'Home',
         path: '/',
       },
-      {
-        label: 'About',
-        path: '/about',
-      },
+      // {
+      //   label: 'About',
+      //   path: '/about',
+      // },
       {
         label: 'Menu',
         path: '/menu',
