@@ -21,3 +21,13 @@ export function truncateText(text: string, maxLength: number): string {
   if (text.length <= maxLength) return text;
   return text.slice(0, maxLength) + '...';
 }
+
+export const getAvailabilityColor = (available: boolean): string => {
+  return available
+    ? 'bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800/50'
+    : 'bg-red-100 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800/50';
+};
+
+export const getAvailabilityText = (available: boolean): string => {
+  return available ? 'In Stock' : 'Out of Stock';
+};
