@@ -24,6 +24,8 @@ export interface ApiGatewayEnvironmentVariables extends CommonEnvironmentVariabl
 
 export interface AlertEnvironmentVariables extends CommonEnvironmentVariables {
   ALERT_SERVICE_RABBITMQ_URL: string;
+  RESEND_API_KEY?: string;
+  EMAIL_FROM?: string;
 }
 
 export interface PaymentEnvironmentVariables extends CommonEnvironmentVariables {

@@ -30,6 +30,12 @@ export class CreateAlertDto {
   level: AlertLevel;
 
   @IsString()
+  email?: string;
+
+  @IsString()
+  mobile?: string;
+
+  @IsString()
   @IsNotEmpty()
   subject: string;
 

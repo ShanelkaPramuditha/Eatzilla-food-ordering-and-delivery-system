@@ -4,12 +4,26 @@ import { Model, Types } from 'mongoose';
 import { Alert, AlertDocument } from './schemas/alert.schema';
 import { AlertResponseDto, CreateAlertDto } from './dto/alert.dto';
 import { AlertStatus, AlertType } from '@app/common/types/alert';
+import { Resend } from 'resend';
+import { AlertConfigService } from '../config/alert-config.service';
 
 @Injectable()
 export class AlertService {
   private readonly logger = new Logger(AlertService.name);
+  private resend: Resend | null = null;
 
-  constructor(@InjectModel(Alert.name) private alertModel: Model<AlertDocument>) {}
+  constructor(
+    @InjectModel(Alert.name) private alertModel: Model<AlertDocument>,
+    private configService: AlertConfigService,
+  ) {
+    // Initialize Resend if API key is provided
+    if (this.configService.resendApiKey) {
+      this.resend = new Resend(this.configService.resendApiKey);
+      this.logger.log('Resend API initialized successfully');
+    } else {
+      this.logger.warn('Resend API key not provided, email sending is mocked');
+    }
+  }
 
   getStatus(): string {
     return 'Alert service is running';
@@ -41,14 +55,29 @@ export class AlertService {
 
       if (existingAlert) {
         this.logger.warn(`Alert already exists`);
+
         return this.mapToResponseDto(existingAlert);
+      }
+
+      // Check alert type
+      if (!alertPayload.type || alertPayload.type.length === 0) {
+        this.logger.warn(`Alert type is required`);
       }
 
       const alert = new this.alertModel(alertPayload);
       const savedAlert = await alert.save();
 
-      // Process different alert types
-      await this.processAlertByTypes(savedAlert);
+      if (data?.email) {
+        this.logger.warn(`Alert type is email`);
+        await this.sendEmail(savedAlert, data.email);
+      }
+      if (data?.mobile) {
+        this.logger.warn(`Alert type is sms`);
+        await this.sendSms(savedAlert, data.mobile);
+      }
+
+      // await this.sendEmail(savedAlert, data.email);
+      // await this.sendSms(savedAlert, data.mobile);
 
       return this.mapToResponseDto(savedAlert);
     } catch (error: unknown) {
@@ -103,10 +132,10 @@ export class AlertService {
       for (const type of alert.type) {
         switch (type) {
           case AlertType.EMAIL:
-            await this.sendEmail(alert);
+            await this.sendEmail(alert, alert.email);
             break;
           case AlertType.SMS:
-            await this.sendSms(alert);
+            await this.sendSms(alert, alert.mobile);
             break;
           case AlertType.NOTIFICATION:
           default:
@@ -130,13 +159,58 @@ export class AlertService {
     }
   }
 
-  private async sendEmail(alert: AlertDocument): Promise<void> {
-    this.logger.log(`Sending email alert to ${alert.email}: ${alert.subject}`);
-    await new Promise((resolve) => setTimeout(resolve, 100));
+  private async sendEmail(alert: AlertDocument, email: string): Promise<void> {
+    // Skip if no email address is provided
+    if (!email) {
+      this.logger.warn(`Cannot send email alert: no email address provided`);
+      return;
+    }
+
+    this.logger.log(`Sending email alert to ${email}: ${alert.subject}`);
+
+    // If Resend is not initialized, mock sending the email
+    if (!this.resend) {
+      this.logger.warn(`Mocking email send to ${email}`);
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      return;
+    }
+
+    try {
+      const emailData = {
+        from: this.configService.emailFrom,
+        to: email,
+        subject: alert.subject,
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 5px;">
+            <h1 style="color: #333; border-bottom: 1px solid #eee; padding-bottom: 10px;">${alert.subject}</h1>
+            <div style="margin: 20px 0;">
+              ${alert.message}
+            </div>
+            <div style="margin-top: 30px; padding-top: 10px; border-top: 1px solid #eee; font-size: 12px; color: #777;">
+              This is an automated message from Eatzilla. Please do not reply to this email.
+            </div>
+          </div>
+        `,
+      };
+
+      const { data, error } = await this.resend.emails.send(emailData);
+
+      if (error) {
+        throw new Error(`Failed to send email via Resend: ${error.message}`);
+      }
+
+      this.logger.log(`Email sent successfully via Resend. ID: ${data?.id}`);
+    } catch (error) {
+      const err = error as Error;
+      this.logger.error(
+        `Failed to send email to ${alert.email}: ${err.message || 'Unknown error'}`,
+        err.stack || 'No stack trace',
+      );
+    }
   }
 
-  private async sendSms(alert: AlertDocument): Promise<void> {
-    this.logger.log(`Sending SMS alert to ${alert.mobile}: ${alert.subject}`);
+  private async sendSms(alert: AlertDocument, mobile: string): Promise<void> {
+    this.logger.log(`Sending SMS alert to ${mobile}: ${alert.subject}`);
     await new Promise((resolve) => setTimeout(resolve, 100));
   }
 

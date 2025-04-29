@@ -28,6 +28,8 @@ export const apiGatewayEnvSchema = commonEnvSchema.extend({
 // Alert service specific schema
 export const alertServiceEnvSchema = commonEnvSchema.extend({
   ALERT_SERVICE_RABBITMQ_URL: z.string().min(1),
+  RESEND_API_KEY: z.string().optional(),
+  EMAIL_FROM: z.string().email().optional(),
 });
 
 // Payment service specific schema

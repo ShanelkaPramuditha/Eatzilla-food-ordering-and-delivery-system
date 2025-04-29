@@ -5,6 +5,7 @@ import { Types } from 'mongoose';
 export interface UserDocument extends Document {
   _id: Types.ObjectId;
   email: string;
+  mobile?: string;
   password: string;
   name: string;
   picture?: string;
@@ -16,6 +17,9 @@ export interface UserDocument extends Document {
 export class User {
   @Prop({ required: true, unique: true })
   email: string;
+
+  @Prop({ required: false })
+  mobile: string;
 
   @Prop({ required: true })
   password: string;

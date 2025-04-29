@@ -31,6 +31,8 @@ export class AlertService {
       const alertPayload = {
         userId: new Types.ObjectId(userId),
         type: data.types,
+        email: data.email,
+        mobile: data.mobile,
         level: data.level,
         category: data.category,
         data: data.data,

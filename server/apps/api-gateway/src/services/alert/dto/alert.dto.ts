@@ -6,6 +6,7 @@ import {
   IsEnum,
   IsOptional,
   IsObject,
+  IsEmail,
 } from 'class-validator';
 import { AlertCategory, AlertLevel, AlertType } from '@app/common/types/alert';
 import { ApiProperty } from '@nestjs/swagger';
@@ -22,6 +23,25 @@ export class CreateAlertDto {
   @ArrayNotEmpty()
   @IsEnum(AlertType, { each: true })
   types: AlertType[];
+
+  // Email
+  @IsEmail({}, { each: true })
+  @ApiProperty({
+    description: 'Email addresses to send alerts to',
+    example: 'user1@example.com',
+  })
+  @IsOptional()
+  @IsEmail({}, { each: true })
+  email?: string;
+
+  // Mobile
+  @IsString()
+  @ApiProperty({
+    description: 'Mobile number to send alerts to',
+    example: '+94771234567',
+  })
+  @IsOptional()
+  mobile?: string;
 
   @IsString()
   @IsEnum(AlertCategory)

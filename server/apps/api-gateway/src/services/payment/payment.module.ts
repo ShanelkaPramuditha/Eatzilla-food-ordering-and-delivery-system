@@ -9,11 +9,13 @@ import {
 import { Microservice } from '../../constants/microservice';
 import { OrderModule } from '../order/order.module';
 import { AlertModule } from '../alert/alert.module';
+import { UsersModule } from '../../users/users.module';
 
 @Module({
   imports: [
     AlertModule,
     MicroserviceConfigModule,
+    UsersModule,
     ClientsModule.registerAsync([
       {
         imports: [MicroserviceConfigModule],

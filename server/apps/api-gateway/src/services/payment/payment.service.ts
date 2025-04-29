@@ -7,6 +7,7 @@ import { catchRpcError } from '../../filters/rpc-exception.filter';
 import { OrderService } from '../order/order.service';
 import { AlertService } from '../alert/alert.service';
 import { AlertCategory, AlertLevel, AlertType } from '@app/common/types/alert';
+import { UsersService } from '../../users/users.service';
 
 @Injectable()
 export class PaymentService {
@@ -15,6 +16,7 @@ export class PaymentService {
     private readonly paymentClient: ClientProxy,
     private readonly orderService: OrderService,
     private readonly alertService: AlertService,
+    private readonly userService: UsersService,
   ) {}
 
   getStatus() {
@@ -37,18 +39,31 @@ export class PaymentService {
             this.orderService.updatePaidStatus(payload.orderId, true).subscribe({
               next: (orderResponse) => {
                 if (orderResponse) {
-                  this.alertService.createNotificationAlert(payload.customerId!, {
-                    types: [AlertType.NOTIFICATION],
-                    level: AlertLevel.INFO,
-                    category: AlertCategory.ORDER,
-                    data: {
-                      orderId: payload.orderId,
-                      status: 'paid',
-                      amount: payload.amount,
-                    },
-                    subject: 'Order Payment Successful',
-                    message: `Order ${payload.orderId} has been paid successfully.`,
-                  });
+                  this.userService
+                    .findById(payload.customerId!)
+                    .then((user) => {
+                      if (user) {
+                        this.alertService
+                          .createNotificationAlert(payload.customerId!, {
+                            types: [AlertType.NOTIFICATION],
+                            mobile: user.mobile,
+                            email: user.email,
+                            level: AlertLevel.INFO,
+                            category: AlertCategory.ORDER,
+                            data: {
+                              orderId: payload.orderId,
+                              status: 'paid',
+                              amount: payload.amount,
+                            },
+                            subject: 'Order Payment Successful',
+                            message: `Order ${payload.orderId} has been paid successfully.`,
+                          })
+                          .subscribe();
+                      }
+                    })
+                    .catch((error) => {
+                      console.error('Error finding user:', error);
+                    });
                 } else {
                   console.error('Failed to update order payment status:', orderResponse);
                 }

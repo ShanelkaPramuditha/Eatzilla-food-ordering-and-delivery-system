@@ -11,8 +11,8 @@ async function bootstrap() {
       port: 3003,
       retryAttempts: 5,
       retryDelay: 3000,
-    }
-  })
+    },
+  });
   await app.listen();
   const logger = new Logger('OrderService');
   logger.log('Order service is running and listening on TCP...');

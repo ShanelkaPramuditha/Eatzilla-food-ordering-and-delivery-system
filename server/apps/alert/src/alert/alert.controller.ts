@@ -15,7 +15,6 @@ export class AlertController {
   // Fixed
   @MessagePattern({ cmd: 'create.notification.alert' })
   createNotificationAlert(@Payload() data: CreateAlertDto) {
-    console.log('Received data:', data);
     return this.alertService.createNotificationAlert(data);
   }
 
