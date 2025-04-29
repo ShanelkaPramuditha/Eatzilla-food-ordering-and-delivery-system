@@ -77,7 +77,7 @@ const OrderService = {
     return res.data;
   },
 
-   updateOrderStatus: async (orderId: string, status: OrderStatus): Promise<Order> => {
+  updateOrderStatus: async (orderId: string, status: OrderStatus): Promise<Order> => {
     const res = await axios.patch(`/order/${orderId}/status`, { status });
     return res.data;
   },

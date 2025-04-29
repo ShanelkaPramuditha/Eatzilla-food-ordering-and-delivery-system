@@ -1,5 +1,5 @@
-import { OrderStatus } from "@/constants/order";
-import { OrderItem } from "./cart";
+import { OrderStatus } from '@/constants/order';
+import { OrderItem } from './cart';
 
 // Matches AddressDto from the backend
 export interface Address {
@@ -14,6 +14,7 @@ export interface Address {
 
 // Matches SuborderDto from the backend
 export interface Suborder {
+  _id: string;
   restaurantId: string;
   items: OrderItem[];
   subtotal: number;
@@ -32,6 +33,8 @@ export interface CalculatedOrderFields {
 // Matches OrderResponseDto from the backend
 export interface Order extends CalculatedOrderFields {
   _id: string;
+  customerId: string;
+  customerName: string;
   suborders: Suborder[];
   status: OrderStatus;
   deliveryAddress: Address;

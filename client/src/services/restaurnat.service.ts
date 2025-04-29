@@ -1,6 +1,11 @@
 import { useAxios as axios } from '@/hooks/use-axios';
 
 class RestaurantService {
+  async getAllMenuItems() {
+    const res = await axios.get(`/restaurants/menu`);
+    return res.data;
+  }
+
   async getMenuItems(id?: string) {
     const res = await axios.get(`/restaurants/${id}/menu`);
     return res.data;

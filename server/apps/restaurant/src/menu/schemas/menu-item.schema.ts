@@ -23,6 +23,9 @@ export class MenuItem {
   @Prop({ default: false })
   available: boolean;
 
+  @Prop({ required: true })
+  restaurantName: string;
+
   @Prop({ type: Types.ObjectId, ref: 'Restaurant', required: true })
   restaurant: Types.ObjectId;
 }

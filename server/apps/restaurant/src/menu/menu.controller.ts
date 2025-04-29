@@ -27,8 +27,13 @@ export class MenuItemController {
     return this.menuItemService.findById(id);
   }
 
+  @MessagePattern({ cmd: 'get.restaurant.menu' })
+  findAllByRestaurant(@Payload() id: string) {
+    return this.menuItemService.findAllByRestaurant(id);
+  }
+
   @MessagePattern({ cmd: 'get.menu' })
-  findAll(@Payload() id: string) {
-    return this.menuItemService.findAll(id);
+  findAll() {
+    return this.menuItemService.findAll();
   }
 }
