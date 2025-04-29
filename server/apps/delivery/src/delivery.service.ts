@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -185,7 +188,7 @@ export class DeliveryService {
     orderId: string,
   ): Promise<DeliveryPersonAvailability> {
     try {
-      return await this.deliveryPersonAvailabilityModel.findOneAndUpdate(
+      const updatedDriver = await this.deliveryPersonAvailabilityModel.findOneAndUpdate(
         { deliveryPersonId },
         {
           $set: {
@@ -197,6 +200,15 @@ export class DeliveryService {
         },
         { new: true },
       );
+
+      if (!updatedDriver) {
+        this.logger.error(
+          `Could not find delivery person with ID: ${deliveryPersonId} to assign order`,
+        );
+        throw new Error(`Delivery person with ID ${deliveryPersonId} not found`);
+      }
+
+      return updatedDriver;
     } catch (error) {
       this.logger.error(`Error assigning delivery person to order: ${error.message}`);
       throw error;
@@ -208,7 +220,7 @@ export class DeliveryService {
    */
   async completeDelivery(deliveryPersonId: string): Promise<DeliveryPersonAvailability> {
     try {
-      return await this.deliveryPersonAvailabilityModel.findOneAndUpdate(
+      const updatedDriver = await this.deliveryPersonAvailabilityModel.findOneAndUpdate(
         { deliveryPersonId },
         {
           $set: {
@@ -220,6 +232,15 @@ export class DeliveryService {
         },
         { new: true },
       );
+
+      if (!updatedDriver) {
+        this.logger.error(
+          `Could not find delivery person with ID: ${deliveryPersonId} to complete delivery`,
+        );
+        throw new Error(`Delivery person with ID ${deliveryPersonId} not found`);
+      }
+
+      return updatedDriver;
     } catch (error) {
       this.logger.error(`Error completing delivery: ${error.message}`);
       throw error;
