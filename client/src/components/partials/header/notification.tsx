@@ -4,14 +4,16 @@ import { useAlerts } from '@/hooks/socket-hook';
 import { useEffect, useState } from 'react';
 import { isValidNotification, useNotifyStore } from '@/store/notify.store';
 import { formatDistanceToNow } from 'date-fns';
-import { Link } from '@tanstack/react-router';
-import { useMarkAllAlertsAsRead } from '@/services/tanstack-hooks/alert.hook';
+import { Link, useNavigate } from '@tanstack/react-router';
+import { useMarkAlertAsRead, useMarkAllAlertsAsRead } from '@/services/tanstack-hooks/alert.hook';
 
 export default function NotificationPopover() {
+  const navigate = useNavigate();
   const [count, setCount] = useState(0);
   const { alert } = useAlerts();
-  const { notifications, removeNotification } = useNotifyStore();
+  const { notifications, removeNotification, readNotification } = useNotifyStore();
   const markAllAlertsAsReadMutation = useMarkAllAlertsAsRead();
+  const markAlertAsReadMutation = useMarkAlertAsRead();
 
   // Safely handle potential undefined notifications array
   const notificationsArray = notifications || [];
@@ -41,6 +43,22 @@ export default function NotificationPopover() {
   const handleRemoveNotification = (id: string) => {
     removeNotification(id);
     setCount((prevCount) => Math.max(0, prevCount - 1));
+  };
+
+  const handleMarkAsRead = (id: string) => {
+    // Call the API to mark the notification as read
+    markAlertAsReadMutation
+      .mutateAsync(id.toString(), {
+        onSuccess: () => {
+          // Update local state after successful API call
+          readNotification(id);
+        },
+      })
+      .then(() => {
+        navigate({
+          to: '/my-orders',
+        });
+      });
   };
 
   // Show only the latest 5 valid notifications in the popover
@@ -73,6 +91,11 @@ export default function NotificationPopover() {
             recentNotifications.map((notification) => (
               <div
                 key={notification.id}
+                onClick={() =>
+                  !(notification.read || notification.isRead) &&
+                  handleMarkAsRead(notification.id) &&
+                  navigate({ to: '/my-orders' })
+                }
                 className={`flex items-start gap-3 rounded-md p-2 ${
                   notification.read || notification.isRead
                     ? 'bg-muted/50 dark:bg-muted/20 opacity-70'

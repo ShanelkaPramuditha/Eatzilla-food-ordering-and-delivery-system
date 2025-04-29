@@ -44,6 +44,7 @@ export class AlertService {
   }
 
   async createNotificationAlert(data: CreateAlertDto): Promise<AlertResponseDto> {
+    console.log('createNotificationAlert', data);
     try {
       const alertPayload = {
         userId: new Types.ObjectId(data.userId),
