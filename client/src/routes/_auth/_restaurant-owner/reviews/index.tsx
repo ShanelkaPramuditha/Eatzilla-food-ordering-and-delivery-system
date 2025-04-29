@@ -27,7 +27,7 @@ function RouteComponent() {
               <div>
                 <h3 className='text-sm font-medium text-neutral-500'>Average Rating</h3>
                 <div className='mt-1 flex items-center gap-2'>
-                  <span className='text-3xl font-bold text-neutral-900'>4</span>
+                  <span className='text-3xl font-bold text-neutral-900'>4.5</span>
                   <Star size={20} className='fill-amber-500 text-amber-500' />
                 </div>
                 <p className='mt-2 text-sm text-neutral-500'>All Reviews</p>
@@ -42,7 +42,7 @@ function RouteComponent() {
             <div className='flex items-start justify-between'>
               <div>
                 <h3 className='text-sm font-medium text-neutral-500'>Total Reviews</h3>
-                <p className='mt-1 text-3xl font-bold text-neutral-900'>1</p>
+                <p className='mt-1 text-3xl font-bold text-neutral-900'>2</p>
                 <p className='mt-2 text-sm text-neutral-500'>From all time</p>
               </div>
               <div className='flex h-10 w-10 items-center justify-center rounded-full bg-purple-50 text-purple-500'>
@@ -56,7 +56,7 @@ function RouteComponent() {
             <div className='flex items-start justify-between'>
               <div>
                 <h3 className='text-sm font-medium text-neutral-500'>Recent Reviews</h3>
-                <p className='mt-1 text-3xl font-bold text-neutral-900'>1</p>
+                <p className='mt-1 text-3xl font-bold text-neutral-900'>2</p>
                 <p className='mt-2 text-sm text-neutral-500'>Last 30 days</p>
               </div>
               <div className='flex h-10 w-10 items-center justify-center rounded-full bg-blue-50 text-blue-500'>
@@ -70,7 +70,7 @@ function RouteComponent() {
             <div className='flex items-start justify-between'>
               <div>
                 <h3 className='text-sm font-medium text-neutral-500'>Trending Dishes</h3>
-                <p className='mt-1 text-3xl font-bold text-neutral-900'>3</p>
+                <p className='mt-1 text-3xl font-bold text-neutral-900'>1</p>
                 <p className='mt-2 text-sm text-neutral-500'>With 5-star ratings</p>
               </div>
               <div className='flex h-10 w-10 items-center justify-center rounded-full bg-green-50 text-green-500'>
@@ -100,7 +100,7 @@ function RouteComponent() {
           </div>
           <div>
             <p className='text-sm font-semibold'>
-              Showing <span>9</span> of <span>9</span> reviews
+              Showing <span>2</span> of <span>2</span> reviews
             </p>
           </div>
         </div>
@@ -233,114 +233,29 @@ const ReviewCard = ({ review }: ReviewCardProps) => {
 const reviews: ReviewType[] = [
   {
     id: '1',
-    dishName: 'Truffle Risotto',
+    dishName: 'Grilled Chicken Alfredo',
     dishImage:
-      'https://images.pexels.com/photos/6287525/pexels-photo-6287525.jpeg?auto=compress&cs=tinysrgb&w=800',
+      'https://i0.wp.com/spoonfulofsi.com/wp-content/uploads/2022/09/grilled-chicken-alfredo-pasta-p4.png?w=1200&ssl=1',
     rating: 5,
     comment:
       'The truffle risotto was absolutely divine! The rice was perfectly cooked, creamy and luxurious. The truffle flavor was prominent without being overwhelming.',
     userName: 'Isabella Martinez',
     userAvatar:
       'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=150',
-    date: '2025-02-15T14:30:00Z',
+    date: '2025-04-28T14:30:00Z',
     tags: ['Signature Dish', 'Vegetarian'],
   },
   {
     id: '2',
-    dishName: 'Seared Scallops',
-    dishImage:
-      'https://images.pexels.com/photos/8604284/pexels-photo-8604284.jpeg?auto=compress&cs=tinysrgb&w=800',
+    dishName: 'Chicken Kottu Roti',
+    dishImage: 'https://upload.wikimedia.org/wikipedia/commons/a/a3/Chicken_Kottu.jpg',
     rating: 4,
     comment:
       'The scallops were cooked to perfection with a beautiful golden crust. The citrus sauce complemented them wonderfully, though I found the portion a bit small for the price.',
     userName: 'Michael Chen',
     userAvatar:
       'https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg?auto=compress&cs=tinysrgb&w=150',
-    date: '2025-02-10T19:45:00Z',
+    date: '2025-04-29T19:45:00Z',
     tags: ['Seafood', 'Appetizer'],
-  },
-  {
-    id: '3',
-    dishName: 'Wagyu Steak',
-    dishImage:
-      'https://images.pexels.com/photos/8751814/pexels-photo-8751814.jpeg?auto=compress&cs=tinysrgb&w=800',
-    rating: 5,
-    comment:
-      'This was hands down the best steak I have ever had. The marbling on the wagyu was incredible, and it was cooked to a perfect medium-rare. Worth every penny!',
-    userName: 'John Stevenson',
-    userAvatar:
-      'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=150',
-    date: '2025-01-28T20:15:00Z',
-    tags: ['Premium', "Chef's Special"],
-  },
-  {
-    id: '4',
-    dishName: 'Tiramisu',
-    dishImage:
-      'https://images.pexels.com/photos/6880219/pexels-photo-6880219.jpeg?auto=compress&cs=tinysrgb&w=800',
-    rating: 3,
-    comment:
-      'The tiramisu was good but not exceptional. The coffee flavor was nice, but it was a bit too sweet for my taste, and the texture was slightly drier than I prefer.',
-    userName: 'Sophie Williams',
-    userAvatar:
-      'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=150',
-    date: '2025-02-05T21:30:00Z',
-    tags: ['Dessert', 'Italian'],
-  },
-  {
-    id: '5',
-    dishName: 'Lobster Ravioli',
-    dishImage:
-      'https://images.pexels.com/photos/2703468/pexels-photo-2703468.jpeg?auto=compress&cs=tinysrgb&w=800',
-    rating: 5,
-    comment:
-      'The lobster ravioli exceeded my expectations! The pasta was thin and delicate, and the filling was generous with chunks of sweet lobster meat. The cream sauce was rich without being heavy.',
-    userName: 'Emma Rodriguez',
-    userAvatar:
-      'https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?auto=compress&cs=tinysrgb&w=150',
-    date: '2025-02-12T18:00:00Z',
-    tags: ['Pasta', 'Seafood'],
-  },
-  {
-    id: '6',
-    dishName: 'Wild Mushroom Soup',
-    dishImage:
-      'https://images.pexels.com/photos/5409021/pexels-photo-5409021.jpeg?auto=compress&cs=tinysrgb&w=800',
-    rating: 2,
-    comment:
-      'Unfortunately, the wild mushroom soup was a letdown. It was under-seasoned and lacked depth of flavor. The texture was also a bit watery rather than creamy.',
-    userName: 'Daniel Kim',
-    userAvatar:
-      'https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg?auto=compress&cs=tinysrgb&w=150',
-    date: '2025-01-20T12:15:00Z',
-    tags: ['Appetizer', 'Vegetarian'],
-  },
-  {
-    id: '7',
-    dishName: 'Chocolate Soufflé',
-    dishImage:
-      'https://images.pexels.com/photos/5711192/pexels-photo-5711192.jpeg?auto=compress&cs=tinysrgb&w=800',
-    rating: 5,
-    comment:
-      'This soufflé was perfection! It was perfectly risen, with a light and airy texture and a rich, molten chocolate center. The vanilla bean ice cream on the side was the ideal companion.',
-    userName: 'Olivia Johnson',
-    userAvatar:
-      'https://images.pexels.com/photos/38554/girl-people-landscape-sun-38554.jpeg?auto=compress&cs=tinysrgb&w=150',
-    date: '2025-02-14T21:45:00Z',
-    tags: ['Dessert', "Chef's Special"],
-  },
-  {
-    id: '8',
-    dishName: 'Salmon Tartare',
-    dishImage:
-      'https://images.pexels.com/photos/8696567/pexels-photo-8696567.jpeg?auto=compress&cs=tinysrgb&w=800',
-    rating: 4,
-    comment:
-      'The salmon tartare was very fresh and beautifully presented. The avocado complemented the fish perfectly, and the citrus dressing added a nice brightness. I would have liked a bit more seasoning.',
-    userName: 'James Wilson',
-    userAvatar:
-      'https://images.pexels.com/photos/1681010/pexels-photo-1681010.jpeg?auto=compress&cs=tinysrgb&w=150',
-    date: '2025-01-25T19:30:00Z',
-    tags: ['Seafood', 'Raw'],
   },
 ];

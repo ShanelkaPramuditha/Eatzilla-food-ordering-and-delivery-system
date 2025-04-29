@@ -37,6 +37,7 @@ export enum OrderStatus {
 
 // Matches OrderItemDto from the backend
 export interface OrderItem {
+  _id?: string;
   menuItemId: string;
   name: string;
   price: number;
