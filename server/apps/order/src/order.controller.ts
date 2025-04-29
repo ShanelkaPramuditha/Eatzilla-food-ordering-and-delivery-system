@@ -62,7 +62,6 @@ export class OrderController {
     return this.mapToOrderResponseDto(order);
   }
 
-  // In your Order microservice controller
   @MessagePattern({ cmd: 'order.get.restaurant-orders' })
   async findByRestaurant(restaurantId: string) {
     const orders = await this.orderService.findAllByRestaurant(restaurantId);
