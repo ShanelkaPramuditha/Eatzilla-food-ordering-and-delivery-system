@@ -131,12 +131,17 @@ export function CartDrawer() {
                     {formatCurrency(cartTotal)}
                   </span>
                 </div>
-               
+                <div className='flex items-center justify-between text-gray-600 dark:text-gray-400'>
+                  <span>Delivery Fee</span>
+                  <span className='font-medium text-gray-900 dark:text-white'>
+                    {formatCurrency(100)}
+                  </span>
+                </div>
                 <Separator className='my-4 bg-gray-200 dark:bg-gray-700' />
                 <div className='flex items-center justify-between'>
                   <span className='text-lg font-semibold text-gray-900 dark:text-white'>Total</span>
                   <span className='text-lg font-semibold text-blue-500'>
-                    {formatCurrency(cartTotal)}
+                    {formatCurrency(cartTotal + 100)}
                   </span>
                 </div>
                 <Button

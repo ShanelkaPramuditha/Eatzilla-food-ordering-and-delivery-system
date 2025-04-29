@@ -138,7 +138,7 @@ function RouteComponent() {
   const deliveryFee = 100;
   const taxRate = 0.08;
   const tax = taxRate * cartTotal;
-  const total = cartTotal + deliveryFee + tax;
+  const total = cartTotal + deliveryFee;
   const estimatedDeliveryTime = '30-45 min';
 
   if (cart.length === 0) {
@@ -427,13 +427,7 @@ function RouteComponent() {
                 </CardHeader>
                 <CardContent className='pt-6'>
                   <div className='mb-4 flex items-center justify-between'>
-                    <Badge
-                      variant='outline'
-                      className='flex items-center border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-800/50 dark:bg-blue-900/40 dark:text-blue-300'
-                    >
-                      <Clock className='mr-1 h-3 w-3' />
-                      Estimated Delivery: {estimatedDeliveryTime}
-                    </Badge>
+                    
                     <Badge
                       variant='outline'
                       className='border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-800/50 dark:bg-blue-900/40 dark:text-blue-300'
@@ -492,14 +486,7 @@ function RouteComponent() {
                         {formatCurrency(deliveryFee)}
                       </span>
                     </div>
-                    <div className='flex justify-between text-sm'>
-                      <span className='text-slate-600 dark:text-slate-400'>
-                        Tax ({(taxRate * 100).toFixed(0)}%)
-                      </span>
-                      <span className='font-medium text-slate-800 dark:text-slate-200'>
-                        {formatCurrency(tax)}
-                      </span>
-                    </div>
+                   
                     <Separator className='my-2 bg-blue-200 dark:bg-blue-800/50' />
                     <div className='flex justify-between'>
                       <span className='font-semibold text-blue-800 dark:text-blue-300'>Total</span>
