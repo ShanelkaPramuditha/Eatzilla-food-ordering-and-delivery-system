@@ -58,4 +58,9 @@ export class NotificationGateway
   sendAlertToUser(userId: string, data: object) {
     this.server.to(userId).emit('alert', data);
   }
+
+  sendRefetchEvent(userId: string) {
+    this.logger.log(`Sending refetch event to user: ${userId}`);
+    this.server.to(userId).emit('refetch', { type: 'refetch' });
+  }
 }

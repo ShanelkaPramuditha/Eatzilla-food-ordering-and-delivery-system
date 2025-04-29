@@ -12,6 +12,13 @@ export class AlertController {
     return this.alertService.getStatus();
   }
 
+  // Fixed
+  @MessagePattern({ cmd: 'create.notification.alert' })
+  createNotificationAlert(@Payload() data: CreateAlertDto) {
+    console.log('Received data:', data);
+    return this.alertService.createNotificationAlert(data);
+  }
+
   @MessagePattern({ cmd: 'create.alert' })
   createAlert(@Payload() data: CreateAlertDto) {
     return this.alertService.createAlert(data);

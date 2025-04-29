@@ -8,31 +8,24 @@ function NotificationsPage() {
   return <NotificationsView />;
 }
 
-import { useNotifyStore } from '@/store/notify.store';
+import { isValidNotification, useNotifyStore } from '@/store/notify.store';
 import { formatDistanceToNow } from 'date-fns';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { useGetAlerts, useMarkAlertAsRead } from '@/services/tanstack-hooks/alert.hook';
-
-// Helper function to safely check notification properties
-const isValidNotification = (notification: any) => {
-  return (
-    notification &&
-    notification.response &&
-    typeof notification.response === 'object' &&
-    'level' in notification.response &&
-    'message' in notification.response
-  );
-};
+import { useMarkAlertAsRead, useMarkAllAlertsAsRead } from '@/services/tanstack-hooks/alert.hook';
 
 function NotificationsView() {
-  const { notifications, markAllAsRead, removeNotification, readNotification } = useNotifyStore();
+  const { notifications, removeNotification, readNotification } = useNotifyStore();
   const [filter, setFilter] = useState<'all' | 'info' | 'error' | 'warning'>('all');
-  const { data: alerts, isLoading, isError } = useGetAlerts();
+
   const markAlertAsReadMutation = useMarkAlertAsRead();
+  const markAllAlertsAsReadMutation = useMarkAllAlertsAsRead();
+
+  // Safely handle potential undefined notifications array
+  const notificationsArray = notifications || [];
 
   // Filter out invalid notifications
-  const validNotifications = notifications.filter(isValidNotification);
+  const validNotifications = notificationsArray.filter(isValidNotification);
 
   const filteredNotifications =
     filter === 'all'
@@ -40,10 +33,11 @@ function NotificationsView() {
       : validNotifications.filter((notification) => notification.response.level === filter);
 
   const handleMarkAllAsRead = () => {
-    markAllAsRead();
+    // Call the API to mark all alerts as read
+    markAllAlertsAsReadMutation.mutate();
   };
 
-  const handleMarkAsRead = (id: number) => {
+  const handleMarkAsRead = (id: string) => {
     // Call the API to mark the notification as read
     markAlertAsReadMutation.mutate(id.toString(), {
       onSuccess: () => {
@@ -90,15 +84,7 @@ function NotificationsView() {
         </Button>
       </div>
 
-      {isLoading ? (
-        <div className='rounded-lg bg-gray-50 py-12 text-center'>
-          <p className='text-gray-500'>Loading notifications...</p>
-        </div>
-      ) : isError ? (
-        <div className='rounded-lg bg-gray-50 py-12 text-center'>
-          <p className='text-gray-500'>Error loading notifications. Please try again.</p>
-        </div>
-      ) : filteredNotifications.length === 0 ? (
+      {filteredNotifications.length === 0 ? (
         <div className='rounded-lg bg-gray-50 py-12 text-center'>
           <p className='text-gray-500'>No notifications found</p>
         </div>
@@ -108,9 +94,11 @@ function NotificationsView() {
             <div
               key={notification.id}
               className={`flex items-start gap-4 rounded-lg border p-4 hover:bg-gray-50 ${
-                notification.read ? 'bg-gray-50 opacity-75' : 'bg-white'
+                notification.read || notification.isRead ? 'bg-gray-50 opacity-75' : 'bg-white'
               }`}
-              onClick={() => !notification.read && handleMarkAsRead(notification.id)}
+              onClick={() =>
+                !(notification.read || notification.isRead) && handleMarkAsRead(notification.id)
+              }
             >
               <div className='flex-shrink-0'>
                 <div
@@ -120,7 +108,7 @@ function NotificationsView() {
                       : notification.response.level === 'warning'
                         ? 'bg-yellow-500'
                         : 'bg-red-500'
-                  } ${notification.read ? 'opacity-50' : ''} text-white`}
+                  } ${notification.read || notification.isRead ? 'opacity-50' : ''} text-white`}
                 >
                   {notification.response.level === 'info' ? (
                     <BellIcon className='h-5 w-5' />
@@ -133,10 +121,12 @@ function NotificationsView() {
               </div>
               <div className='flex-1'>
                 <div className='flex items-center'>
-                  <p className={`font-medium ${notification.read ? 'text-gray-500' : ''}`}>
+                  <p
+                    className={`font-medium ${notification.read || notification.isRead ? 'text-gray-500' : ''}`}
+                  >
                     {notification.response.message}
                   </p>
-                  {!notification.read && (
+                  {!(notification.read || notification.isRead) && (
                     <span className='ml-2 h-2 w-2 rounded-full bg-blue-500'></span>
                   )}
                 </div>

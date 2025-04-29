@@ -15,6 +15,52 @@ export class AlertService {
     return 'Alert service is running';
   }
 
+  async createNotificationAlert(data: CreateAlertDto): Promise<AlertResponseDto> {
+    try {
+      const alertPayload = {
+        userId: new Types.ObjectId(data.userId),
+        type: data.type,
+        level: data.level,
+        category: data.category,
+        data: data.data,
+        subject: data.subject,
+        message: data.message,
+        isRead: false,
+      };
+
+      // Check if alert already exists
+      const existingAlert = await this.alertModel.findOne({
+        userId: alertPayload.userId,
+        type: alertPayload.type,
+        level: alertPayload.level,
+        category: alertPayload.category,
+        data: alertPayload.data,
+        subject: alertPayload.subject,
+        message: alertPayload.message,
+      });
+
+      if (existingAlert) {
+        this.logger.warn(`Alert already exists`);
+        return this.mapToResponseDto(existingAlert);
+      }
+
+      const alert = new this.alertModel(alertPayload);
+      const savedAlert = await alert.save();
+
+      // Process different alert types
+      await this.processAlertByTypes(savedAlert);
+
+      return this.mapToResponseDto(savedAlert);
+    } catch (error: unknown) {
+      const err = error as Error;
+      this.logger.error(
+        `Failed to create notification alert: ${err.message || 'Unknown error'}`,
+        err.stack || 'No stack trace',
+      );
+      throw error;
+    }
+  }
+
   async createAlert(data: CreateAlertDto): Promise<AlertResponseDto> {
     try {
       const alert = new this.alertModel(data);
@@ -40,12 +86,20 @@ export class AlertService {
   }
 
   async getAllAlerts(): Promise<AlertResponseDto[]> {
-    const alerts = await this.alertModel.find().sort({ createdAt: -1 }).exec();
+    // Get only types: notification
+    // const alerts = await this.alertModel.find().sort({ createdAt: -1 }).exec();
+    const notifications = await this.alertModel
+      .find({ type: AlertType.NOTIFICATION })
+      .sort({ createdAt: -1 })
+      .exec();
+    const alerts = notifications.filter((alert) => alert.type.includes(AlertType.NOTIFICATION));
     return alerts.map((alert) => this.mapToResponseDto(alert));
   }
 
   private async processAlertByTypes(alert: AlertDocument): Promise<void> {
     try {
+      this.logger.log(`Processing alert of type: ${alert.type.join(', ')}`);
+
       for (const type of alert.type) {
         switch (type) {
           case AlertType.EMAIL:

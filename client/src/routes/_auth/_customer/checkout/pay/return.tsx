@@ -9,9 +9,7 @@ import {
   useGetSessionStatus,
 } from '@/services/tanstack-hooks/payment';
 import { toast } from 'sonner';
-import { useNotifyStore } from '@/store/notify.store';
 import { OrderNotificationService } from '@/services/order-notification.service';
-import { OrderStatus } from '@/constants/order';
 
 export const Route = createFileRoute('/_auth/_customer/checkout/pay/return')({
   component: RouteComponent,
@@ -26,7 +24,6 @@ function RouteComponent() {
   const { session_id: sessionId } = Route.useSearch();
   const [status, setStatus] = useState<string | null>(null);
   const navigate = useNavigate();
-  const { addNotification } = useNotifyStore();
 
   useEffect(() => {
     if (!sessionId) {

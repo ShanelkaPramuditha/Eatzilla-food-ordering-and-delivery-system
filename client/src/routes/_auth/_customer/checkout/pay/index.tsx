@@ -150,7 +150,7 @@ function RouteComponent() {
   }
 
   return (
-    <div className='flex w-full flex-col p-4'>
+    <div className='mx-auto flex w-full max-w-7xl flex-col p-4'>
       <div className='mb-6 flex items-center justify-between'>
         <div className='flex items-center gap-2'>
           <Button

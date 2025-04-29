@@ -10,19 +10,13 @@ export const alertKeys = {
 };
 
 export const useGetAlerts = () => {
-  const { addNotification } = useNotifyStore();
-
   return useQuery<AlertObject[]>({
     queryKey: alertKeys.list(),
     queryFn: async () => {
       const alerts = await AlertService.getAlerts();
-      // Add received alerts to the notification store
-      alerts.forEach((alert) => {
-        addNotification(alert);
-      });
       return alerts;
     },
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    staleTime: 1000 * 60, // 1 minute
   });
 };
 
@@ -34,8 +28,38 @@ export const useMarkAlertAsRead = () => {
     mutationFn: (alertId) => AlertService.markAsRead(alertId),
     onSuccess: (_, alertId) => {
       // Update the notification store
-      readNotification(Number(alertId));
+      readNotification(alertId);
       // Invalidate alerts query
+      queryClient.invalidateQueries({ queryKey: alertKeys.list() });
+    },
+  });
+};
+
+export const useMarkAllAlertsAsRead = () => {
+  const queryClient = useQueryClient();
+  const { notifications, markAllAsRead } = useNotifyStore();
+
+  return useMutation<void, Error, void>({
+    mutationFn: async () => {
+      if (!notifications) return;
+
+      // Filter for unread notifications
+      const unreadNotifications = notifications.filter(
+        (notification) => !notification.read && !notification.isRead,
+      );
+
+      // Create an array of promises for each unread notification
+      const markAsReadPromises = unreadNotifications.map((notification) =>
+        AlertService.markAsRead(notification.id),
+      );
+
+      // Wait for all promises to resolve
+      await Promise.all(markAsReadPromises);
+    },
+    onSuccess: () => {
+      // Update the notification store after all API calls succeed
+      markAllAsRead();
+      // Invalidate alerts query to refresh the data
       queryClient.invalidateQueries({ queryKey: alertKeys.list() });
     },
   });

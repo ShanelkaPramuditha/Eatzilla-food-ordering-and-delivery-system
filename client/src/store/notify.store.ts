@@ -2,78 +2,74 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { AlertObject } from '../types/notification';
 
-interface NotificationItem extends AlertObject {
-  id: number;
+export interface NotificationItem extends AlertObject {
   timestamp: number;
   duration: number;
   read?: boolean;
+  response: {
+    level: 'info' | 'error' | 'warning';
+    message: string;
+  };
 }
+
+export const isValidNotification = (notification: NotificationItem) => {
+  return (
+    notification &&
+    notification.response &&
+    typeof notification.response === 'object' &&
+    'level' in notification.response &&
+    'message' in notification.response
+  );
+};
 
 interface NotifyStore {
   notifications: NotificationItem[];
   addNotification: (alert: AlertObject, duration?: number) => void;
-  addNotifications: (alerts: AlertObject[], duration?: number) => void;
-  readNotification: (id: number) => void;
-  removeNotification: (id: number) => void;
+  readNotification: (id: string) => void;
+  removeNotification: (id: string) => void;
   clearNotifications: () => void;
   markAllAsRead: () => void;
+  setNotifications: (notifications: NotificationItem[] | undefined) => void;
 }
-
-// Helper function to validate alert object
-const isValidAlert = (alert: AlertObject): boolean => {
-  return (
-    alert !== null &&
-    alert !== undefined &&
-    typeof alert === 'object' &&
-    alert.response !== undefined &&
-    alert.response !== null &&
-    typeof alert.response === 'object' &&
-    'level' in alert.response &&
-    'message' in alert.response
-  );
-};
 
 export const useNotifyStore = create<NotifyStore>()(
   persist(
     (set) => ({
       notifications: [],
       addNotification: (alert: AlertObject, duration = 3000) => {
-        // Validate alert object before adding
-        if (!isValidAlert(alert)) {
-          console.error('Invalid alert object:', alert);
-          return;
-        }
-
-        const id = Date.now();
         const timestamp = Date.now();
-        set((state) => ({
-          notifications: [...state.notifications, { ...alert, id, timestamp, duration }],
-        }));
-      },
-      addNotifications: (alerts: AlertObject[], duration = 3000) => {
-        // Validate each alert object before adding
-        alerts.forEach((alert) => {
-          if (!isValidAlert(alert)) {
-            console.error('Invalid alert object:', alert);
-            return;
+        set((state) => {
+          // Generate a unique ID if one isn't provided
+          const id = alert.id || `notif-${timestamp}-${Math.random().toString(36).substr(2, 9)}`;
+
+          // Check if notification with the same ID already exists
+          const exists = state.notifications.some((notification) => notification.id === id);
+          if (exists) {
+            return { notifications: state.notifications };
           }
+
+          // Otherwise, add the new notification with the guaranteed unique ID
+          return {
+            notifications: [
+              ...state.notifications,
+              {
+                ...alert,
+                id, // Use the generated or existing ID
+                timestamp,
+                duration,
+                response: {
+                  level: alert.level,
+                  message: alert.message,
+                },
+              },
+            ],
+          };
         });
-
-        const newNotifications = alerts.map((alert) => ({
-          ...alert,
-          id: Date.now(),
-          timestamp: Date.now(),
-          duration,
-        }));
-
-        set((state) => ({
-          notifications: [...state.notifications, ...newNotifications],
-        }));
       },
       readNotification: (id) => {
         set((state) => ({
           notifications: state.notifications.map((notification) =>
-            notification.id === id ? { ...notification, read: true } : notification,
+            notification.id === id ? { ...notification, isRead: true, read: true } : notification,
           ),
         }));
       },
@@ -89,9 +85,16 @@ export const useNotifyStore = create<NotifyStore>()(
         set((state) => ({
           notifications: state.notifications.map((notification) => ({
             ...notification,
+            isRead: true,
             read: true,
           })),
         }));
+      },
+      setNotifications: (notifications) => {
+        if (!notifications) {
+          return;
+        }
+        set({ notifications });
       },
     }),
     {

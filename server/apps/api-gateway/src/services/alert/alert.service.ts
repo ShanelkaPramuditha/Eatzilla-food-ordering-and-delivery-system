@@ -25,6 +25,46 @@ export class AlertService {
       .pipe(catchRpcError('Failed to get alert service status'));
   }
 
+  createNotificationAlert(userId: string, data: CreateAlertDto) {
+    try {
+      // Transform gateway DTO to microservice DTO format
+      const alertPayload = {
+        userId: new Types.ObjectId(userId),
+        type: data.types,
+        level: data.level,
+        category: data.category,
+        data: data.data,
+        subject: data.subject,
+        message: data.message,
+        isRead: false,
+      };
+
+      const alertResponse = this.alertClient
+        .send({ cmd: 'create.notification.alert' }, alertPayload)
+        .pipe(catchRpcError('Failed to create notification alert'));
+
+      alertResponse.subscribe({
+        next: (response: AlertResponseDto) => {
+          if (response && response.id) {
+            // Send refetch event to trigger data refresh on client
+            this.notificationGateway.sendRefetchEvent(userId);
+          }
+        },
+        error: (error) => {
+          this.logger.error('Error creating notification alert:', error);
+        },
+      });
+
+      return alertResponse;
+    } catch (error) {
+      this.logger.error(
+        `Error creating notification alert: ${(error as Error).message}`,
+        (error as Error).stack,
+      );
+      throw error;
+    }
+  }
+
   // Create a new alert
   createAlert(userId: string, email: string, mobile: string, data: CreateAlertDto) {
     try {
@@ -50,10 +90,14 @@ export class AlertService {
       alertResponse.subscribe({
         next: (response: AlertResponseDto) => {
           if (response && response.id) {
+            // Send alert notification
             this.notificationGateway.sendAlertToUser(userId, {
               type: 'alert',
               response,
             });
+
+            // Send refetch event to trigger data refresh on client
+            this.notificationGateway.sendRefetchEvent(userId);
           }
         },
         error: (error) => {
@@ -95,10 +139,14 @@ export class AlertService {
       alertResponse.subscribe({
         next: (response: AlertResponseDto) => {
           if (response && response.id) {
+            // Send alert notification
             this.notificationGateway.sendAlertToUser(userId, {
               type: 'alert',
               response,
             });
+
+            // Send refetch event to trigger data refresh on client
+            this.notificationGateway.sendRefetchEvent(userId);
           }
         },
         error: (error) => {

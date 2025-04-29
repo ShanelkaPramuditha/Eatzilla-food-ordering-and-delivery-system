@@ -6,6 +6,7 @@ import { PaymentSessionDto } from '@app/common/dtos/transaction.dto';
 import { catchRpcError } from '../../filters/rpc-exception.filter';
 import { OrderService } from '../order/order.service';
 import { AlertService } from '../alert/alert.service';
+import { AlertCategory, AlertLevel, AlertType } from '@app/common/types/alert';
 
 @Injectable()
 export class PaymentService {
@@ -35,23 +36,22 @@ export class PaymentService {
           if (payload.orderId) {
             this.orderService.updatePaidStatus(payload.orderId, true).subscribe({
               next: (orderResponse) => {
-                // if (orderResponse) {
-                //   this.alertService.createAlert({
-                //     types: ['notification', 'email', 'sms'],
-                //     category: 'order',
-                //     message: `Order ${payload.orderId} has been paid successfully.`,
-                //     orderId: payload.orderId,
-                //     userId: payload.userId,
-                //     status: 'success',
-                //   }).subscribe({
-                //     next: (alertResponse) => {
-                //       console.log('Alert created successfully:', alertResponse);
-                //     }
-                //     error: (error) => {
-                //       console.error('Error creating alert:', error);
-                //     },
-                //   });
-                // }
+                if (orderResponse) {
+                  this.alertService.createNotificationAlert(payload.customerId!, {
+                    types: [AlertType.NOTIFICATION],
+                    level: AlertLevel.INFO,
+                    category: AlertCategory.ORDER,
+                    data: {
+                      orderId: payload.orderId,
+                      status: 'paid',
+                      amount: payload.amount,
+                    },
+                    subject: 'Order Payment Successful',
+                    message: `Order ${payload.orderId} has been paid successfully.`,
+                  });
+                } else {
+                  console.error('Failed to update order payment status:', orderResponse);
+                }
               },
               error: (error) => {
                 console.error('Error updating order payment status:', error);
