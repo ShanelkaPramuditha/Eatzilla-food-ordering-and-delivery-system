@@ -11,6 +11,9 @@ export const addressSchema = z.object({
     .min(1, 'Postal code is required')
     .regex(/^\d{5}(-\d{4})?$/, 'Invalid postal code format'),
   instructions: z.string().optional(),
+
+  longitude: z.string().optional(),
+  latitude: z.string().optional(),
 });
 
 // Card details validation schema
@@ -33,6 +36,10 @@ export const cardDetailsSchema = z.object({
 
 // Full checkout form schema
 export const checkoutFormSchema = z.object({
+  phoneNumber: z
+    .string()
+    .min(1, 'Phone number is required')
+    .regex(/^\+?[1-9]\d{1,14}$/, 'Invalid phone number format'),
   address: addressSchema,
   payment:  z.enum(['cash', 'card']),
   specialInstructions: z.string().optional(),

@@ -155,6 +155,10 @@ export class Order {
   @ApiProperty({ description: 'Special Instructions' })
   specialInstructions?: string;
 
+  @Prop()
+  @ApiProperty({ description: 'Customer phone number' })
+  customerPhoneNumber?: string;
+
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User' })
   @ApiProperty({ description: 'Delivery person ID', required: false })
   deliveryPersonId?: Types.ObjectId;

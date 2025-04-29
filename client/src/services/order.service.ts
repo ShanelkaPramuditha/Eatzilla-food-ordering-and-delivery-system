@@ -11,6 +11,7 @@ const OrderService = {
     deliveryAddress: Address,
     paymentMethod: string,
     specialInstructions?: string,
+    customerPhoneNumber?: string,
   ): Promise<Order> => {
     const restaurantGroups: Record<string, OrderItem[]> = {};
 
@@ -39,6 +40,7 @@ const OrderService = {
       deliveryAddress,
       paymentMethod,
       specialInstructions,
+      customerPhoneNumber,
     };
 
     const res = await axios.post('/order', orderData);

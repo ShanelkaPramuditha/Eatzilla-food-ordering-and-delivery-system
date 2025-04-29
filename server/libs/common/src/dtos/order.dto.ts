@@ -220,6 +220,9 @@ export class OrderResponseDto {
   @ApiProperty({ enum: OrderStatus, description: 'Order status' })
   status: OrderStatus;
 
+  @ApiProperty({ description: 'Customer Phone Number' })
+  customerPhoneNumber: string;
+
   @ApiProperty({ description: 'Delivery address' })
   deliveryAddress: AddressDto;
 
