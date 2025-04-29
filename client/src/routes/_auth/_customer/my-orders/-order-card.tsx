@@ -90,11 +90,11 @@ export function OrderCard({ order, onViewDetails }: OrderCardProps) {
               </div>
 
               <Badge
-                variant={order.isPaid ? 'success' : 'outline'}
+                variant={order.isPaid ? 'success' : 'destructive'}
                 className={`text-xs ${
                   order.isPaid
                     ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:hover:bg-emerald-900/50'
-                    : 'dark:text-slate-300'
+                    : 'bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50'
                 }`}
               >
                 {order.isPaid ? 'Paid' : 'Unpaid'}

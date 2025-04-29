@@ -2,9 +2,10 @@ import { Controller, Get, Post, Patch, Param, Body, Query, Req } from '@nestjs/c
 import { OrderService } from './order.service';
 import { Public } from '../../auth/decorator/public.decorator';
 import { UserRequest } from '../../types/auth';
-import { CreateOrderDto } from '@app/common/dtos/order.dto';
+import { CreateOrderDto, OrderStatus, UpdateOrderDto } from '@app/common/dtos/order.dto';
 import { Roles } from '../../auth/decorator/roles.decorator';
 import { UserRole } from '@app/common/types/user';
+import { stat } from 'fs';
 
 @Controller('order')
 export class OrderController {
@@ -31,7 +32,6 @@ export class OrderController {
   }
 
   @Get(':id')
-  @Roles(UserRole.CUSTOMER)
   getOrder(@Param('id') id: string) {
     return this.orderService.getOrder(id);
   }
@@ -42,22 +42,26 @@ export class OrderController {
     return this.orderService.updateOrder(id, dto);
   }
 
+  @Roles(UserRole.CUSTOMER, UserRole.RESTAURANT_OWNER)
   @Patch(':id/cancel')
-  @Roles(UserRole.CUSTOMER)
   cancelOrder(@Param('id') id: string) {
     return this.orderService.cancelOrder(id);
   }
 
-  @Public()
+  @Roles(UserRole.RESTAURANT_OWNER)
   @Get('restaurant/:restaurantId')
   getRestaurantOrders(@Param('restaurantId') restaurantId: string) {
     return this.orderService.getRestaurantOrders(restaurantId);
   }
 
-  @Patch(':id/status')
-  @Roles(UserRole.ADMIN)
-  updateOrderStatus(@Param('id') id: string, @Body() dto: any) {
-    return this.orderService.updateOrderStatus(id, dto);
+  @Roles(UserRole.RESTAURANT_OWNER, UserRole.DELIVERY_PERSON)
+  @Patch(':id/suborder/:suborderId/status')
+  updateOrderStatus(
+    @Param('id') id: string,
+    @Param('suborderId') suborderId: string,
+    @Body() status: { status: OrderStatus },
+  ) {
+    return this.orderService.updateOrderStatus(id, suborderId, status.status);
   }
 
   // @Get('get-all')

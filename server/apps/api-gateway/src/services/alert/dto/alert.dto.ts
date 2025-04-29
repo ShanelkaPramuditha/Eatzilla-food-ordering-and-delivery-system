@@ -1,5 +1,13 @@
-import { IsArray, IsNotEmpty, IsString, ArrayNotEmpty, IsEnum, IsOptional } from 'class-validator';
-import { AlertLevel, AlertType } from '@app/common/types/alert';
+import {
+  IsArray,
+  IsNotEmpty,
+  IsString,
+  ArrayNotEmpty,
+  IsEnum,
+  IsOptional,
+  IsObject,
+} from 'class-validator';
+import { AlertCategory, AlertLevel, AlertType } from '@app/common/types/alert';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateAlertDto {
@@ -15,6 +23,13 @@ export class CreateAlertDto {
   @IsEnum(AlertType, { each: true })
   types: AlertType[];
 
+  @IsString()
+  @IsEnum(AlertCategory)
+  category: AlertCategory = AlertCategory.DEFAULT;
+
+  @IsObject()
+  data: object;
+
   @ApiProperty({
     description: 'Alert level',
     example: AlertLevel.INFO,
@@ -24,15 +39,6 @@ export class CreateAlertDto {
   @IsEnum(AlertLevel)
   @IsOptional()
   level: AlertLevel = AlertLevel.INFO;
-
-  @ApiProperty({
-    description: 'Recipient email, phone, or user identifier',
-    example: 'user@example.com',
-    type: String,
-  })
-  @IsString()
-  @IsNotEmpty()
-  recipient: string;
 
   @ApiProperty({
     description: 'Alert subject or title',

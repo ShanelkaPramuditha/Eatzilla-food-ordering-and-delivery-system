@@ -7,9 +7,12 @@ import {
   MicroserviceConfigService,
 } from '../../config/microservice.config';
 import { Microservice } from '../../constants/microservice';
+import { OrderModule } from '../order/order.module';
+import { AlertModule } from '../alert/alert.module';
 
 @Module({
   imports: [
+    AlertModule,
     MicroserviceConfigModule,
     ClientsModule.registerAsync([
       {
@@ -25,6 +28,7 @@ import { Microservice } from '../../constants/microservice';
         }),
       },
     ]),
+    OrderModule,
   ],
   providers: [PaymentService],
   controllers: [PaymentController],

@@ -60,7 +60,7 @@ function InnerApp() {
 
 function App() {
   return (
-    <ThemeProvider enableSystem={false} attribute='class' defaultTheme='system'>
+    <ThemeProvider enableSystem attribute='class' defaultTheme='system'>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
           <InnerApp />

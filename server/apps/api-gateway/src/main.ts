@@ -3,6 +3,7 @@ import { ApiGatewayModule } from './api-gateway.module';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { AppConfigService } from './config/app.config';
 import * as cookieParser from 'cookie-parser';
+import { RpcExceptionFilter } from './filters/rpc-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(ApiGatewayModule);
@@ -35,6 +36,9 @@ async function bootstrap() {
       forbidNonWhitelisted: false,
     }),
   );
+
+  // Apply global exception filter for RPC errors
+  app.useGlobalFilters(new RpcExceptionFilter());
 
   // Enable global prefix for all routes
   app.setGlobalPrefix(appConfig.apiPrefix);

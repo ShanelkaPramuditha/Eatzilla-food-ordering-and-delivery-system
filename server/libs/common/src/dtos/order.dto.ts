@@ -77,6 +77,16 @@ export class AddressDto {
   @IsString()
   @IsOptional()
   instructions?: string;
+
+  @ApiProperty({ description: 'Latitude for geolocation', required: false })
+  @IsNumber()
+  @IsOptional()
+  latitude?: number;
+
+  @ApiProperty({ description: 'Longitude for geolocation', required: false })
+  @IsNumber()
+  @IsOptional()
+  longitude?: number;
 }
 
 // ============ SUBORDER ============
@@ -115,6 +125,11 @@ export class CreateOrderDto {
   @ValidateNested({ each: true })
   @Type(() => SuborderDto)
   suborders: SuborderDto[];
+
+  @ApiProperty({ description: 'Customer Phone Number' })
+  @IsNotEmpty()
+  @IsString()
+  customerPhoneNumber: string;
 
   @ApiProperty({ description: 'Delivery address', type: AddressDto })
   @ValidateNested()
@@ -175,7 +190,7 @@ export class UpdateOrderDto {
   @ApiProperty({ description: 'Delivery Person ID', required: false })
   @IsOptional()
   @IsString()
-  deliveryPersonId? : string;
+  deliveryPersonId?: string;
 
   @ApiProperty({ description: 'Payment ID', required: false })
   @IsOptional()
@@ -196,7 +211,7 @@ export class OrderResponseDto {
   @ApiProperty({ description: 'Customer ID' })
   customerId: string;
 
-  @ApiProperty({ description: 'Delivery Person ID'})
+  @ApiProperty({ description: 'Delivery Person ID' })
   deliveryPersonId?: string;
 
   @ApiProperty({ description: 'Suborders grouped by restaurant' })
@@ -211,7 +226,7 @@ export class OrderResponseDto {
   @ApiProperty({ description: 'Subtotal amount' })
   subtotal: number;
 
-  @ApiProperty({description: 'Default currency'})
+  @ApiProperty({ description: 'Default currency' })
   currency: string;
 
   @ApiProperty({ description: 'Delivery fee' })

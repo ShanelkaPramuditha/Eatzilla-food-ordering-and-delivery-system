@@ -18,6 +18,7 @@ import { OrderProgressBar } from './-order-progress-bar';
 import { Clock, CreditCard, MapPin, MessageSquare } from 'lucide-react';
 import { getStatusColor } from './-order-card';
 import { OrderStatus } from '@/constants/order';
+import { useNavigate } from '@tanstack/react-router';
 
 interface OrderDetailsDialogProps {
   order: Order | null;
@@ -26,6 +27,8 @@ interface OrderDetailsDialogProps {
 }
 
 export function OrderDetailsDialog({ order, open, onOpenChange }: OrderDetailsDialogProps) {
+  const navigate = useNavigate();
+
   if (!order) return null;
 
   const date = new Date(order.createdAt);
@@ -223,12 +226,12 @@ export function OrderDetailsDialog({ order, open, onOpenChange }: OrderDetailsDi
                 <div className='flex justify-between'>
                   <span className='text-sm'>Status</span>
                   <Badge
-                    variant={order.isPaid ? 'success' : 'outline'}
-                    className={
+                    variant={order.isPaid ? 'success' : 'destructive'}
+                    className={`text-xs ${
                       order.isPaid
-                        ? 'dark:bg-emerald-900/30 dark:text-emerald-400'
-                        : 'dark:border-slate-600 dark:text-slate-300'
-                    }
+                        ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:hover:bg-emerald-900/50'
+                        : 'bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50'
+                    }`}
                   >
                     {order.isPaid ? 'Paid' : 'Unpaid'}
                   </Badge>
@@ -280,8 +283,7 @@ export function OrderDetailsDialog({ order, open, onOpenChange }: OrderDetailsDi
               variant='destructive'
               className='bg-green-600 text-white hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-800'
               onClick={() => {
-                // Handle cancel order logic here
-                console.log('Cancel Order');
+                navigate({ to: '/checkout/pay', search: { orderId: order._id } });
               }}
             >
               Proceed with Payment

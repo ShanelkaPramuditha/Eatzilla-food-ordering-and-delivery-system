@@ -1,29 +1,52 @@
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
+import { useAlerts } from '@/hooks/socket-hook';
+import { useEffect, useState } from 'react';
+import { useNotifyStore } from '@/store/notify.store';
+import { formatDistanceToNow } from 'date-fns';
+import { Link } from '@tanstack/react-router';
 
 export default function NotificationPopover() {
-  const handleMarkAllAsRead = () => {};
+  const [count, setCount] = useState(0);
+  const { alert } = useAlerts();
+  const { notifications, markAllAsRead, removeNotification } = useNotifyStore();
 
-  const notifications = [
-    {
-      id: 1,
-      message: 'You have a new message',
-      time: '2 minutes ago',
-      image: 'https://github.com/shadcn.png',
-    },
-    {
-      id: 2,
-      message: 'Your profile was updated',
-      time: '5 minutes ago',
-      icon: <BellIcon className='h-4 w-4' />,
-    },
-  ];
+  // Count unread notifications
+  const unreadCount = notifications.filter((notification) => !notification.read).length;
+
+  useEffect(() => {
+    if (alert) {
+      setCount((prevCount) => prevCount + 1);
+    }
+  }, [alert]);
+
+  useEffect(() => {
+    setCount(unreadCount);
+  }, [unreadCount]);
+
+  const handleMarkAllAsRead = () => {
+    markAllAsRead();
+    setCount(0);
+  };
+
+  const handleRemoveNotification = (id: number) => {
+    removeNotification(id);
+    setCount((prevCount) => Math.max(0, prevCount - 1));
+  };
+
+  // Show only the latest 5 notifications in the popover
+  const recentNotifications = notifications.slice(0, 5);
 
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant='outline' size='icon' className='rounded-full'>
+        <Button variant='outline' size='icon' className='relative rounded-full'>
           <BellIcon className='h-4 w-4' />
+          {count > 0 && (
+            <span className='absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white'>
+              {count > 99 ? '99+' : count}
+            </span>
+          )}
           <span className='sr-only'>Toggle notifications</span>
         </Button>
       </PopoverTrigger>
@@ -35,27 +58,67 @@ export default function NotificationPopover() {
           </Button>
         </div>
         <div className='space-y-4'>
-          {notifications.map((notification, index) => (
-            <div key={index} className='flex items-start gap-3'>
-              <div className='flex-shrink-0'>
-                <div className='bg-primary text-primary-foreground flex h-8 w-8 items-center justify-center rounded-full'>
-                  {notification.image ? (
-                    <img
-                      src={notification.image}
-                      alt='Notification'
-                      className='h-8 w-8 rounded-full'
-                    />
-                  ) : (
-                    notification.icon
-                  )}
+          {recentNotifications.length === 0 ? (
+            <p className='text-muted-foreground text-center text-sm'>No notifications</p>
+          ) : (
+            recentNotifications.map((notification) => (
+              <div
+                key={notification.id}
+                className={`flex items-start gap-3 rounded-md p-2 ${notification.read ? 'bg-gray-50 opacity-70' : 'bg-white'}`}
+              >
+                <div className='flex-shrink-0'>
+                  <div
+                    className={`flex h-8 w-8 items-center justify-center rounded-full ${
+                      notification.response.level === 'info'
+                        ? 'bg-blue-500'
+                        : notification.response.level === 'warning'
+                          ? 'bg-yellow-500'
+                          : 'bg-red-500'
+                    } ${notification.read ? 'opacity-50' : ''} text-white`}
+                  >
+                    {notification.response.level === 'info' ? (
+                      <BellIcon className='h-4 w-4' />
+                    ) : notification.response.level === 'warning' ? (
+                      <BellIcon className='h-4 w-4' />
+                    ) : (
+                      <XIcon className='h-4 w-4' />
+                    )}
+                  </div>
                 </div>
+                <div className='flex-1'>
+                  <p className={`text-sm font-medium ${notification.read ? 'text-gray-500' : ''}`}>
+                    {notification.response.message}
+                  </p>
+                  <p className='text-muted-foreground text-sm'>
+                    {formatDistanceToNow(notification.timestamp || Date.now(), { addSuffix: true })}
+                  </p>
+                </div>
+                <Button
+                  variant='ghost'
+                  size='icon'
+                  className='h-6 w-6'
+                  onClick={() => handleRemoveNotification(notification.id)}
+                >
+                  <XIcon className='h-3 w-3' />
+                  <span className='sr-only'>Dismiss</span>
+                </Button>
               </div>
-              <div className='flex-1'>
-                <p className='text-sm font-medium'>{notification.message}</p>
-                <p className='text-muted-foreground text-sm'>{notification.time}</p>
-              </div>
-            </div>
-          ))}
+            ))
+          )}
+        </div>
+
+        {notifications.length > 5 && (
+          <div className='mt-4 border-t pt-4 text-center'>
+            <p className='text-muted-foreground mb-2 text-sm'>
+              {notifications.length - 5} more notification{notifications.length - 5 > 1 ? 's' : ''}
+            </p>
+          </div>
+        )}
+
+        <div className='mt-4 border-t pt-4'>
+          <Button asChild variant='outline' className='w-full'>
+            <Link to='/notifications'>View All Notifications</Link>
+          </Button>
         </div>
       </PopoverContent>
     </Popover>
@@ -78,6 +141,26 @@ function BellIcon(props: React.SVGProps<SVGSVGElement>) {
     >
       <path d='M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9' />
       <path d='M10.3 21a1.94 1.94 0 0 0 3.4 0' />
+    </svg>
+  );
+}
+
+function XIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      {...props}
+      xmlns='http://www.w3.org/2000/svg'
+      width='24'
+      height='24'
+      viewBox='0 0 24 24'
+      fill='none'
+      stroke='currentColor'
+      strokeWidth='2'
+      strokeLinecap='round'
+      strokeLinejoin='round'
+    >
+      <line x1='18' y1='6' x2='6' y2='18' />
+      <line x1='6' y1='6' x2='18' y2='18' />
     </svg>
   );
 }

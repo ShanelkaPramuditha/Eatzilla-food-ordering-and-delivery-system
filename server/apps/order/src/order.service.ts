@@ -1,14 +1,13 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Address, Order, OrderDocument, OrderItem } from './schemas/order.schema';
-import {
-  CreateOrderDto,
-  OrderStatus,
-  UpdateOrderDto,
-  UpdateSuborderStatusDto,
-} from '@app/common/dtos/order.dto';
-import { dot } from 'node:test/reporters';
+import { CreateOrderDto, OrderStatus, UpdateOrderDto } from '@app/common/dtos/order.dto';
 
 @Injectable()
 export class OrderService {
@@ -115,96 +114,139 @@ export class OrderService {
   async updateSuborderStatus(
     orderId: string,
     suborderId: string,
-    updateSuborderStatusDto: UpdateSuborderStatusDto,
-  ): Promise<OrderDocument> {
-    const order = await this.orderModel.findById(orderId);
+    status: OrderStatus,
+  ): Promise<{ message: string }> {
+    try {
+      // Convert string IDs to ObjectId
+      const orderObjectId = new Types.ObjectId(orderId);
 
-    if (!order) {
-      throw new Error('Order not found');
+      // Find the order by ID
+      const order = await this.orderModel.findById(orderObjectId);
+
+      if (!order) {
+        throw new NotFoundException(`Order with ID ${orderId} not found`);
+      }
+
+      // Find the suborder by ID
+      const suborder = order.suborders.find((sub) => sub._id.toString() === suborderId);
+
+      if (!suborder) {
+        throw new NotFoundException(`Suborder with ID ${suborderId} not found in order ${orderId}`);
+      }
+
+      // Update the suborder status
+      suborder.status = status;
+
+      // Check if all suborders have the same status
+      const allSameStatus = order.suborders.every((sub) => sub.status === status);
+
+      // Update the main order status if all suborders match
+      if (allSameStatus) {
+        order.status = status;
+      }
+
+      // Save and return the updated order
+      await order.save();
+      return {
+        message: 'Suborder status updated successfully',
+      };
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      if (error instanceof Error && error.name === 'CastError') {
+        throw new BadRequestException('Invalid ID format');
+      }
+      throw new InternalServerErrorException('Failed to update suborder status');
     }
-
-    const suborderIndex = order.suborders.findIndex(
-      (suborder) => suborder._id.toString() === suborderId,
-    );
-
-    if (suborderIndex === -1) {
-      throw new Error('Suborder not found');
-    }
-
-    // Update the suborder status
-    order.suborders[suborderIndex].status = updateSuborderStatusDto.status;
-
-    // Check if all suborders have the same status
-    const allSameStatus = order.suborders.every(
-      (suborder) => suborder.status === updateSuborderStatusDto.status,
-    );
-
-    // If all suborders have the same status, update the main order status
-    if (allSameStatus) {
-      order.status = updateSuborderStatusDto.status;
-    }
-
-    return order.save();
   }
 
-  async remove(id: string): Promise<OrderDocument> {
-    const deletedOrder = await this.orderModel.findByIdAndDelete(id).exec();
-    if (!deletedOrder) {
-      throw new Error('Order not found');
+  async cancelOrder(id: string): Promise<OrderDocument> {
+    const orderObjectId = new Types.ObjectId(id);
+    const order = await this.orderModel.findById(orderObjectId);
+
+    if (!order) {
+      throw new NotFoundException(`Order with ID ${id} not found`);
     }
-    return deletedOrder;
+
+    // Set the order status to 'cancelled'
+    order.status = OrderStatus.CANCELLED; // assuming you have an enum OrderStatus
+
+    // Optionally, if you also want to cancel all suborders
+    order.suborders.forEach((suborder) => {
+      suborder.status = OrderStatus.CANCELLED;
+    });
+
+    // Save the updated order
+    await order.save();
+
+    return order;
   }
 
   async getOrdersByStatus(status: OrderStatus): Promise<OrderDocument[]> {
     return this.orderModel.find({ status }).exec();
   }
 
-  async getRestaurantSuborders(restaurantId: string, status?: OrderStatus): Promise<any[]> {
-    const query: any = { 'suborders.restaurantId': new Types.ObjectId(restaurantId) };
+  async setPaymentCompleted(orderId: string, paymentId: string): Promise<{ message: string }> {
+    const orderObjectId = new Types.ObjectId(orderId);
+    const order = await this.orderModel.findById(orderObjectId);
 
-    if (status) {
-      query['suborders.status'] = status;
+    if (!order) {
+      throw new NotFoundException(`Order with ID ${orderId} not found`);
     }
+    order.isPaid = true; // assuming you have an enum OrderStatus
+    order.paymentId = paymentId;
 
-    const orders = await this.orderModel.find(query).exec();
+    await order.save();
 
-    // Extract and flatten the relevant suborders
-    const suborders: {
-      orderId: Types.ObjectId;
-      suborderId: Types.ObjectId;
-      customerInfo: {
-        customerId: Types.ObjectId;
-        deliveryAddress: Address;
-      };
-      items: OrderItem[];
-      subtotal: number;
-      status: OrderStatus;
-      createdAt: Date;
-    }[] = [];
+    return { message: 'success' };
+  }
+  async updatePaymentStatus(orderId: string, isPaid: boolean): Promise<OrderDocument> {
+    try {
+      // Convert string ID to ObjectId if necessary
+      const orderObjectId = Types.ObjectId.isValid(orderId) ? new Types.ObjectId(orderId) : orderId;
 
-    for (const order of orders) {
-      const relevantSuborders = order.suborders.filter(
-        (suborder) =>
-          suborder.restaurantId.toString() === restaurantId &&
-          (!status || suborder.status === status),
-      );
+      // First, find the order to check its current status
+      const currentOrder = await this.orderModel.findById(orderObjectId).exec();
 
-      for (const suborder of relevantSuborders) {
-        suborders.push({
-          orderId: order._id,
-          suborderId: suborder._id,
-          customerInfo: {
-            customerId: order.customerId,
-            deliveryAddress: order.deliveryAddress,
-          },
-          items: suborder.items,
-          subtotal: suborder.subtotal,
-          status: suborder.status,
-          createdAt: order.createdAt,
-        });
+      if (!currentOrder) {
+        throw new NotFoundException(`Order with ID ${orderId} not found`);
       }
-    }
 
-    return suborders;
+      // Determine if we should update the status based on current status and payment
+      const shouldUpdateStatus =
+        isPaid && [OrderStatus.CREATED, 'pending_payment'].includes(currentOrder.status);
+
+      // Now update the order
+      const updatedOrder = await this.orderModel
+        .findByIdAndUpdate(
+          orderObjectId,
+          {
+            $set: {
+              isPaid,
+              // Update status to CONFIRMED if needed
+              ...(shouldUpdateStatus ? { status: OrderStatus.CONFIRMED } : {}),
+            },
+          },
+          { new: true },
+        )
+        .exec();
+
+      if (!updatedOrder) {
+        throw new NotFoundException(`Order with ID ${orderId} not found`);
+      }
+
+      return updatedOrder;
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      if (error instanceof Error && error.name === 'CastError') {
+        throw new BadRequestException('Invalid ID format');
+      }
+      throw new InternalServerErrorException(
+        `Failed to update payment status: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
   }
 }

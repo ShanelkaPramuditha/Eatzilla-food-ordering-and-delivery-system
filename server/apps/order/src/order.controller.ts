@@ -26,8 +26,8 @@ export class OrderController {
   }
 
   @MessagePattern({ cmd: 'order.get.my-orders' })
-  async getMyOrders(req: { userId: string }) {
-    const orders = await this.orderService.findAllByCustomer(req.userId);
+  async getMyOrders(userId: string ) {
+    const orders = await this.orderService.findAllByCustomer(userId);
     return orders.map((order) => this.mapToOrderResponseDto(order));
   }
 
@@ -38,41 +38,28 @@ export class OrderController {
   }
 
   @MessagePattern({ cmd: 'order.get.by-id' })
-  async findOne(@Param('id') id: string) {
+  async findOne(id: string) {
     const order = await this.orderService.findOne(id);
     return this.mapToOrderResponseDto(order);
   }
 
   @MessagePattern({ cmd: 'order.update' })
-  async update(@Param('id') id: string, @Body() updateOrderDto: UpdateOrderDto) {
+  async update(id: string, updateOrderDto: UpdateOrderDto) {
     const order = await this.orderService.update(id, updateOrderDto);
     return this.mapToOrderResponseDto(order);
   }
 
   @MessagePattern({ cmd: 'order.updateSuborderStatus' })
-  async updateSuborderStatus(
-    @Param('id') orderId: string,
-    @Param('suborderId') suborderId: string,
-    @Body() updateSuborderStatusDto: UpdateSuborderStatusDto,
-  ) {
-    const order = await this.orderService.updateSuborderStatus(
-      orderId,
-      suborderId,
-      updateSuborderStatusDto,
-    );
-    return this.mapToOrderResponseDto(order);
+  async updateSuborderStatus(req: { id: string; suborderId: string; status: OrderStatus }) {
+    console.log('Updating suborder status:', req);
+    const order = await this.orderService.updateSuborderStatus(req.id, req.suborderId, req.status);
+    return order;
   }
 
-  @MessagePattern({ cmd: 'order.remove' })
-  async remove(@Param('id') id: string) {
-    const order = await this.orderService.remove(id);
+  @MessagePattern({ cmd: 'order.cancel' })
+  async remove(id: string) {
+    const order = await this.orderService.cancelOrder(id);
     return this.mapToOrderResponseDto(order);
-  }
-
-  @MessagePattern({ cmd: 'order.removeSuborder' })
-  async findByCustomer(@Param('customerId') customerId: string) {
-    const orders = await this.orderService.findAllByCustomer(customerId);
-    return orders.map((order) => this.mapToOrderResponseDto(order));
   }
 
   // In your Order microservice controller
@@ -82,19 +69,25 @@ export class OrderController {
     return orders.map((order) => this.mapToOrderResponseDto(order));
   }
 
-  @MessagePattern({ cmd: 'order.getAll' })
-  async getOrdersByStatus(@Query('status') status: OrderStatus) {
-    const orders = await this.orderService.getOrdersByStatus(status);
-    return orders.map((order) => this.mapToOrderResponseDto(order));
+  // @MessagePattern({ cmd: 'order.getAll' })
+  // async getOrdersByStatus(@Query('status') status: OrderStatus) {
+  //   const orders = await this.orderService.getOrdersByStatus(status);
+  //   return orders.map((order) => this.mapToOrderResponseDto(order));
+  // }
+
+  @MessagePattern({cmd: 'payment.completed'})
+  async handlePaymentCompleted(req: {orderId : string, paymentId : string}){
+    const response = await this.orderService.setPaymentCompleted(req.orderId , req.paymentId)
+    return response;
   }
 
-  @MessagePattern({ cmd: 'order.getRestaurantSuborders' })
-  async getRestaurantSuborders(
-    @Param('restaurantId') restaurantId: string,
-    @Query('status') status?: OrderStatus,
-  ) {
-    return await this.orderService.getRestaurantSuborders(restaurantId, status);
+  @MessagePattern({ cmd: 'order.updatePaidStatus' })
+  async updatePaymentStatus(payload: { orderId: string; isPaid: boolean }) {
+    const { orderId, isPaid } = payload;
+    const order = await this.orderService.updatePaymentStatus(orderId, isPaid);
+    return this.mapToOrderResponseDto(order);
   }
+
 
   // Helper method to map MongoDB document to DTO
   private mapToOrderResponseDto(order: any): OrderResponseDto {
@@ -116,6 +109,7 @@ export class OrderController {
       })),
       currency: order.currency,
       deliveryAddress: order.deliveryAddress,
+      deliveryPersonId: order.deliveryPersonId?.toString(),
       subtotal: order.subtotal,
       deliveryFee: order.deliveryFee,
       tax: order.tax,
