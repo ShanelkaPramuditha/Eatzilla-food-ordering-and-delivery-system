@@ -58,20 +58,20 @@ export default function NotificationPopover() {
           </Button>
         </div>
         <div className='space-y-4'>
-          {recentNotifications.length === 0 ? (
+          {recentNotifications?.length === 0 ? (
             <p className='text-muted-foreground text-center text-sm'>No notifications</p>
           ) : (
-            recentNotifications.map((notification) => (
+            recentNotifications?.map((notification) => (
               <div
                 key={notification.id}
-                className={`flex items-start gap-3 rounded-md p-2 ${notification.read ? 'bg-gray-50 opacity-70' : 'bg-white'}`}
+                className={`flex items-start gap-3 rounded-md p-2 ${notification?.read ? 'bg-gray-50 opacity-70' : 'bg-white'}`}
               >
                 <div className='flex-shrink-0'>
                   <div
                     className={`flex h-8 w-8 items-center justify-center rounded-full ${
-                      notification.response.level === 'info'
+                      notification?.response?.level === 'info'
                         ? 'bg-blue-500'
-                        : notification.response.level === 'warning'
+                        : notification?.response?.level === 'warning'
                           ? 'bg-yellow-500'
                           : 'bg-red-500'
                     } ${notification.read ? 'opacity-50' : ''} text-white`}

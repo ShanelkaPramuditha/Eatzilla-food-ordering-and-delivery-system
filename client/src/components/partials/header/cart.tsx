@@ -19,10 +19,10 @@ export function CartDrawer() {
   return (
     <Sheet open={isCartOpen} onOpenChange={setIsCartOpen}>
       <SheetTrigger asChild>
-        <Button variant='outline' size='icon' className='relative'>
+        <Button variant='outline' size='icon' className='relative rounded-full'>
           <ShoppingCart className='h-5 w-5' />
           {itemCount > 0 && (
-            <span className='bg-primary text-primary-foreground absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full text-xs'>
+            <span className='absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white'>
               {itemCount}
             </span>
           )}
