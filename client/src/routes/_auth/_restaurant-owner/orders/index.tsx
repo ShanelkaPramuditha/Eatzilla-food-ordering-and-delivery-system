@@ -278,8 +278,8 @@ const OrderCard = ({ order, refetch }: OrderCardProps) => {
             </div>
 
             <div className='mt-2'>
-              <h3 className='text-sm font-medium text-gray-900'>{order.customerId}</h3>
-              <p className='text-sm text-gray-500'>{order.customerId}</p>
+              <h3 className='text-sm font-medium text-gray-900'>{order.customerName}</h3>
+              <p className='text-sm text-gray-500'>{order.phoneNumber}</p>
             </div>
 
             <div className='mt-3 border-t border-gray-200 pt-3'>
@@ -332,8 +332,8 @@ const OrderCard = ({ order, refetch }: OrderCardProps) => {
           <div className='mb-6'>
             <h4 className='mb-2 text-sm font-medium text-gray-900'>Customer Information</h4>
             <div className='rounded-md bg-gray-50 p-3'>
-              <p className='text-sm font-medium text-gray-700'>{order.customerId}</p>
-              <p className='text-sm text-gray-500'>{order.customerId}</p>
+              <p className='text-sm font-medium text-gray-700'>{order.customerName}</p>
+              <p className='text-sm text-gray-500'>{order.phoneNumber}</p>
             </div>
           </div>
 

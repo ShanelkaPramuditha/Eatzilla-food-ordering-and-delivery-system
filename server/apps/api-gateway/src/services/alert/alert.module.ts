@@ -7,10 +7,12 @@ import {
   MicroserviceConfigService,
 } from '../../config/microservice.config';
 import { Microservice } from '../../constants/microservice';
+import { NotificationModule } from '../../websocket/websocket.module';
 
 @Module({
   imports: [
     MicroserviceConfigModule,
+    NotificationModule,
     ClientsModule.registerAsync([
       {
         name: Microservice.ALERT_SERVICE,

@@ -17,3 +17,9 @@ export enum AlertStatus {
   SENT = 'sent',
   FAILED = 'failed',
 }
+
+export enum AlertCategory {
+  PAYMENT = 'payment',
+  ORDER = 'order',
+  DEFAULT = 'default',
+}

@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { Alert, AlertDocument } from './schemas/alert.schema';
 import { AlertResponseDto, CreateAlertDto } from './dto/alert.dto';
 import { AlertStatus, AlertType } from '@app/common/types/alert';
@@ -16,8 +16,6 @@ export class AlertService {
   }
 
   async createAlert(data: CreateAlertDto): Promise<AlertResponseDto> {
-    this.logger.log(`Creating alert with types: ${data.type.join(', ')}`);
-
     try {
       const alert = new this.alertModel(data);
       const savedAlert = await alert.save();
@@ -57,8 +55,6 @@ export class AlertService {
             await this.sendSms(alert);
             break;
           case AlertType.NOTIFICATION:
-            await this.sendNotification(alert);
-            break;
           default:
             this.logger.warn(`Unsupported alert type: ${String(type)}`);
         }
@@ -69,45 +65,41 @@ export class AlertService {
     } catch (error: unknown) {
       const err = error as Error;
       this.logger.error(
-        `Failed to process alert ${String(alert._id)}: ${err.message || 'Unknown error'}`,
+        `Failed to process alert ${String(alert.id)}: ${err.message || 'Unknown error'}`,
         err.stack || 'No stack trace',
       );
 
       // Update alert status to FAILED if processing fails
-      await this.alertModel.updateOne({ _id: alert._id }, { $set: { status: AlertStatus.FAILED } });
+      await this.alertModel.updateOne({ _id: alert.id }, { $set: { status: AlertStatus.FAILED } });
 
       throw error;
     }
   }
 
   private async sendEmail(alert: AlertDocument): Promise<void> {
-    this.logger.log(`Sending email alert to ${alert.recipient}: ${alert.subject}`);
-    // TODO: Implement email sending logic here
+    this.logger.log(`Sending email alert to ${alert.email}: ${alert.subject}`);
     await new Promise((resolve) => setTimeout(resolve, 100));
   }
 
   private async sendSms(alert: AlertDocument): Promise<void> {
-    this.logger.log(`Sending SMS alert to ${alert.recipient}: ${alert.subject}`);
-    // TODO: Implement SMS sending logic here
-    await new Promise((resolve) => setTimeout(resolve, 100));
-  }
-
-  private async sendNotification(alert: AlertDocument): Promise<void> {
-    this.logger.log(`Sending notification to ${alert.recipient}: ${alert.subject}`);
-    // TODO: Implement push notification logic here
+    this.logger.log(`Sending SMS alert to ${alert.mobile}: ${alert.subject}`);
     await new Promise((resolve) => setTimeout(resolve, 100));
   }
 
   private mapToResponseDto(alert: AlertDocument): AlertResponseDto {
     return {
-      id: String(alert._id),
+      id: alert._id instanceof Types.ObjectId ? alert._id : new Types.ObjectId(String(alert._id)),
       userId: alert.userId,
       type: alert.type,
       level: alert.level,
-      recipient: alert.recipient,
+      category: alert.category,
+      data: alert.data,
+      email: alert.email,
+      mobile: alert.mobile,
       subject: alert.subject,
       message: alert.message,
       status: alert.status,
+      isRead: alert.isRead,
       createdAt: alert.createdAt,
       updatedAt: alert.updatedAt,
     };

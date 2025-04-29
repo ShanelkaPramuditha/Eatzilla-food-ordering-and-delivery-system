@@ -3,6 +3,7 @@ import { OrderController } from './order.controller';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { ConfigModule } from '@nestjs/config';
 import { OrderService } from './order.service';
+import { AuthModule } from '../../auth/auth.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { OrderService } from './order.service';
         },
       },
     ]),
+    AuthModule,
   ],
   providers: [OrderService],
   controllers: [OrderController],
