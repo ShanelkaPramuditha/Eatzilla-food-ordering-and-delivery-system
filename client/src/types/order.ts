@@ -14,7 +14,7 @@ export interface Address {
 
 // Matches SuborderDto from the backend
 export interface Suborder {
-  _id: string;
+  _id?: string;
   restaurantId: string;
   items: OrderItem[];
   subtotal: number;

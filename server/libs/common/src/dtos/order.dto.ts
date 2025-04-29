@@ -79,14 +79,14 @@ export class AddressDto {
   instructions?: string;
 
   @ApiProperty({ description: 'Latitude for geolocation', required: false })
-  @IsNumber()
+  @IsString()
   @IsOptional()
-  latitude?: number;
+  latitude?: string;
 
   @ApiProperty({ description: 'Longitude for geolocation', required: false })
-  @IsNumber()
+  @IsString()
   @IsOptional()
-  longitude?: number;
+  longitude?: string;
 }
 
 // ============ SUBORDER ============
