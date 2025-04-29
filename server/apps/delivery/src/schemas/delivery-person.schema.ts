@@ -16,7 +16,7 @@ export const LocationSchema = SchemaFactory.createForClass(Location);
 // Delivery person availability schema
 @Schema({ timestamps: true })
 export class DeliveryPersonAvailability extends Document {
-  @Prop({ required: true, index: true })
+  @Prop({ required: true })
   deliveryPersonId: string;
 
   @Prop({ required: true, default: false })
