@@ -26,6 +26,22 @@ export class AlertConfigService {
     return this.configService.get<string>('EMAIL_FROM') || 'noreply@eatzilla.com';
   }
 
+  get twilioAccountSid(): string | undefined {
+    return this.configService.get<string>('TWILIO_ACCOUNT_SID');
+  }
+
+  get twilioAuthToken(): string | undefined {
+    return this.configService.get<string>('TWILIO_AUTH_TOKEN');
+  }
+
+  get twilioMessagingServiceSid(): string | undefined {
+    return this.configService.get<string>('TWILIO_MESSAGING_SERVICE_SID');
+  }
+
+  get twilioPhoneNumber(): string | undefined {
+    return this.configService.get<string>('TWILIO_PHONE_NUMBER');
+  }
+
   // Type-safe access to all environment variables
   get<T extends keyof AlertEnvironmentVariables>(key: T): AlertEnvironmentVariables[T] {
     return this.configService.get<AlertEnvironmentVariables[T]>(key as string)!;

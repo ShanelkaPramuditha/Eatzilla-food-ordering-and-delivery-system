@@ -144,6 +144,9 @@ importers:
       '@types/supertest':
         specifier: ^6.0.2
         version: 6.0.2
+      '@types/twilio':
+        specifier: ^3.19.3
+        version: 3.19.3
       eslint:
         specifier: ^9.18.0
         version: 9.22.0
@@ -1248,6 +1251,10 @@ packages:
 
   '@types/supertest@6.0.2':
     resolution: {integrity: sha512-137ypx2lk/wTQbW6An6safu9hXmajAifU/s7szAHLN/FeIm5w7yR0Wkl9fdJMRSHwOn4HLAI0DaB2TOORuhPDg==}
+
+  '@types/twilio@3.19.3':
+    resolution: {integrity: sha512-W53Z0TDCu6clZ5CzTWHRPnpQAad+AANglx6WiQ4Mkxxw21o4BYBx5EhkfR6J4iYqY58rtWB3r8kDGJ4y1uTUGQ==}
+    deprecated: This is a stub types definition. twilio provides its own type definitions, so you do not need this installed.
 
   '@types/validator@13.15.0':
     resolution: {integrity: sha512-nh7nrWhLr6CBq9ldtw0wx+z9wKnnv/uTVLA9g/3/TcOYxbpOSZE+MhKPmWqU+K0NvThjhv12uD8MuqijB0WzEA==}
@@ -5232,6 +5239,13 @@ snapshots:
     dependencies:
       '@types/methods': 1.1.4
       '@types/superagent': 8.1.9
+
+  '@types/twilio@3.19.3':
+    dependencies:
+      twilio: 5.6.0
+    transitivePeerDependencies:
+      - debug
+      - supports-color
 
   '@types/validator@13.15.0': {}
 

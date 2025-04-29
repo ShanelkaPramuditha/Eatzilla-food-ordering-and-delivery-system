@@ -6,11 +6,14 @@ import { AlertResponseDto, CreateAlertDto } from './dto/alert.dto';
 import { AlertStatus, AlertType } from '@app/common/types/alert';
 import { Resend } from 'resend';
 import { AlertConfigService } from '../config/alert-config.service';
+import { Twilio } from 'twilio';
+import type { MessageListInstanceCreateOptions } from 'twilio/lib/rest/api/v2010/account/message';
 
 @Injectable()
 export class AlertService {
   private readonly logger = new Logger(AlertService.name);
   private resend: Resend | null = null;
+  private twilioClient: Twilio | null = null;
 
   constructor(
     @InjectModel(Alert.name) private alertModel: Model<AlertDocument>,
@@ -22,6 +25,17 @@ export class AlertService {
       this.logger.log('Resend API initialized successfully');
     } else {
       this.logger.warn('Resend API key not provided, email sending is mocked');
+    }
+
+    // Initialize Twilio if credentials are provided
+    if (this.configService.twilioAccountSid && this.configService.twilioAuthToken) {
+      this.twilioClient = new Twilio(
+        this.configService.twilioAccountSid,
+        this.configService.twilioAuthToken,
+      );
+      this.logger.log('Twilio client initialized successfully');
+    } else {
+      this.logger.warn('Twilio credentials not provided, SMS sending is mocked');
     }
   }
 
@@ -73,11 +87,8 @@ export class AlertService {
       }
       if (data?.mobile) {
         this.logger.warn(`Alert type is sms`);
-        await this.sendSms(savedAlert, data.mobile);
+        // await this.sendSms(savedAlert, data.mobile);
       }
-
-      // await this.sendEmail(savedAlert, data.email);
-      // await this.sendSms(savedAlert, data.mobile);
 
       return this.mapToResponseDto(savedAlert);
     } catch (error: unknown) {
@@ -210,8 +221,55 @@ export class AlertService {
   }
 
   private async sendSms(alert: AlertDocument, mobile: string): Promise<void> {
+    // Skip if no mobile number is provided
+    if (!mobile) {
+      this.logger.warn(`Cannot send SMS alert: no mobile number provided`);
+      return;
+    }
+
     this.logger.log(`Sending SMS alert to ${mobile}: ${alert.subject}`);
-    await new Promise((resolve) => setTimeout(resolve, 100));
+
+    // If Twilio is not initialized, mock sending the SMS
+    if (!this.twilioClient) {
+      this.logger.warn(`Mocking SMS send to ${mobile}`);
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      return;
+    }
+
+    try {
+      // Create properly typed message params
+      const messageParams: MessageListInstanceCreateOptions = {
+        body: `${alert.subject}\n\n${alert.message}`,
+        to: mobile,
+      };
+
+      // Add optional parameters if they exist
+      if (this.configService.twilioMessagingServiceSid) {
+        messageParams.messagingServiceSid = this.configService.twilioMessagingServiceSid;
+      }
+
+      if (this.configService.twilioPhoneNumber) {
+        messageParams.from = this.configService.twilioPhoneNumber;
+      }
+
+      // Validate configuration
+      if (!messageParams.messagingServiceSid && !messageParams.from) {
+        throw new Error(
+          'Either Twilio Messaging Service SID or From phone number must be provided',
+        );
+      }
+
+      const message = await this.twilioClient.messages.create(messageParams);
+
+      this.logger.log(`SMS sent successfully via Twilio. SID: ${message.sid}`);
+    } catch (error) {
+      const err = error as Error;
+      this.logger.error(
+        `Failed to send SMS to ${mobile}: ${err.message || 'Unknown error'}`,
+        err.stack || 'No stack trace',
+      );
+      throw error;
+    }
   }
 
   private mapToResponseDto(alert: AlertDocument): AlertResponseDto {
