@@ -1,5 +1,3 @@
-'use client';
-
 import { useEffect, useState } from 'react';
 import { OrderCard } from './-order-card';
 import { OrderDetailsDialog } from './-order-details-dialog';

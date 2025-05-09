@@ -1,5 +1,3 @@
-'use client';
-
 import { formatCurrency } from '@/utils/common-utils';
 import type { Order } from '@/types/order';
 import { Badge } from '@/components/ui/badge';

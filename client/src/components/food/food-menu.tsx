@@ -1,5 +1,3 @@
-'use client';
-
 import { useState, useEffect } from 'react';
 import { FoodCard } from '@/components/food/food-card';
 import { categories } from '@/data/menu-items';

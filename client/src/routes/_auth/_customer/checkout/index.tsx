@@ -1,5 +1,3 @@
-'use client';
-
 import { createFileRoute, useRouter } from '@tanstack/react-router';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, FormProvider } from 'react-hook-form';
