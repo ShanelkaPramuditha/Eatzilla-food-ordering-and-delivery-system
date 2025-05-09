@@ -17,6 +17,7 @@ import { Route as HomeIndexImport } from './routes/_home/index'
 import { Route as AuthProtectedImport } from './routes/_auth/protected'
 import { Route as AuthNotificationsImport } from './routes/_auth/notifications'
 import { Route as PublicRegisterIndexImport } from './routes/_public/register/index'
+import { Route as PublicMenuItemsIndexImport } from './routes/_public/menu-items/index'
 import { Route as PublicLoginIndexImport } from './routes/_public/login/index'
 import { Route as AuthRestaurantOwnerTransactionsIndexImport } from './routes/_auth/_restaurant-owner/transactions/index'
 import { Route as AuthRestaurantOwnerSettingsIndexImport } from './routes/_auth/_restaurant-owner/settings/index'
@@ -62,6 +63,12 @@ const AuthNotificationsRoute = AuthNotificationsImport.update({
 const PublicRegisterIndexRoute = PublicRegisterIndexImport.update({
   id: '/_public/register/',
   path: '/register/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const PublicMenuItemsIndexRoute = PublicMenuItemsIndexImport.update({
+  id: '/_public/menu-items/',
+  path: '/menu-items/',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -178,6 +185,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicLoginIndexImport
       parentRoute: typeof rootRoute
     }
+    '/_public/menu-items/': {
+      id: '/_public/menu-items/'
+      path: '/menu-items'
+      fullPath: '/menu-items'
+      preLoaderRoute: typeof PublicMenuItemsIndexImport
+      parentRoute: typeof rootRoute
+    }
     '/_public/register/': {
       id: '/_public/register/'
       path: '/register'
@@ -291,6 +305,7 @@ export interface FileRoutesByFullPath {
   '/': typeof HomeIndexRoute
   '/about': typeof AboutIndexRoute
   '/login': typeof PublicLoginIndexRoute
+  '/menu-items': typeof PublicMenuItemsIndexRoute
   '/register': typeof PublicRegisterIndexRoute
   '/checkout': typeof AuthCustomerCheckoutIndexRoute
   '/my-orders': typeof AuthCustomerMyOrdersIndexRoute
@@ -310,6 +325,7 @@ export interface FileRoutesByTo {
   '/': typeof HomeIndexRoute
   '/about': typeof AboutIndexRoute
   '/login': typeof PublicLoginIndexRoute
+  '/menu-items': typeof PublicMenuItemsIndexRoute
   '/register': typeof PublicRegisterIndexRoute
   '/checkout': typeof AuthCustomerCheckoutIndexRoute
   '/my-orders': typeof AuthCustomerMyOrdersIndexRoute
@@ -330,6 +346,7 @@ export interface FileRoutesById {
   '/_home/': typeof HomeIndexRoute
   '/about/': typeof AboutIndexRoute
   '/_public/login/': typeof PublicLoginIndexRoute
+  '/_public/menu-items/': typeof PublicMenuItemsIndexRoute
   '/_public/register/': typeof PublicRegisterIndexRoute
   '/_auth/_customer/checkout/': typeof AuthCustomerCheckoutIndexRoute
   '/_auth/_customer/my-orders/': typeof AuthCustomerMyOrdersIndexRoute
@@ -351,6 +368,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/login'
+    | '/menu-items'
     | '/register'
     | '/checkout'
     | '/my-orders'
@@ -369,6 +387,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/login'
+    | '/menu-items'
     | '/register'
     | '/checkout'
     | '/my-orders'
@@ -387,6 +406,7 @@ export interface FileRouteTypes {
     | '/_home/'
     | '/about/'
     | '/_public/login/'
+    | '/_public/menu-items/'
     | '/_public/register/'
     | '/_auth/_customer/checkout/'
     | '/_auth/_customer/my-orders/'
@@ -405,6 +425,7 @@ export interface RootRouteChildren {
   HomeIndexRoute: typeof HomeIndexRoute
   AboutIndexRoute: typeof AboutIndexRoute
   PublicLoginIndexRoute: typeof PublicLoginIndexRoute
+  PublicMenuItemsIndexRoute: typeof PublicMenuItemsIndexRoute
   PublicRegisterIndexRoute: typeof PublicRegisterIndexRoute
 }
 
@@ -413,6 +434,7 @@ const rootRouteChildren: RootRouteChildren = {
   HomeIndexRoute: HomeIndexRoute,
   AboutIndexRoute: AboutIndexRoute,
   PublicLoginIndexRoute: PublicLoginIndexRoute,
+  PublicMenuItemsIndexRoute: PublicMenuItemsIndexRoute,
   PublicRegisterIndexRoute: PublicRegisterIndexRoute,
 }
 
@@ -430,6 +452,7 @@ export const routeTree = rootRoute
         "/_home/",
         "/about/",
         "/_public/login/",
+        "/_public/menu-items/",
         "/_public/register/"
       ]
     },
@@ -465,6 +488,9 @@ export const routeTree = rootRoute
     },
     "/_public/login/": {
       "filePath": "_public/login/index.tsx"
+    },
+    "/_public/menu-items/": {
+      "filePath": "_public/menu-items/index.tsx"
     },
     "/_public/register/": {
       "filePath": "_public/register/index.tsx"

@@ -51,24 +51,20 @@ export default function FoodMenu() {
     );
   }
 
-    const handleCategoryChange = (categoryId:string) => {
-      setActiveCategory(categoryId);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    };
+  const handleCategoryChange = (categoryId: string) => {
+    setActiveCategory(categoryId);
+  };
 
-    // Clear filters
-    const clearFilters = () => {
-      setSearchQuery('');
-      setActiveCategory('all');
-    };
+  // Clear filters
+  const clearFilters = () => {
+    setSearchQuery('');
+    setActiveCategory('all');
+  };
 
   return (
     <div className='min-h-screen'>
-      {/* Hero Section */}
-      <HeroSection />
-
       {/* Main Content */}
-      <div className='relative container z-10 w-full mx-auto -mt-16  py-8'>
+      <div className='relative z-10 container mx-auto w-full py-8'>
         {/* Search Bar */}
         <div className='mx-auto mb-8 max-w-3xl'>
           <div className='relative overflow-hidden rounded-full border border-gray-200 bg-white shadow-lg backdrop-blur-lg dark:border-gray-700 dark:bg-gray-800'>

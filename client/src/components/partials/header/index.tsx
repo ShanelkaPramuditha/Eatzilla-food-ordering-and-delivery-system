@@ -14,14 +14,14 @@ export const Header = ({ className }: { className?: string }) => {
   const { navItems, icons } = config;
 
   return (
-    <header className={cn('bg-sidebar fixed top-0 h-14 w-full border-b shadow-sm', className)}>
+    <header className={cn('bg-sidebar fixed top-0 h-14 bg-background w-full border-b shadow-sm', className)}>
       <div className='container mx-auto h-full px-4'>
         <div className='flex h-full items-center justify-between'>
-          <div className='flex h-full items-center gap-8'>
+          <div className='flex h-full items-center gap-10'>
             <Link to='/' className='text-xl font-bold'>
               Eatzilla
             </Link>
-            <nav className='flex h-full items-center gap-4'>
+            <nav className='flex h-full items-center gap-6'>
               {navItems.map((item) => (
                 <Link key={item.path} to={item.path} className='flex h-full items-center'>
                   {item.label}

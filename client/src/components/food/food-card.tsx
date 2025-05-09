@@ -30,7 +30,7 @@ export function FoodCard({ item }: FoodCardProps) {
   };
 
   return (
-    <Card className='group relative overflow-hidden rounded-xl border-0 bg-white shadow-md transition-all duration-300 hover:shadow-lg dark:bg-gray-800/95'>
+    <Card className='group relative overflow-hidden rounded-xl border-0 p-0 gap-0 bg-white shadow-md transition-all duration-300 hover:shadow-lg dark:bg-gray-800/95'>
       <Link to={`/`}>
         <div className='relative h-[220px] w-full overflow-hidden'>
           <img

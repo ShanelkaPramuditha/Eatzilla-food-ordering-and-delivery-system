@@ -46,7 +46,7 @@ export const headerConfig: HeaderConfig = {
       // },
       {
         label: 'Menu',
-        path: '/menu',
+        path: '/menu-items',
       },
       {
         label: 'My Orders',
@@ -93,7 +93,7 @@ export const headerConfig: HeaderConfig = {
       },
       {
         label: 'Menu',
-        path: '/menu',
+        path: '/menu-items',
       },
     ],
     icons: {

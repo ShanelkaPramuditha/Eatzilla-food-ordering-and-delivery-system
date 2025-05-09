@@ -173,7 +173,7 @@ function RouteComponent() {
     <div className='min-h-screen w-full bg-slate-50 px-10 py-8 dark:bg-slate-900'>
       <div className='mb-8 flex items-center justify-between'>
         <div>
-          <h1 className='text-3xl font-bold text-blue-800 dark:text-blue-300'>Checkout</h1>
+          <h1 className='text-3xl font-bold'>Checkout</h1>
           <p className='mt-1 text-slate-600 dark:text-slate-400'>
             Complete your order details below
           </p>

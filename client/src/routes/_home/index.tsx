@@ -7,7 +7,7 @@ import { DeliveryPersonHome } from './-dashboards/delivery-person';
 import { RestaurantOwnerHome } from './-dashboards/restaurant-owner';
 
 // Guests and Customers
-import { HomePage } from './-food';
+import { HomePage } from './-main';
 
 export const Route = createFileRoute('/_home/')({
   component: RouteComponent,
